@@ -1,0 +1,430 @@
+% Switches for conditional compilation
+\newif\ifdraft\draftfalse           % Set to either \draftfalse or \drafttrue
+\newif\iftwoside\twosidetrue       % makes it pretty (true) or conforms with
+                                   % GSAS (false - see below)
+\newif\ifbandw\bandwfalse           % Color or black-and-white (screen or print)
+\newif\ifcclicense\cclicensetrue  % Use Creative Commons license (you
+                                  % might want to modify exact license
+                                  % terms you use.  See below.
+
+\iftwoside
+    % Makes the thesis human-readable
+    \documentclass[10pt,twoside,openright,letterpaper,onecolumn]{report}
+    \usepackage[top = 1.00in, bottom = 1.00in, left = 1.50in, right = 1.50in,
+    % Kill asymmetric odd/even side margins since we're never going to
+    % bind this into a book.
+    % marginparwidth = 0.75in, marginparsep = 0.00in,
+                marginparwidth = 0.00in, marginparsep = 0.00in,
+                headheight     =   15pt, footskip     = 0.50in,
+                includeall, heightrounded]{geometry}
+    \usepackage[singlespacing]{setspace}
+    \usepackage[osf,sc]{mathpazo}  % load nicer fonts
+    \setlength{\parindent}   {0pt} % can affect TOC, move it after if necessary
+    \setlength{\parskip}     {1.75ex plus 0.25ex minus 0.25ex}
+    \newcommand{\myclearpage}{\cleartooddpage[\centerline{(This page intentionally left blank)} \vfill \null]}
+    % \newcommand{\myclearpage}{\cleartooddpage}
+\else
+    % GSAS: 11pt or 12pt, double-spaced, one-sided text but it's ugly!
+    \documentclass[11pt,oneside,openright,letterpaper,onecolumn]{report}
+    \usepackage[top = 1.00in, bottom = 1.00in, left = 1.50in, right = 1.50in,
+                marginparwidth = 0.00in, marginparsep = 0.00in,
+                headheight     =   15pt, footskip     = 0.50in,
+                includeall]{geometry}
+    \usepackage[doublespacing]{setspace}
+    \newcommand{\myclearpage}{\clearpage}
+\fi
+
+
+%%% ALPTEX
+% FONTS
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+% Font choice 1:
+% \usepackage[subscriptcorrection,
+%            amssymbols,
+%            mtpbb,
+%            mtpcal,
+%            nofontinfo  % suppresses all warnings
+%           ]{mtpro2}
+
+% Font choice 2:
+% \usepackage[scaled=0.92]{PTSans}
+% \usepackage{amssymb}
+% \newcommand{\mathbold}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+% \newcommand{\mbf}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+% \newcommand{\hmbtheta}{\mathbold{\widehat{\theta}}}
+% \newcommand{\hb}{\mathbold{\widehat{b}}}
+% \newcommand{\hB}{\mathbold{\widehat{B}}}
+% \newcommand{\hbP}{\mathbold{\widehat{P}}}
+
+\usepackage{scalefnt,letltxmacro}
+\LetLtxMacro{\oldtextsc}{\textsc}
+\renewcommand{\textsc}[1]{\oldtextsc{\scalefont{1.10}#1}}
+
+% \renewcommand*\ttdefault{lmvtt}
+\usepackage[ttdefault=true]{AnonymousPro}
+
+% SPACING and TEXT
+% \usepackage[final,expansion=alltext]{microtype}
+\usepackage[english]{babel}
+\usepackage[parfill]{parskip}
+\usepackage{afterpage}
+\usepackage{framed}
+\usepackage{xspace}
+
+% LEFTBAR
+\renewenvironment{leftbar}[1][\hsize]
+{%
+  \def\FrameCommand
+  {%
+    {\color{Gray}\vrule width 3pt}%
+    \hspace{10pt}%
+    %\hspace{0pt}\fboxsep=\FrameSep\colorbox{black!10}%
+  }%
+  \MakeFramed{\hsize#1\advance\hsize-\width\FrameRestore}%
+}%
+{\endMakeFramed}
+
+% EDITING
+% ragged paragraphs in right margin
+\usepackage{ragged2e}
+\DeclareRobustCommand{\sidenote}[1]{\marginpar{
+                                    \RaggedRight
+                                    \textcolor{Plum}{\textsf{#1}}}}
+% paragraph counter in right margin
+\newcommand{\parnum}{\bfseries\P\arabic{parcount}}
+\newcounter{parcount}
+\newcommand\p{%
+    \stepcounter{parcount}%
+    \leavevmode\marginpar[\hfill\parnum]{\parnum}%
+}
+% pargraph header
+\DeclareRobustCommand{\parhead}[1]{\textbf{#1}~}
+% paragraph helper
+\DeclareRobustCommand{\PP}{\textcolor{Plum}{\P} }
+
+% COLOR
+\usepackage[usenames,dvipsnames]{xcolor}
+\definecolor{shadecolor}{gray}{0.9}
+\newcommand{\red}[1]{\textcolor{BrickRed}{#1}}
+\newcommand{\orange}[1]{\textcolor{BurntOrange}{#1}}
+\newcommand{\green}[1]{\textcolor{OliveGreen}{#1}}
+\newcommand{\blue}[1]{\textcolor{MidnightBlue}{#1}}
+\newcommand{\sky}[1]{\textcolor{SkyBlue}{#1}}
+\newcommand{\gray}[1]{\textcolor{black!60}{#1}}
+
+% COUNTERS
+\renewcommand{\labelenumi}{\color{black!67}{\arabic{enumi}.}}
+\renewcommand{\labelenumii}{{\color{black!67}(\alph{enumii})}}
+\renewcommand{\labelitemi}{{\color{black!67}\textbullet}}
+
+% FIGURES
+\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+\usepackage[format=hang]{subcaption}
+
+% TABLES
+\usepackage{booktabs, array, multirow}
+
+% ALGORITHMS
+\usepackage[algoruled]{algorithm2e}
+\setlength{\interspacetitleruled}{8pt}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\fvset{fontsize=\small}
+
+% BIBLIOGRAPHY
+%\usepackage{natbib}
+
+% HYPERREF
+\usepackage[colorlinks,linktoc=all]{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{citecolor=MidnightBlue}
+\hypersetup{linkcolor=MidnightBlue}
+\hypersetup{urlcolor=MidnightBlue}
+
+% CLEVEREF must come after HYPERREF
+\usepackage[nameinlink]{cleveref}
+
+% ACRONYMS
+\usepackage
+[acronym,smallcaps,nowarn,section,nogroupskip,nonumberlist]{glossaries}
+\glsdisablehyper{}
+% \usepackage{glossary-mcols}
+%\setglossarystyle{long3col}
+%\setlength\glsdescwidth{0.8\linewidth}
+%\setlength\glspagelistwidth{0pt}
+%\makeglossaries
+
+% LISTINGS DEFINTIONS
+\lstset{language=C++,
+  keywordstyle=\color{MidnightBlue}\bfseries,
+  keywordstyle=[2]\color{BrickRed}\bfseries,
+  keywordstyle=[3]\color{Violet},
+  morekeywords={vector, real, in},
+  keywords=[2]{data, parameters, model, transformed},
+  keywords=[3]{lower, upper, normal, bernoulli_logit}
+}
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{OliveGreen},
+    numberstyle=\tiny\color{black!60},
+    stringstyle=\color{BrickRed},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=none,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\DeclareRobustCommand{\note}[1]{\textsf{\blue {#1}}}
+
+\crefname{equation}{eq.}{eqs.}
+\Crefname{equation}{Eq.}{Eqs.}
+\creflabelformat{equation}{#1#2#3}
+
+%%%% ALPTEX
+
+\usepackage{nextpage}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+
+%%% Default values.
+\newcommand{\thesisyear}      {2016}
+\newcommand{\thesisauthor}    {Dawen Liang}
+\newcommand{\thesisadvisor}   {Advisor: Daniel P.W. Ellis}
+\newcommand{\thesistitle} {Understanding Music Semantics and User Behavior \\with Probabilistic Latent Variable Models}
+
+
+%%% A few hand-coded things
+% Size for figures \figwidth times \textwidth (2/3 of text)
+\newcommand{\figwidth}    {0.666}
+\clubpenalty             = 9999
+\widowpenalty            = 9999
+\pdfcompresslevel        = 9
+\pdfadjustspacing        = 1
+\renewcommand{\topfraction}         {0.85}
+\renewcommand{\bottomfraction}      {0.70}
+\renewcommand{\textfraction}        {0.15}
+\renewcommand{\floatpagefraction}   {0.66}
+\renewcommand{\dbltopfraction}      {0.66}
+\renewcommand{\dblfloatpagefraction}{0.66}
+
+%%% Package setup
+\hypersetup{
+    pdftitle       = {\thesistitle},
+    pdfauthor      = {\thesisauthor},
+    pdfsubject     = {PhD Thesis, Dept. of Electrical Engineering, Columbia University},
+    pdfkeywords    = {latent factor models, music tagging, collaborative filtering, recommender systems, causal inference},
+    pdfpagemode    = {UseNone},
+    pdfstartview   = {Fit},
+    pdfstartpage   = {1},
+    setpagesize,
+    letterpaper,
+    bookmarksnumbered,
+    linktocpage,
+    colorlinks
+}
+\ifbandw
+    % Switch to all {Black} for GSAS
+    \hypersetup{
+        linkcolor      = {Black},
+        citecolor      = {Black},
+        urlcolor       = {Black}}
+    \definecolor{string} {rgb}{0.0,0.0,0.0}
+    \definecolor{comment}{rgb}{0.0,0.0,0.0}
+    \definecolor{keyword}{rgb}{0.0,0.0,0.0}
+\else
+    % Add color for online reading
+    \hypersetup{
+        linkcolor      = {RoyalBlue},
+        citecolor      = {Maroon},
+        urlcolor       = {ForestGreen}}
+    % Default MATLAB colors
+    \definecolor{string}{rgb}{0.7,0.0,0.0}
+    \definecolor{comment}{rgb}{0.13,0.54,0.13}
+    \definecolor{keyword}{rgb}{0.0,0.0,1.0}
+\fi
+
+% GSAS: captions are single-spaced
+\captionsetup{
+    width     = {0.833\textwidth},
+%    font      = {singlespacing,small},
+    labelfont = {bf}
+}
+
+%%% Set counter depth
+\setcounter{secnumdepth} {3}
+\setcounter{tocdepth}    {3}
+
+%%% Setup custom pagestyles
+% Dummy call to fancy style to overwrite defaults
+\pagestyle{fancy}
+% Make nicer chapter marks (section mark is not used in single page)
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}} % with chapter #
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+% Overwrite empty just to be sure
+\fancypagestyle{empty}{%
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0.0pt}
+    \renewcommand{\footrulewidth}{0.0pt}
+}
+% Overwrite plain as it called automatically by \chapter{}
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[RO]{\bfseries \thepage}
+    \renewcommand{\headrulewidth}{0.0pt}
+    \iftwoside
+        \fancyhead[LE]{\bfseries \thepage}
+    \fi
+}
+% Define new style bottom for the "roman" section of the thesis
+\fancypagestyle{bottom}{%
+    \fancyfoot[C]{\bfseries \thepage}
+}
+% Define new style top for the "arabic" section of the thesis
+\fancypagestyle{top}{%
+    \fancyhf{}
+    \fancyhead[RO]{\bfseries{\thepage}}
+    \fancyhead[LO]{\bfseries{\nouppercase{\leftmark}}}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \fancyheadoffset[RO]{\marginparwidth}
+    \iftwoside
+        \fancyhead[LE]{\bfseries{\thepage}}
+        \fancyhead[RE]{\bfseries{\nouppercase{\rightmark}}}
+        \fancyheadoffset[LE]{\marginparwidth}
+    \fi
+}
+% Setup \thispagestyle{} for TOC
+\tocloftpagestyle{bottom}
+
+%%% Table of contents etc.
+\newcommand{\thesistableofcontents}{\tableofcontents \myclearpage}
+\newcommand{\thesislistoffigures}  {\listoffigures   \myclearpage}
+\newcommand{\thesislistoftables}   {\listoftables    \myclearpage}
+
+%%% Title page
+\newcommand{\thesistitlepage}{
+    \null \vfill
+    \begin{center}
+        \textbf{\Large \thesistitle}                  \\[0.4in]
+        {\Large \thesisauthor}                        \\[4.0in]
+        {\singlespacing
+        Submitted in partial fulfillment of the       \\
+        requirements for the degree                   \\
+        of Doctor of Philosophy                       \\
+        in the Graduate School of Arts and Sciences   \\[0.4in]
+        }
+        COLUMBIA UNIVERSITY                           \\
+        \thesisyear
+    \end{center}
+    \myclearpage
+}
+
+%%% Title with advisor page
+\newcommand{\thesistitleadvisorpage}{
+    \null \vfill
+    \begin{center}
+        \textbf{\LARGE \thesistitle}                  \\[0.4in]
+        {\Large \thesisauthor}                        \\
+        {\Large \thesisadvisor}                       \\[3.7in]
+        {\singlespacing
+        Submitted in partial fulfillment of the       \\
+        requirements for the degree                   \\
+        of Doctor of Philosophy                       \\
+        in the Graduate School of Arts and Sciences   \\[0.4in]
+        }
+        COLUMBIA UNIVERSITY                           \\
+        \thesisyear
+    \end{center}
+    \myclearpage
+}
+
+%%% Copyright page
+\newcommand{\thesiscopyrightpage}{
+    \null \vfill
+    \begin{center}
+        {\singlespacing
+        \copyright\ \thesisyear \\
+        \thesisauthor          \\
+        \ifcclicense
+        Some Rights Reserved
+
+        % You might want to use a different Creative Commons license
+        % here.  See http://www.creativecommons.org/license/ for other
+        % options.
+        \vspace{0.5cm}
+        \includegraphics{by-nc-nd}
+
+        This work is licensed under the Creative Commons
+        Attribution-Noncommercial-No Derivative Works 3.0 United
+        States License. To view a copy of this license, visit
+        http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a
+        letter to Creative Commons, 171 Second Street, Suite 300, San
+        Francisco, California, 94105, USA.
+        \else
+        All Rights Reserved
+        \fi
+        }
+    \end{center}
+    \myclearpage
+}
+
+%%% Abstract page
+\newcommand{\thesisabstractpage}{
+    \begin{center}
+        \textbf{\LARGE Abstract}     \\[0.2in]
+        \textbf{\large \thesistitle} \\[0.2in]
+        {\large \thesisauthor}       \\[0.2in]
+    \end{center}
+    \input{0_abstract.tex}
+    \myclearpage
+}
+
+%%% Abbreviation page
+\newcommand{\thesislistofabbrevs}{
+    \chapter*{List of Abbreviations}
+    \thispagestyle{bottom} % force this page otherwise it uses plain
+    \input{0_abbrevs.tex}
+    \myclearpage
+}
+
+%%% Acknowledgments page
+\newcommand{\thesisacknowledgmentspage}{
+    \chapter*{Acknowledgments}
+    \thispagestyle{bottom} % force this page otherwise it uses plain
+    \input{0_acknowledgements.tex}
+    \myclearpage
+}
+
+%%% Dedication page
+\newcommand{\thesisdedicationpage}{
+    \null \vfill
+    \centerline{\Large
+%      \thesisdedication
+    }
+    \vfill \null
+    \myclearpage
+}
+
+%%% Draft designation
+\newcommand{\thesisdraftpage}{
+    \ifdraft
+        \null \vfill
+        \begin{center}
+            \textbf{\Large Draft version: \today}
+        \end{center}
+        \vfill \null
+        \myclearpage
+    \fi
+}
+

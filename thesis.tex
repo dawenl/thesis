@@ -1,0 +1,44 @@
+\input{preamble/preamble}
+\input{preamble/preamble_math}
+
+\usepackage[round]{natbib}
+
+\begin{document}
+
+% The first pages don't have numbering
+\pagenumbering{}  % Also fixes logical numbering in Acrobat
+\pagestyle{empty}
+
+\thesistitlepage
+\thesiscopyrightpage
+\thesisabstractpage
+
+% GSAS: "roman" numbers at the bottom center for ToC,LoF,LoT
+\pagenumbering{roman}
+\pagestyle{bottom}
+
+\thesistableofcontents
+\thesislistoffigures
+\thesislistoftables
+\thesislistofabbrevs
+\thesisacknowledgmentspage
+%\thesisdedicationpage
+\thesisdraftpage
+
+% GSAS: "arabic" numbers on the top right for main body
+\pagenumbering{arabic}
+\pagestyle{top}
+
+
+\input{1_intro.tex}
+\input{2_background.tex}
+\input{3_tagging.tex}
+\input{4_content.tex}
+\input{5_expomf.tex}
+\input{6_causal_rec.tex}
+\input{7_conclusion.tex}
+
+\bibliographystyle{thesisplainnat}
+\bibliography{thesis}
+
+\end{document}
