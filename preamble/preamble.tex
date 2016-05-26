@@ -1,5 +1,5 @@
 % Switches for conditional compilation
-\newif\ifdraft\draftfalse           % Set to either \draftfalse or \drafttrue
+\newif\ifdraft\drafttrue           % Set to either \draftfalse or \drafttrue
 \newif\iftwoside\twosidetrue       % makes it pretty (true) or conforms with
                                    % GSAS (false - see below)
 \newif\ifbandw\bandwfalse           % Color or black-and-white (screen or print)
@@ -426,5 +426,32 @@
         \vfill \null
         \myclearpage
     \fi
+}
+
+%%% Bibliography
+\newcommand{\thesisbibliography}{
+    {\singlespacing           % GSAS: single spacing for bibliography
+    \myclearpage              % Flush pages to fix the page counter on ToC
+    \phantomsection           % Fixes the hyperref link to previous page
+    %\bibliographystyle{plain} % Other choice "abbrv"
+    % The plain style only supports numeric citations.  Since we are
+    % using natbib we can use a numeric style, but also support
+    % inserting author names when necessary (with \citet).
+    %
+    % Note that plainnat uses authoryear mode by default.  The
+    % \usepackage[numbers]{natbib} line above configures it to work
+    % like plain when using \citep, but include author names when
+    % using \citet.
+    % 
+    % Also note that plainnat includes many more fields (e.g. URL,
+    % doi, ISSN) in the bibliography that are ignored by plain.
+    %\bibliographystyle{plainnat}
+    %
+    % The thesisplainnat style is a modification of plainnat that does
+    % not include URL, DOI, ISSN, or ISBN.
+    \bibliographystyle{thesisplainnat}
+    \addcontentsline{toc}{chapter}{\bibname}
+    \bibliography{thesis}
+    }
 }
 
