@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+
+  % Define nodes
+  \node[obs] 			(x) {$x_n$};
+  \node[latent, above=.8cm of x] (z) {$z_n$};
+  \node[latent, left=.6cm of z] (theta) {$\mb\theta$};
+
+  % Connect the nodes
+  \edge {z} {x} ; %
+  \edge {theta} {x};
+  \edge[densely dotted] {theta}{z};
+
+  % Plates
+  \plate {xz} {(x)(z)} {$N$};
+
+\end{tikzpicture}
+

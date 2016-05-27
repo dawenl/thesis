@@ -31,6 +31,7 @@
                 headheight     =   15pt, footskip     = 0.50in,
                 includeall]{geometry}
     \usepackage[doublespacing]{setspace}
+    \usepackage[osf,sc]{mathpazo}  % load nicer fonts
     \newcommand{\myclearpage}{\clearpage}
 \fi
 
@@ -137,7 +138,7 @@
 \fvset{fontsize=\small}
 
 % BIBLIOGRAPHY
-%\usepackage{natbib}
+\usepackage[round]{natbib}
 
 % HYPERREF
 \usepackage[colorlinks,linktoc=all]{hyperref}
@@ -193,6 +194,9 @@
 \creflabelformat{equation}{#1#2#3}
 
 %%%% ALPTEX
+
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
 
 \usepackage{nextpage}
 \usepackage{fancyhdr}

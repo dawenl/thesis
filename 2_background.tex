@@ -3,11 +3,104 @@
 
 \chapter{Background}\label{chpt:background}
 
+In this chapter, we discuss some background knowledge and previous work helpful to understanding the rest of the dissertation. 
+Broadly speaking, we will make use of inference techniques for probabilistic modeling, collaborative filtering method for recommender systems, and causal inference. We give a high-level overview of the three fields and introduce some necessary definitions that will be used in the subsequent chapters. 
+
 \section{Probabilistic modeling and inference techniques}\label{chpt:background:sec:inference}
 
-\subsection{Maximum \emph{a posteriori}}
+We begin by defining the general problem setup for probabilistic latent variable models. We observe data $\mbx = \{x_1, \dots, x_N\}$. We assume the data is generated stochastically by a model $p(\mbx \g \mbz, \theta)$ that is governed by some latent variables $\mbz = \{z_1, \dots, z_N\}$ as well as model parameters $\mb\theta$\footnote{The distinction between latent variables $\mbz$ and model parameters $\mb\theta$ can be somewhat arbitrary. Here we follow the convention that the dimensionality of the latent variables grows with the number of observations (hence both $\mbx$ and $\mbz$ are indexed by $n$), while that of model parameters does not. Latent variables and model parameters loosely correspond to \textit{local variables} and \textit{global variables} in the notation of \citet{hoffman2013stochastic}}. We can also incorporate priors $p(\mbz, \mb\theta)$. We leave the dependency structure of prior generic. 
 
-\subsection{Variational inference}
+\begin{figure}[ht]
+  \centering
+     \input{model_general}
+  \caption{Graphical model representation for the general latent variable models.}
+\label{chpt:background:fig:general}
+\end{figure}
+
+\Cref{chpt:background:fig:general} demonstrates the graphical model representation for the general latent variable models described above. Shaded nodes represent observed variables. Unshaded nodes represent
+hidden (unobserved) variables. A directed edge from node $a$ to node $b$
+denotes that the variable $b$ depends on the value of variable
+$a$. Plates denote replication by the value in the lower corner
+of the plate. We use doted line to indicate that the dependency between model parameters $\mb\theta$ and latent variables $\mbz$ are optional -- it depends on how the prior $p(\mbz, \mb\theta)$ is specified. 
+
+In Bayesian inference, the
+goal is to reason about the posterior distribution over the model parameters and latent variables conditioned on the data, which is given by Bayes' rule:
+\begin{equation}
+p(\mb{\theta}, \mbz \g \mbx) = \frac{p(\mbx \g \mbz, \mb{\theta}) p(\mbz, \mb{\theta})}{ p(\mbx)} = \frac{p(\mbx \g \mbz, \mb{\theta}) p(\mbz, \mb{\theta})}{ \int_\mb{\theta} \int_\mbz p(\mbx \g \mbz, \mb{\theta}) p(\mbz, \mb{\theta}) \dif \mbz \dif \mb\theta}
+\label{chpt:background:eq:bayes}
+\end{equation}
+Through posterior inference, we are able to uncover the latent structure induced by the model. Except in very simple models, posterior $p(\mb{\theta}, \mbz \g \mbx)$ is generally intractable to compute due to the normalizing constant $p(\mbx)$ which requires computing the integral in the denominator of \Cref{chpt:background:eq:bayes}. In practice, people normally resort to \gls{MCMC} methods \citep{neal1993probabilistic,robert2013monte} to obtain samples from the posterior distribution to form a Monte Carlo estimator about the predictive quantities. 
+
+\PP General inference procedure: maximum likelihood estimation or maximum a posteriori. 
+
+\PP MLE: 
+\begin{equation*}
+\mb\theta^\textrm{MLE} = \argmax_\mb\theta \log p(\mbx \g \mb\theta) = \argmax_\mb\theta \log \int_\mbz p(\mbx, \mbz \g \mb\theta) \dif\mbz
+\end{equation*}
+
+\PP MAP:
+\begin{equation*}
+\mb\theta^\textrm{MAP} = \argmax_\mb\theta \log p(\mb\theta, \mbz \g \mbx) = \argmax_\mb\theta \log \int_\mbz p(\mb\theta, \mbz, \mbx) \dif\mbz
+\end{equation*}
+
+\PP Examples: Gaussian mixture models, hidden Markov models, LDA.
+
+\subsection{Parameter estimation via expectation-maximization}\label{chpt:background:sec:em}
+
+\PP \gls{EM} \citep{dempster1977maximum}
+
+One of the problems with directly maximizing the observable data likelihood, as shown above, is that the summation is inside the logarithm. So what if we move on to the complete data likelihood $\mathrm{P}(\mathbf{X, Z})$ and then marginalize the hidden variable $\mathbf{Z}$? Let's do the derivation\footnote{There are actually a lot of different versions of derivations for EM algorithm. The one presented here gives the most intuition to the author.}.
+
+Start from the log-likelihood:
+\[
+\log\mathrm{P}(\mathbf{X}|\boldsymbol{\theta}) = \log\int_{\mathbf{Z}} \mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta}) \dif{\mbZ}
+\]
+Here we make use of the variational point of view by adding a variational distribution $q(\mathbf{Z})$ and the fact that logarithm function is concave:
+\begin{align*}
+\log\mathrm{P}(\mathbf{X}|\boldsymbol{\theta}) =& \log\Big(\sum_{\mathbf{Z}} \frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{q(\mathbf{Z})} q(\mathbf{Z})\Big) \\
+\geq& \sum_{\mathbf{Z}}q(\mathbf{Z}) \log\Big(\frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{q(\mathbf{Z})}\Big)
+\end{align*}
+By making use of the Jensen's inequality, we move out the summation from the logarithm successfully. We could of course find out $q(\mathbf{Z})$ by exploring when the equality holds for Jensen's inequality. However, we will solve it from a different approach here. We first want to learn how much we have lost from the Jensen's inequality:
+\begin{align*}
+\Delta =& \log\mathrm{P}(\mathbf{X}|\boldsymbol{\theta}) - \sum_{\mathbf{Z}}q(\mathbf{Z}) \log\Big(\frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{q(\mathbf{Z})}\Big) \\
+=& \sum_{\mathbf{Z}}q(\mathbf{Z})\log\mathrm{P}(\mathbf{X}|\boldsymbol{\theta}) - \sum_{\mathbf{Z}}q(\mathbf{Z}) \log\Big(\frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{q(\mathbf{Z})}\Big)\\
+=& \sum_{\mathbf{Z}}q(\mathbf{Z})\log\Big(\frac{\mathrm{P}(\mathbf{X}|\boldsymbol{\theta}) q(\mathbf{Z}) }{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})} \Big)\\
+=& \sum_{\mathbf{Z}}q(\mathbf{Z})\log\Big(\frac{q(\mathbf{Z})}{\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta})} \Big)\\
+=& \text{KL}(q\|p)
+\end{align*}
+Thus, the difference is actually the KL-divergence between the variational distribution $q(\mathbf{Z})$ and the posterior distribution $\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta})$. Thus, we could rearrange the log-likelihood as:
+\[
+\log\mathrm{P}(\mathbf{X} | \boldsymbol{\theta}) = \underbrace{\sum_{\mathbf{Z}}q(\mathbf{Z}) \log\Big(\frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{q(\mathbf{Z})}\Big)}_{\mathcal{L}(q, \boldsymbol{\theta})} + \text{KL}(q\|p)
+\]
+Since the KL-divergence is non-negative for any $q$ and $p$, $\mathcal{L}(q, \boldsymbol{\theta})$ acts as a lower-bound for the log-likelihood. Let's denote the log-likelihood as $\ell(\boldsymbol{\theta)}$ for simplicity. 
+
+EM algorithm has 2 steps as its name suggests: Expectation(E) step and Maximization(M) step.
+
+\textbf{In the E step}, from the variational point of view, our goal is to choose a proper distribution $q(\mathbf{Z})$ such that it best approximates the log-likelihood. At this moment, we have existing parameter $\boldsymbol{\theta}^{\text{old}}$.
+Thus we set the variational distribution $q(\mathbf{Z})$ equal the posterior distribution $\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}})$ so that $\text{KL}(q\|p) = 0$. In that case, we make the lower-bound $\mathcal{L}(q, {\boldsymbol{\theta}})$ equal $\ell(\boldsymbol{\theta})$.
+
+\textbf{In the M step}, we have $q(\mathbf{Z})$ fixed and maximize the $\mathcal{L}(q, \boldsymbol{\theta})$, which is equivalent to maximize $\ell(\boldsymbol{\theta})$,  w.r.t. the parameter $\boldsymbol{\theta}$. Unless we reach the convergence, the lower-bound $\mathcal{L}(q, \boldsymbol{\theta})$ will increase with the new parameter $\boldsymbol{\theta}^{\text{new}}$. Since the parameter $\boldsymbol{\theta}$ changes from the E step, KL-divergence no longer equals 0, which creates gap between $\mathcal{L}(q, \boldsymbol{\theta})$ and $\ell(\boldsymbol{\theta})$ again. And this gap will be filled out in the next E step.
+
+To see analytically the objective function in M step, substitute $q(\mathbf{Z})$ with $\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}})$ from E step:
+\begin{align*}
+\mathcal{L}(q, \boldsymbol{\theta}) =& \sum_{\mathbf{Z}}\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}}) \log\Big(\frac{\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}{\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}})}\Big) \\
+=& \underbrace{\sum_{\mathbf{Z}}\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}}) \log\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})}_{\mathcal{Q}(\boldsymbol{\theta}, \boldsymbol{\theta}^{\text{old}})} - \mathcal{H}\{\mathrm{P}(\mathbf{Z|X},\boldsymbol{\theta}^{\text{old}})\}
+\end{align*} 
+where $\mathcal{H}\{\mathrm{P}(\mathbf{Z|X},\boldsymbol{\theta}^{\text{old}})\}$ represents the negative entropy of $\mathrm{P}(\mathbf{Z|X},\boldsymbol{\theta}^{\text{old}})$, which is irrelevant to the parameter $\boldsymbol{\theta}$. Thus we could consider it as a constant. What really matters is $\mathcal{Q}(\boldsymbol{\theta}, \boldsymbol{\theta}^{\text{old}})$ which we could view as the expectation of $\mathrm{P}(\mathbf{X, Z}|\boldsymbol{\theta})$ under the posterior distribution $\mathrm{P}(\mathbf{Z}|\mathbf{X}, \boldsymbol{\theta}^{\text{old}})$. There are a few very nicely-drawn figures, visualizing the whole procedures of EM algorithm in Chapter 9 of \cite{Bishop:2006:PRM:1162264}. 
+
+The sweet spot in M step is that, instead of directly maximizing $\mathrm{P}(\mathbf{X})$ which does not have a close form solution, computing $\mathrm{P}(\mathbf{X, Z})$ is generally much simpler because we can just view it as a model with no hidden variables.
+
+EM algorithm is usually referred as a typical example of \emph{coordinate ascent}, where in each E/M step, we have one variable fixed ($\boldsymbol{\theta}^{\text{old}}$ in E step and $q(\mathbf{Z})$ in M step), and maximize w.r.t. another one. Coordinate ascent is widely used in numerical optimization.
+
+
+\subsection{Variational inference}\label{chpt:background:sec:vi}
+
+\PP Variational inference is a deterministic alternative to \gls{MCMC} methods \citep{jordan1999introduction,wainwright2008graphical,blei2016variational}. The basic idea behind variational inference is to choose a tractable family of variational distributions $q(\mbz)$ to approximate the intractable posterior $p(\mbz, \theta | \mbx)$, so that the Kullback-Leibler
+(KL) divergence between the variational distribution and the true posterior $KL(q \| p)$ is minimized.
+
+\PP Mean-field variational inference chooses from the completely factorized mean-field family: $q(\mbz) = \prod_d q(z_d)$.
+
+\PP Variational inference is closed related to \gls{EM} algorithm. 
 
 \section{Recommender systems}\label{chpt:background:sec:recsys}
 
@@ -43,8 +136,11 @@ logs, and past purchases. We will explore recommender systems for both implicit 
 
 \PP Neighborhood-based \citep{sarwar2001item} and latent factor model \citep{koren2009matrix}.
 
-\parhead{Matrix factorization for collaborative filtering.} User-item preference data, whether explicit or implicit, can be encoded in a user by item matrix. Throughout this dissertation, a user is indexed by $u \in \{1, \dots, U\}$, an item is indexed by $i \in \{1, \dots, I\}$, and we will refer to this user by item matrix as the \emph{click matrix} or the \emph{interaction matrix}. Given the observed entries in this matrix $\{y_{ui}: (u, i) \in \cO\}$, the recommendation task is often framed as filling in the unobserved entries.  Matrix factorization models, which infer (latent) user preferences and item attributes by factorizing the click matrix, are standard in recommender
-systems \citep{koren2009matrix}. From a generative modeling perspective they
+\parhead{Matrix factorization for collaborative filtering.} User-item preference data, whether explicit or implicit, can be encoded in a user by item matrix. Throughout this dissertation, a user is indexed by $u \in \{1, \dots, U\}$, an item is indexed by $i \in \{1, \dots, I\}$, and we will refer to this user by item matrix as the \emph{click matrix} or the \emph{interaction matrix}. Given the observed entries in this matrix $\{y_{ui}: (u, i) \in \cO\}$, the recommendation task is often framed as filling in the unobserved entries.  Matrix factorization models, which infer (latent) user preferences and item attributes by factorizing the click matrix, are standard in recommender systems \citep{koren2009matrix}. 
+
+\PP Add a cartoon about the latent space from matrix factorization
+
+From a generative modeling perspective they
 can be understood as first drawing user and item latent factors corresponding,
 respectively, to user preferences and item attributes. Then drawing 
 observations from a specific distribution (e.g., a Poisson
@@ -103,6 +199,14 @@ methods for parameter estimation.
 %stochastic method for parameter estimation.   
 
 \section{Causal inference}\label{chpt:background:sec:causal}
+
+\PP \citep{morgan2014counterfactuals}
+
+\PP \citep{imbens2015causal}
+
+\PP Potential outcomes \citep{rubin1974ece}
+
+\PP Graphical model \citep{pearl2009causality}
 
 
 
