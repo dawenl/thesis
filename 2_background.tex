@@ -59,12 +59,15 @@ To obtain the maximum likelihood estimates, typically we write down the so-calle
 \label{chpt:background:eq:em}
 \end{equation}
 We could of course find out the optimal $q(\mbz)$ by exploring when the equality holds for Jensen's inequality. However, we will solve it from a different angle here. We first explore the slack by applying Jensen's inequality:
-\begin{align*}
+\begin{equation}
+\begin{split}
 \Delta =& \log p(\mbx \g \mb\theta) - \int_\mbz q(\mbz) \log\frac{p(\mbx, \mbz \g \mb\theta)}{q(\mbz)} \dif\mbz \\
 =& \int_\mbz q(\mbz)\log p(\mbx \g \mb\theta) - \int_\mbz q(\mbz) \log\frac{p(\mbx, \mbz \g \mb\theta)}{q(\mbz)} \dif\mbz\\
 =& \int_\mbz q(\mbz) \log\frac{p(\mbx \g \mb\theta) q(\mbz)} {p(\mbx, \mbz \g \mb\theta)}\dif\mbz\\
 =& \int_\mbz q(\mbz) \log\frac{ q(\mbz)} {p(\mbz \g \mbx, \mb\theta)}\dif\mbz = \textrm{KL}(q\|p)
-\end{align*}
+\end{split}
+\label{chpt:background:eq:em_kl}
+\end{equation}
 Thus, the difference is the \gls{KL} divergence between the variational distribution $q(\mbz)$ and the posterior distribution $p(\mbz \g \mbx, \mb\theta)$. We can re-write the log-likelihood:
 \[
 \log p(\mbx \g \mb\theta) = \underbrace{\EE{q}{\log p(\mbx, \mbz \g \mb\theta)} - \EE{q}{\log q(\mbz)}}_{\cL(q, \mb\theta)} + \textrm{KL}(q\|p).
@@ -77,20 +80,18 @@ Since the \gls{KL}-divergence is non-negative, $\cL(q, \mb\theta)$ acts as a low
 \begin{equation*}
 \mb\theta^\new = \argmax_\mb\theta \EE{q}{\log p(\mbx, \mbz \g \mb\theta)},
 \end{equation*}
-since $\EE{q}{\log q(\mbz)}$ does not depend on $\mb\theta$\footnote{In principle, $\mb\theta^\new$ does not have to fully optimize the objective $\EE{q}{\log p(\mbx, \mbz, \g \mb\theta)}$, as long as the new values increase it (e.g., by taking a few gradient steps). This is referred as generalized \gls{EM} \citep{neal1998view}.}. Unless we have reached a stationary point, the lower bound $\cL(q, \mb\theta)$ will increase with the new parameters $\mb\theta^\new$. The new parameters $\mb\theta^\new$ will also make the \gls{KL}-divergence $\textrm{KL}(q \| p)$ greater than $0$, which creates gap between the log-likelihood and $\cL(q, \mb{\theta})$. This gap will be closed in the next E-step. Chapter 9 of \citet{Bishop:2006:PRM:1162264} provides a clear illustrative demonstration of the \gls{EM} algorithm.  
+since $\EE{q}{\log q(\mbz)}$ does not depend on $\mb\theta$.\footnote{In principle, $\mb\theta^\new$ does not have to fully optimize the objective $\EE{q}{\log p(\mbx, \mbz, \g \mb\theta)}$, as long as the new values increase it (e.g., by taking a few gradient steps). This is referred as generalized \gls{EM} \citep{neal1998view}.} Unless we have reached a stationary point, the lower bound $\cL(q, \mb\theta)$ will increase with the new parameters $\mb\theta^\new$. The new parameters $\mb\theta^\new$ will also make the \gls{KL}-divergence $\textrm{KL}(q \| p)$ greater than $0$, which creates gap between the log-likelihood and $\cL(q, \mb{\theta})$. This gap will be closed in the next E-step. Chapter 9 of \citet{Bishop:2006:PRM:1162264} provides a clear illustrative demonstration of the \gls{EM} algorithm.  
 
 \gls{EM} algorithm is a typical example of \textit{coordinate ascent} \citep{bertsekas1999nonlinear}, where in each E- and M-step, we fix one of the variables of interest---$\mb\theta$ in E-step and $q(\mbz)$ in M-step---and optimize with respect to the other one.
 
 
 \subsection{Variational inference}\label{chpt:background:sec:vi}
 
-\PP Variational inference is a deterministic alternative to \gls{MCMC} methods \citep{jordan1999introduction,wainwright2008graphical,blei2016variational}. The basic idea behind variational inference is to choose a tractable family of variational distributions $q(\mbz, \mb\theta)$ to approximate the intractable posterior $p(\mbz, \theta | \mbx)$, so that the \gls{KL}-divergence between the variational distribution and the true posterior $\textrm{KL}(q \| p)$ is minimized.
+Variational inference is a deterministic alternative to \gls{MCMC} methods \citep{jordan1999introduction,wainwright2008graphical,blei2016variational}. In Bayesian inference, we aim to reason about the posterior $p(\mbz, \mb\theta \g \mbx)$ which is almost always intractable to compute. The basic idea behind variational inference is to choose a tractable family of variational distributions $q(\mbz, \mb\theta)$ to approximate the intractable posterior $p(\mbz, \theta | \mbx)$, so that the \gls{KL}-divergence between the variational distribution and the true posterior $\textrm{KL}(q \| p)$ is minimized.
 
 Variational inference turns the problem of Bayesian inference into a one of  optimization, which enables us to leverage the advances from optimization community, e.g., by making use of stochastic optimization, we can scale variational inference to massive dataset \citep{hoffman2013stochastic}.
 
-\PP Variational inference is closed related to \gls{EM} algorithm. 
-
-\PP Similar to \Cref{chpt:background:eq:em}, lower-bounding the marginal likelihood (model evidence):
+To utilize variational inference for approximate Bayesian inference, we lower bound the marginal likelihood, similar to \Cref{chpt:background:eq:em}:
 \begin{equation}
 \begin{split}
 \log p(\mbx) &= \log\int_{\mbz, \mb\theta} p(\mbx, \mbz, \mb\theta) \dif{\mbz} \dif\mb\theta \\
@@ -98,15 +99,20 @@ Variational inference turns the problem of Bayesian inference into a one of  opt
 \end{split}
 \label{chpt:background:eq:vi}
 \end{equation}
-Here the model parameters $\mb\theta$ are treated the same as latent variables $\mbz$\footnote{Variational inference can also be applied to the case in \Cref{chpt:background:sec:em} when the posterior $p(\mbz \g \mbx, \mb\theta)$ is intractable to compute exactly, which leads to the variational \gls{EM} algorithm \citep{beal2003variational}.}. $\cL$ is usually referred as \gls{ELBO}. Optimizing \gls{ELBO} is equivalent to minimizing the \gls{KL} divergence between the variational distribution $q(\mbz, \mb\theta)$ and the posterior of interest $p(\mbz, \mb\theta \g \mbx)$.
+Here the model parameters $\mb\theta$ are treated the same as latent variables $\mbz$ with some pre-specified prior $p(\mbz, \mb\theta)$.\footnote{Variational inference can also be applied to the MLE/MAP case in \Cref{chpt:background:sec:em} where we only marginalize out latent variables $\mbz$ to obtain point estimates of model parameters $\mb\theta$. This happens in the E-step, when the posterior $p(\mbz \g \mbx, \mb\theta)$ is intractable to compute exactly, which leads to the variational \gls{EM} algorithm \citep{beal2003variational}.} $\cL$ is usually referred as \gls{ELBO}, since it is a lower bound of the model evidence $\log p(\mbx)$. Based on derivation similar to \Cref{chpt:background:eq:em_kl} (omitted for brevity), we can show that optimizing \gls{ELBO} is equivalent to minimizing the \gls{KL} divergence between the variational distribution $q(\mbz, \mb\theta)$ and the posterior of interest $p(\mbz, \mb\theta \g \mbx)$.
 
-So far we haven't specify how to select the variational distribution $q(\mbz, \mb\theta)$. One popular choice is the mean-field family which is completely factorized: $q(\mbz, \mb\theta) = \prod_{d} q(z_{d}) \prod_i q(\theta_i)$.
-\begin{equation*}
-q(z_d) \propto \exp\{\EE{q_{-d}}{\log p(z_d \g \mbx, z_{-d}, \mb\theta)}\}
-\end{equation*}
-\begin{equation*}
-q(\theta_i) \propto \exp\{\EE{q_{-i}}{\log p(\theta_i \g \mbx, \mbz, \theta_{-i})}\}
-\end{equation*}
+So far we haven't specified how to select the variational distribution $q(\mbz, \mb\theta)$. One popular choice is the mean-field family which is completely factorized: $q(\mbz, \mb\theta) = \prod_{d} q_d(z_{d}) \prod_i q_i(\theta_i)$. With mean-field family, we can obtain the general form for the optimal variational distributions:
+\begin{equation}
+\begin{split}
+q^*_d(z_d) &\propto \exp\{\EE{q_{-d}}{\log p(z_d, \mbx, z_{-d}, \mb\theta)}\}
+\\
+q^*_i(\theta_i) &\propto \exp\{\EE{q_{-i}}{\log p(\theta_i, \mbx, \mbz, \theta_{-i})}\},
+\end{split}
+\label{chpt:background:eq:opt_q}
+\end{equation}
+where $z_{-d}$ is used to index all of $\mbz$ except the $d$th dimension, and $\EE{q_{-d}}{\cdot}$ denotes taking expectation with respect to everything except $q_d(z_d)$. ($\theta_{-i}$ and $\EE{q_{-i}}{\cdot}$ are similarly defined.)
+
+For conditional conjugate model where the complete conditionals $p(z_d \g \mbx, z_{-d}, \mb\theta)$ and $p(\theta_i \g \mbx, \mbz, \theta_{-i})$ are in exponential family, the distributional form of \Cref{chpt:background:eq:opt_q} can be computed exactly. This leads to the standard coordinate ascent variational inference algorithm: we iteratively set $q_d(z_d)$ and $q_i(\theta_i)$ to its optimal form while keeping everything else fixed across the dimensions and repeat this procedure until convergence. 
 
 \section{Recommender systems}\label{chpt:background:sec:recsys}
 
