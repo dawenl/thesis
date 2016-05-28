@@ -8,9 +8,6 @@
 %\usepackage[usenames,dvipsnames]{xcolor}
 %\definecolor{shadecolor}{gray}{0.9}
 
-% paragraph
-\newcommand{\mypar}[1]{\vspace{0.1in}\noindent \textbf{#1 \,}}
-
 %shorthand math
 
 
@@ -239,17 +236,22 @@ We discuss several of these next.
 %  \caption{My flowers.}
 %\end{figure*}
 
-\begin{figure}[!tbp]
+\begin{figure}
   \centering
-  \subcaption[Exposure MF.]{\includegraphics[width=0.25\textwidth]{./fig/plate_diagram.pdf}\label{fig:plate_diagram}}
-  %\hfill
-  \subcaption[Exposure MF with \newline exposure covariates.]{\includegraphics[width=0.25\textwidth]{./fig/plate_diagram_side_info.pdf}\label{fig:plate_diagram_side_info}}
-  \caption{Graphical representation of the exposure MF model (both with and without exposure covariates). 
-  Shaded nodes represent observed variables.
-Unshaded nodes represent hidden variables. A directed
-edge from node $a$ to node $b$ denotes that the variable $b$ depends
-on the value of variable $a$. Plates denote replication 
-by the value in the lower corner of the plate. The lightly shaded node $a_{ui}$ indicates that it is partially observed (i.e., it is observed when $y_{ui} = 1$ and unobserved otherwise).}
+  \begin{subfigure}[t]{4in}
+  \centering
+  \includegraphics{fig/plate_diagram.pdf}
+  \label{fig:plate_diagram}
+  \caption{Exposure MF.}
+  \end{subfigure}
+  \\
+  \begin{subfigure}[t]{4in}
+  \centering
+  \includegraphics{fig/plate_diagram_side_info.pdf}
+  \label{fig:plate_diagram_side_info}
+  \caption{Exposure MF with exposure covariates.}
+  \end{subfigure}
+  \caption{Graphical representation of the exposure MF model (both with and without exposure covariates). The lightly shaded node $a_{ui}$ indicates that it is partially observed (i.e., it is observed when $y_{ui} = 1$ and unobserved otherwise).}
 \end{figure}
 
 \subsection{Hierarchical Modeling of Exposure}
@@ -295,13 +297,13 @@ We discuss two possible choices of exposure model next.
 %-
 %
 
-\mypar{Per-item $\mu_i$.} A direct way to encode exposure is via item
+\parhead{Per-item $\mu_i$.} A direct way to encode exposure is via item
 popularity: if a song is popular, it is more likely that you have been
 exposed to it. Therefore, we choose an item-dependent conjugate prior on
 $\mu_i \sim \mathrm{Beta}(\alpha_1, \alpha_2)$. This model does not use
 any external information (beyond clicks). 
 
-\mypar{Text topics or locations as exposure covariates.} 
+\parhead{Text topics or locations as exposure covariates.} 
 In the domain of recommending text documents, 
 we consider the exposure covariates as the set of words 
 for each document. 
@@ -346,7 +348,7 @@ then the user must live in or visit Brooklyn often
 for the model to include venues near there in the exposure set of $u$. 
 
 
-%\mypar{Side information from location.}\\
+%\parhead{Side information from location.}\\
 %\PP featurized location: $\mu_{ui} = \sigma(\psi_u \pi_i)$
 
 %\subsection{Connection to Potential Outcomes Framework}
@@ -388,7 +390,7 @@ Furthermore, as we mentioned in \Cref{sec:modeling_mu}, conditional independence
 between the priors for $\mu_{ui}$ and the rest of the model (given $\mu_{ui}$) 
 means that the update for the latent exposure variables and user and item factors are not altered for any exposure model we use. We present these general updates first.
 
-\mypar{E-step.}
+\parhead{E-step.}
 In the E-step, we compute expectation of the exposure latent variable $\E[a_{ui}]$ for all user and item combinations ($u$, $i$) for which there are no observed clicks (recall that the presence of clicks $y_{ui}>0$ means that $a_{ui}=1$ deterministically),
 \begin{equation}
 \E[a_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i, \mu_{ui}, y_{ui} = 0] = \frac{\mu_{ui} \cdot \mathcal{N}(0 | \boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})}{\mu_{ui}\cdot \mathcal{N}(0 |  \boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda_y^{-1}) + (1 - \mu_{ui})}.
@@ -396,7 +398,7 @@ In the E-step, we compute expectation of the exposure latent variable $\E[a_{ui}
 \end{equation}
 where $\mathcal{N}(0 \g \boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})$ stands for the probability density function of $\mathcal{N}(\boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})$ evaluated at $0$. 
 
-\mypar{M-step.} 
+\parhead{M-step.} 
 %Denote $P \in [0, 1]^{U\times I}$ the posterior computed from E-step for each user-item pair (if $y_{ui} > 0$, $p_{ui} = 1$). For notational convenience, we define the concatenated user latent factors matrix $\Theta \overset{\triangle}{=} [\theta_1 | \cdots | \theta_U ]^T  \in \mathbb{R}^{U \times K}$ and item latent factors matrix $B \overset{\triangle}{=} [\beta_1 | \cdots | \beta_I ]^T  \in \mathbb{R}^{I \times K}$. Thus the update for factors is
 For notational convenience, we define $p_{ui} = \E[a_{ui} \g \theta_u, \beta_i, \mu_{ui}, y_{ui} = 0]$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
 \begin{align}
@@ -434,12 +436,12 @@ We now present inference for the hierarchical variants of Exposure~MF.
 In particular we highlight the updates to 
 $\mu_{ui}$ under the various models we presented in \Cref{sec:modeling_mu}.
 
-\mypar{Update for per-item $\mu_{i}$.} Maximizing the log likelihood with respect to $\mu_i$ is equivalent to finding the mode of the complete conditional $\text{Beta}(\alpha_1 + \sum_u p_{ui}, \alpha_2 + U - \sum_u p_{ui})$, which is:
+\parhead{Update for per-item $\mu_{i}$.} Maximizing the log likelihood with respect to $\mu_i$ is equivalent to finding the mode of the complete conditional $\text{Beta}(\alpha_1 + \sum_u p_{ui}, \alpha_2 + U - \sum_u p_{ui})$, which is:
 \begin{equation}\label{eq:mu_i}
 \mu_i \leftarrow \frac{\alpha_1 + \sum_u p_{ui}- 1}{\alpha_1 + \alpha_2 + U - 2}
 \end{equation}
 
-\mypar{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i)$, where $\mathbf{x}_i$ is given by pre-processing (topic analysis or clustering), presents us with the challenge of maximizing the log likelihood with respect to exposure model parameters $\boldsymbol\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log likelihood with respect to $\boldsymbol\psi_u$,
+\parhead{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i)$, where $\mathbf{x}_i$ is given by pre-processing (topic analysis or clustering), presents us with the challenge of maximizing the log likelihood with respect to exposure model parameters $\boldsymbol\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log likelihood with respect to $\boldsymbol\psi_u$,
 \begin{equation}
 	\boldsymbol\psi_u^{\text{new}} \leftarrow \boldsymbol\psi_u + \eta \nabla_{\boldsymbol\psi_u} \mathcal{L}, %^\mathrm{(previous)}
 	\label{eq:update_psi}
@@ -507,7 +509,7 @@ similar research directions.
 %with respect to $\theta$ and $\beta$, where $c_{ui}$ has 
 %. 
 
-\mypar{Causal inference.} Our work borrows ideas from the field of
+\parhead{Causal inference.} Our work borrows ideas from the field of
 causal inference~\cite{pearl2009causality,imbens2015causal}. Causal inference aims at understanding and
 explaining the effect of one variable on another. 
 
@@ -533,7 +535,7 @@ inference which aims at quantifying the effect of a particular treatment
 %As far as we know this is the first time this connection has be
 %formally established by the recommendation literature. 
 
-\mypar{Biased CF models.} Authors have recognized that typical
+\parhead{Biased CF models.} Authors have recognized that typical
 observational data describing user rating items is biased toward items of
 interest. Although this observation is somewhat orthogonal to our
 investigation, models that emerged from this line of work share
@@ -548,7 +550,7 @@ items they like \emph{a priori}). This approach is also specific to
 explicit feedback data. In contrast, we model how (the value of) the
 exposure matrix affects user rating or consumption. 
 
-\mypar{Modeling exposure with random graphs.} The user-item
+\parhead{Modeling exposure with random graphs.} The user-item
 interaction can also be encoded as a bipartite graph.
 \citet{paquet2013one} model exposure using a hidden \emph{consider graph}.
 This graph plays a similar role as our exposure variable. One important
@@ -561,7 +563,7 @@ stochastically sampled.
 %interaction graph as a variational approximation. 
 
 
-\mypar{Exposure in other contexts.} In zero-inflated Poisson regression, a
+\parhead{Exposure in other contexts.} In zero-inflated Poisson regression, a
 latent binary random variable, similar to our exposure variable is introduced to ``explain away'' the structural zeros, such that the
 underlying Poisson model can better capture the count data
 \cite{lambert1992zero}. This type of model is common in Economics where it is used
@@ -569,7 +571,7 @@ to account for overly frequent zero-valued observations.
 
 ExpoMF can also be considered as an instance of a spike-and-slab model~\cite{ishwaran2005spike} where the ``spike'' comes from the exposure variables and the matrix factorization component forms the flat ``slab'' part. 
 
-\mypar{Versatile CF models.} As we show in \Cref{sec:modeling_mu},
+\parhead{Versatile CF models.} As we show in \Cref{sec:modeling_mu},
 ExpoMF's exposure matrix can be used to model external information describing user
 and item interactions. This is in contrast to most CF models which are
 crafted to model a single type of data (e.g., document content when
@@ -769,7 +771,7 @@ in their dedicated subsections.
 \end{figure*}
 
 
-\mypar{Empirical evaluation.} Results comparing ExpoMF to WMF on our four
+\parhead{Empirical evaluation.} Results comparing ExpoMF to WMF on our four
 datasets are given in
 \Cref{tab:cfresults}. Each metric is averaged across all the users.
 We notice that ExpoMF performs comparably better than WMF on most
@@ -781,7 +783,7 @@ of NDCG@100 and MAP@100 (even when Recall@$50$ is lower) indicate that the
 top-ranked items by ExpoMF tend to be more relevant to users' interests.  
 
 
-\mypar{Exploratory analysis.} We now explore 
+\parhead{Exploratory analysis.} We now explore 
 posterior distributions of the exposure latent variables of two specific users from the TSP dataset. This
 exploration provides insights into how ExpoMF infers user exposure. 
 
@@ -942,7 +944,7 @@ batch-size of 10 users and a constant step size of $0.5$ for 10 epochs.
     \label{fig:si}
 \end{figure*}
 
-\mypar{Study.} We evaluate the empirical performance of Content ExpoMF and report results
+\parhead{Study.} We evaluate the empirical performance of Content ExpoMF and report results
 in \Cref{tab:si_doc_results}. We compare to collaborative topic
 regression (CTR), a state-of-the-art method for recommending scientific
 papers \cite{wang2011collaborative} combining both LDA and WMF.\footnote{Note that to train CTR
@@ -1027,7 +1029,7 @@ simpler ExpoMF and WMF according to all metrics.}
 
 %\PP Point out this is a very straightforward model, we can have user-specific length-scale $\ell_u$ (e.g., certain users tends to go further to explore while others prefer visiting the venues close by). 
 
-\mypar{Study.} We train Location ExpoMF following the same procedure as
+\parhead{Study.} We train Location ExpoMF following the same procedure as
 Content ExpoMF. We report the empirical comparison between WMF, ExpoMF and
 Location ExpoMF in \Cref{tab:si_location_results}. We note that Location
 ExpoMF outperforms both WMF and the simpler version of ExpoMF. 

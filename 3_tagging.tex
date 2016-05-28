@@ -203,7 +203,7 @@ inference (PMF-Stoc-full). For the annotation task, we labelled each song with t
 The results are reported in Table \ref{tab:msd}. In general, the performance of Poisson matrix factorization is comparably better for smaller codebook size $J$. Specifically, for stochastic inference, even if the amount of training data is relatively small,  it is not only significantly faster than batch inference, but can also help improve the performance by quite a large margin. Finally, not surprisingly, PMF-Stoc-full dominates all the metrics, regardless of the size of the codebook, because it is able to learn from more data. 
 
 
-\begin{table}[t]
+\begin{sidewaystable}
 \centering 
 %\small
 \begin{tabular}{  c  |  c |  c  c  c | c  c }
@@ -241,7 +241,8 @@ Codebook size & Model & Precision & Recall & F-score & AROC & MAP  \\
 \end{tabular}  
 \caption{ Annotation (evaluated using precision, recall, and F-score) and retrieval (evaluated using area under the receiver-operator curve (AROC) and mean average precision (MAP)) performance on the Million Song Dataset with various codebook sizes, from Codeword Bernoulli Average (CBA), $\ell_2$ regularized logistic regression ($\ell_2$ LogRegr), Poisson matrix factorization with batch inference (PMF-Batch) and stochastic inference by a single pass of the subset (PMF-Stoc-$10K$) and full data (PMF-Stoc-full). One standard error is reported in the parenthesis. }
 \label{tab:msd}
-\end{table}
+\end{sidewaystable} 
+
 \begin{figure}
   \centering
     \includegraphics[width=.98\textwidth]{fig/metrics_K512}
@@ -256,7 +257,7 @@ Table \ref{tab:factors} contains information on the qualitative performance of o
 high probability for a song that has the given factor expressed. As is evident, each factor corresponds to a particular aspect of a music genre. We note that other factors contained similarly coherent tag information.
 
 
-\begin{table*}
+\begin{sidewaystable}
 \footnotesize
 \centering
 \begin{tabular}{ ccccccccc }
@@ -274,7 +275,7 @@ high probability for a song that has the given factor expressed. As is evident, 
 \end{tabular}
 \caption{Top 7 tags from 9 latent factors for PMF-Stoc-full with $J=512$. For each factor, we assign the closest music genre on top. As is evident, each factor corresponds to a particular aspect of a music genre.}\label{tab:factors}
 \normalsize
-\end{table*}
+\end{sidewaystable}
 
 
 \section{Discussion and Future work}\label{sec:conclusion}

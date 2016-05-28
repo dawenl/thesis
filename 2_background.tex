@@ -91,7 +91,7 @@ Variational inference is a deterministic alternative to \gls{MCMC} methods \cite
 
 Variational inference turns the problem of Bayesian inference into a one of  optimization, which enables us to leverage the advances from optimization community, e.g., by making use of stochastic optimization, we can scale variational inference to massive dataset \citep{hoffman2013stochastic}.
 
-To utilize variational inference for approximate Bayesian inference, we lower bound the marginal likelihood, similar to \Cref{chpt:background:eq:em}:
+To utilize variational inference for approximate Bayesian inference, we introduce the variational distribution $q(\mbz, \mb\theta)$ and lower bound the marginal likelihood, similar to \Cref{chpt:background:eq:em}:
 \begin{equation}
 \begin{split}
 \log p(\mbx) &= \log\int_{\mbz, \mb\theta} p(\mbx, \mbz, \mb\theta) \dif{\mbz} \dif\mb\theta \\
@@ -99,7 +99,7 @@ To utilize variational inference for approximate Bayesian inference, we lower bo
 \end{split}
 \label{chpt:background:eq:vi}
 \end{equation}
-Here the model parameters $\mb\theta$ are treated the same as latent variables $\mbz$ with some pre-specified prior $p(\mbz, \mb\theta)$.\footnote{Variational inference can also be applied to the MLE/MAP case in \Cref{chpt:background:sec:em} where we only marginalize out latent variables $\mbz$ to obtain point estimates of model parameters $\mb\theta$. This happens in the E-step, when the posterior $p(\mbz \g \mbx, \mb\theta)$ is intractable to compute exactly, which leads to the variational \gls{EM} algorithm \citep{beal2003variational}.} $\cL$ is usually referred as \gls{ELBO}, since it is a lower bound of the model evidence $\log p(\mbx)$. Based on derivation similar to \Cref{chpt:background:eq:em_kl} (omitted for brevity), we can show that optimizing \gls{ELBO} is equivalent to minimizing the \gls{KL} divergence between the variational distribution $q(\mbz, \mb\theta)$ and the posterior of interest $p(\mbz, \mb\theta \g \mbx)$.
+Here the model parameters $\mb\theta$ are treated the same as latent variables $\mbz$ with some pre-specified prior $p(\mbz, \mb\theta)$.\footnote{Variational inference can also be applied to the MLE/MAP case in \Cref{chpt:background:sec:em} where we only marginalize out latent variables $\mbz$ to obtain point estimates of model parameters $\mb\theta$. This happens in the E-step, when the posterior $p(\mbz \g \mbx, \mb\theta)$ is intractable to compute exactly, which leads to the variational \gls{EM} algorithm \citep{beal2003variational}.} $\cL$ is usually referred as \gls{ELBO}, since it is a lower bound of the model evidence $\log p(\mbx)$. Based on derivation similar to \Cref{chpt:background:eq:em_kl} (omitted for brevity), we can show that optimizing \gls{ELBO} is equivalent to minimizing the \gls{KL} divergence between the variational distribution $q(\mbz, \mb\theta)$ and the posterior of interest $p(\mbz, \mb\theta \g \mbx)$. Once we obtain the approximating posterior that minimizes the \gls{KL}-divergence, we can use it as a proxy of the true posterior to form prediction. 
 
 So far we haven't specified how to select the variational distribution $q(\mbz, \mb\theta)$. One popular choice is the mean-field family which is completely factorized: $q(\mbz, \mb\theta) = \prod_{d} q_d(z_{d}) \prod_i q_i(\theta_i)$. With mean-field family, we can obtain the general form for the optimal variational distributions:
 \begin{equation}
@@ -160,17 +160,17 @@ or a Gaussian) with its mean parametrized by the dot product between the user an
 the item factors. Formally, Gaussian matrix factorization is \citep{mnih2007probabilistic}: 
 \begin{equation} 
 \begin{split}
-	\boldsymbol\theta_{u} &\sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \quad \textrm{for } u = 1, \dots, U, \\
-	\boldsymbol\beta_{i} &\sim \mathcal{N}(\bzero, \lambda_\beta^{-1} \mathrm{I}_K) \quad \textrm{for } i = 1, \dots, I, \\
-	y_{ui} &\sim \mathcal{N}(\boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda_y^{-1}) \quad \textrm{for } (u, i) \in \cO, 
+	\mb\theta_{u} &\sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \quad \textrm{for } u = 1, \dots, U, \\
+	\mb\beta_{i} &\sim \mathcal{N}(\bzero, \lambda_\beta^{-1} \mathrm{I}_K) \quad \textrm{for } i = 1, \dots, I, \\
+	y_{ui} &\sim \mathcal{N}(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \quad \textrm{for } (u, i) \in \cO, 
  \end{split}
  \label{chpt:background:eq:gmf}
  \end{equation}
-where $\boldsymbol\theta_u$ and $\boldsymbol\beta_i$ represent user $u$'s latent preferences and
+where $\mb\theta_u$ and $\mb\beta_i$ represent user $u$'s latent preferences and
 item $i$'s attributes respectively. We use the mean and covariance to
 parametrize the Gaussian distribution. $\lambda_\theta$, $\lambda_\beta$, and
 $\lambda_y$ can be treated as hyperparameters, or be given priors for a full Bayesian treatment. $\mathrm{I}_K$ stands for the identity
-matrix of dimension $K$. The maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \theta_u^\top\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
+matrix of dimension $K$. The maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
 
 \parhead{Collaborative filtering for implicit data.} \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
 
@@ -187,7 +187,7 @@ matrix~\citep{hu2008collaborative}.  \gls{WMF} uses a simple heuristic where all
 unobserved user-item interactions are equally downweighted vis-a-vis the
 observed interactions. Under \gls{WMF} an observation is generated from:
 \begin{align*} 
-y_{ui} &\sim \mathcal{N}(\boldsymbol\theta_u^\top\boldsymbol\beta_i, c^{-1}_{y_{ui}}),
+y_{ui} &\sim \mathcal{N}(\mb\theta_u^\top\mb\beta_i, c^{-1}_{y_{ui}}),
 \end{align*}
 where the ``confidence'' $c$ is set such that $c_1 > c_0$. This dependency between a
 click and itself is unorthodox; because of it \gls{WMF} is not a generative
@@ -212,13 +212,33 @@ methods for parameter estimation.
 
 \section{Causal inference}\label{chpt:background:sec:causal}
 
-\PP \citep{morgan2014counterfactuals}
+Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
 
-\PP \citep{imbens2015causal}
+\subsection{Potential outcome framework}
 
-\PP Potential outcomes \citep{rubin1974ece}
+The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. In this framework, each individual has a potential outcome when assigned the treatment $a = 1$ and a potential
+outcome when not assignment the treatment $a = 0$. One measurement of the causal effect is the average difference (over individuals) between those potential outcomes. In the language of graphical models \citep{pearl2009causality},
+this is framed as evaluating the impact of an intervention on random variables in a probabilistic graph. 
 
-\PP Graphical model \citep{pearl2009causality}
+\PP potential outcomes framework \citep{rubin1974ece} $Y(0) = y(0)$ and $Y(1) = y(1)$
+
+\PP \gls{ATE} $\E{\delta} = \E{Y(1)} - \E{Y(0)}$. The expectation is taken over the whole population of interest. 
+
+\subsection{Experimental and observational data}
+
+\PP Under the assumption of unconfoundednessm, strong ignorability:
+\begin{equation*}
+Y(0), Y(1) \indpt A \g x
+\end{equation*}
+we can obtain an unbiased estimate of the \gls{ATE}.
+
+\PP Experimental data is collected from a randomized experiment where we have control over the assignment mechanism (e.g., a medical trial where the doctor decides whether a patient receives treatment or placebo). Strong ignorability is clearly satisfied in a randomized experiment. Thus a naive estimator of the difference between the treated and untreated is an unbiased estimate of \gls{ATE}. 
+
+\PP Observational data, on the other hand, is collected from an observational study where we have no control over the assignment mechanism. This can happen when it is impractical to perform a randomized experiment (e.g., for ethical reasons). 
+
+\parhead{Inverse propensity weighting}
+
+\PP \citep{rosenbaum1983central}
 
 
 
