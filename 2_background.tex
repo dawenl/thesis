@@ -172,6 +172,21 @@ parametrize the Gaussian distribution. $\lambda_\theta$, $\lambda_\beta$, and
 $\lambda_y$ can be treated as hyperparameters, or be given priors for a full Bayesian treatment. $\mathrm{I}_K$ stands for the identity
 matrix of dimension $K$. The maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
 
+\PP Derive ALS. Without loss of generality, we set $\lambda_y = 1$.
+
+\begin{equation*}
+\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|
+\end{equation*}
+
+\PP ALS updates:
+\begin{equation}
+\begin{split}
+\mb\theta_u^\new &\leftarrow (\sum_{i: (u, i) \in \cO} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_{i: (u, i) \in \cO} y_{ui} \mb\beta_i)\\
+\mb\beta_i^\new &\leftarrow (\sum_{u: (u, i)\in\cO} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_{u: (u, i)\in\cO} y_{ui} \mb\theta_u)
+\end{split}
+\label{chpt:background:eq:als_gmf}
+\end{equation}
+
 \parhead{Collaborative filtering for implicit data.} \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
 
 Mirroring methods for explicit data, many methods treat unclicked items as those a user does not like.  But this assumption is mistaken, and overestimates the effect of the unclicked items.  Some of these
@@ -193,6 +208,27 @@ where the ``confidence'' $c$ is set such that $c_1 > c_0$. This dependency betwe
 click and itself is unorthodox; because of it \gls{WMF} is not a generative
 model. As we will describe in \Cref{sec:model} we obtain a proper generative
 model by adding an exposure latent variable. 
+
+\PP Derive ALS for \gls{WMF}. Recall that observed set $\cO$ contains all the entries in the click matrix.
+
+\begin{equation*}
+\cL = \sum_{u, i} c_{ui}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|
+\end{equation*}
+
+\PP ALS updates:
+\begin{equation}
+\begin{split}
+\mb\theta_u^\new &\leftarrow (\sum_i c_{ui} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)\\
+\mb\beta_i^\new &\leftarrow (\sum_u c_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_u c_{ui} y_{ui} \mb\theta_u)
+\end{split}
+\label{chpt:background:eq:als_wmf}
+\end{equation}
+
+\PP speed up trick:
+\begin{align*}
+&(\sum_i c_{ui} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)\\
+=~& (\sum_i (c_{ui} - c_0) \mb\beta_i \mb\beta_i^\top + \sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)
+\end{align*}
 
 \gls{WMF} treats the collaborative filtering problem with implicit data as a
 regression problem. Concretely, consumed user-item pairs are assigned a
@@ -239,6 +275,7 @@ we can obtain an unbiased estimate of the \gls{ATE}.
 \parhead{Inverse propensity weighting}
 
 \PP \citep{rosenbaum1983central}
+
 
 
 

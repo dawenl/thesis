@@ -1,30 +1,26 @@
 %!TEX root = thesis.tex
 
-\chapter{Scalable Music Tagging with Poisson Factorization}
-
-
-\def\etal{\emph{et al.}}
+\chapter{Scalable Music Tagging with Poisson Factorization}\label{chpt:tagging}
 
 %\begin{abstract}
-Automatic music tagging is an important but challenging problem within MIR. In this paper, we treat music tagging as a matrix completion problem. We apply the Poisson matrix factorization model jointly on the vector-quantized audio features and a ``bag-of-tags'' representation. This approach exploits the shared latent structure between semantic tags and acoustic codewords. Leveraging the recently-developed technique of stochastic variational inference, the model can tractably analyze massive music collections. We present experimental results on the CAL500 dataset and the Million Song Dataset for both annotation and retrieval tasks, illustrating the steady improvement in performance as more data is used. 
-%\end{abstract}
+Automatic music tagging is an important but challenging problem within \gls{MIR}. In this chapter, we treat music tagging as a matrix completion problem. We apply the Poisson matrix factorization model jointly on the vector-quantized audio features and a ``bag-of-tags'' representation. This approach exploits the shared latent structure between semantic tags and acoustic codewords. Leveraging the stochastic variational inference, the model can tractably analyze massive music collections. We present experimental results on the CAL500 dataset and the Million Song Dataset for both annotation and retrieval tasks, illustrating the steady improvement in performance as more data is used. 
 %
-\section{Introduction}\label{sec:intro}
+\section{Introduction}\label{chpt:tagging:sec:intro}
 
-Automatic music tagging is the task of analyzing the audio content (waveform) of a music recording and assigning to it human-relevant semantic tags \cite{Turnbull_SemanticAudio} -- which may relate to style, genre, instrumentation, or more subtle aspects of the music, such as those contributed by users on social media sites.  Such ``autotagging'' \cite{eck2007automatic} relies on labelled training examples for each tag, and performance typically improves with the number of training examples consumed, although training schemes also take longer to complete.  In the era of ``Big Data'', it is necessary to develop models which can rapidly handle massive amount of data; a starting point for music data is the Million Song Dataset \cite{bertin2011million}, which includes user tags from Last.fm \cite{lastfm}.
+Automatic music tagging is the task of analyzing the audio content (waveform) of a music recording and assigning to it human-relevant semantic tags \citep{Turnbull_SemanticAudio} -- which may relate to style, genre, instrumentation, or more subtle aspects of the music, such as those contributed by users on social media sites.  Such ``autotagging'' \citep{eck2007automatic} relies on labeled training examples for each tag, and performance typically improves with the number of training examples consumed, although training schemes also take longer to complete.  In the era of ``Big Data'', it is necessary to develop models which can rapidly handle massive amount of data; a starting point for music data is the Million Song Dataset \citep{bertin2011million}, which includes user tags from Last.fm.
 
 In this paper, we treat the automatic music tagging as a matrix completion problem, and use the 
 techniques of stochastic variational inference to be able to learn from large amounts of data presented 
-in an online fashion \cite{hoffman2013stochastic}.  The ``matrix completion'' problem treats each track as a row in a matrix, where the elements describe both the acoustic properties (represented, for instance, as a histogram of occurrences of vector-quantized acoustic features) and the relevance of a large vocabulary of tags: We can regard the tag information as incomplete or missing for some of the rows, and seek to ``complete'' these rows based on information inferred from the complete, present rows.
+in an online fashion \citep{hoffman2013stochastic}.  The ``matrix completion'' problem treats each track as a row in a matrix, where the elements describe both the acoustic properties (represented, for instance, as a histogram of occurrences of vector-quantized acoustic features) and the relevance of a large vocabulary of tags: We can regard the tag information as incomplete or missing for some of the rows, and seek to ``complete'' these rows based on information inferred from the complete, present rows.
 
 \subsection{Related work}
 
 There have been a large number of papers on automatic tagging of music audio in recent years.  
-In addition to the papers mentioned above, work particularly relevant to this paper includes the Codeword Bernoulli Average (CBA) approach of Hoffman \etal \cite{hoffman2009easy}, which uses a similar VQ histogram representation of the audio to build a simple but effective probabilistic model for each tag in a discriminative fashion.  Xie \etal\cite{xie2011music} directly fits a regularized logistic regression model to the normalized acoustic codeword histograms to predict each tag and achieves state-of-the-art results, and Ellis \etal\cite{ellis2013bag} further improves tagging accuracy by employing multiple generative models that capture different characteristics of a music piece, which are combined in an optimized ``bag-of-systems''. 
+In addition to the papers mentioned above, work particularly relevant to this paper includes the Codeword Bernoulli Average (CBA) approach of \citet{hoffman2009easy}, which uses a similar VQ histogram representation of the audio to build a simple but effective probabilistic model for each tag in a discriminative fashion. \citet{xie2011music} directly fits a regularized logistic regression model to the normalized acoustic codeword histograms to predict each tag and achieves state-of-the-art results, and \citet{ellis2013bag} further improves tagging accuracy by employing multiple generative models that capture different characteristics of a music piece, which are combined in an optimized ``bag-of-systems''. 
 
 Much of the previous work has been performed on the CAL500 dataset \cite{Turnbull_SemanticAudio} of 502 Western popular music tracks that were carefully labelled by at least three human annotators with their relevance to 149 distinct labels spanning instrumentation, genre, emotions, vocal characteristics, and use cases. This small dataset tends to reward approaches that can maximize the information extracted from the sparse data regardless of the computational cost. A relatively larger dataset in this domain is CAL10k\cite{tingle2010exploring} with over 10,000 tracks described by over 500 tags, mined from Pandora's website\footnote{\url{http://www.pandora.com/}}. However, neither of these datasets can be considered industrial scale, which implies handling millions of tracks and tens of thousands of tags.
 
-Matrix factorization techniques, in particular, nonnegative matrix factorization (NMF), have been widely used to analyze music signals \cite{hoffman2010bayesian, liang2013beta} in the context of source separation. Paisley \etal \cite{paisley2015handbook} derived scalable Bayesian NMF for topic modeling, which we develop here. To our knowledge, this is the first application of matrix factorization to VQ acoustic features for automatic music tagging.
+Matrix factorization techniques, in particular, nonnegative matrix factorization (NMF), have been widely used to analyze music signals \citep{hoffman2010bayesian, liang2013beta} in the context of source separation. \citet{paisley2015handbook} derived scalable Bayesian NMF for topic modeling, which we develop here. To our knowledge, this is the first application of matrix factorization to VQ acoustic features for automatic music tagging.
 
 %The rest of the paper is organized as follows: in Section \ref{sec:data}, we describe the data representation used in the matrix factorization model. We formally introduce the Poisson matrix factorization model in Section \ref{sec:pmf}, followed by the variational inference algorithm in Section \ref{sec:inference}. In Section \ref{sec:exp}, we demonstrate the experimental results on CAL500 dataset and the Million Song Dataset. Finally, we conclude in Section \ref{sec:conclusion}.
 
@@ -51,6 +47,14 @@ y_{id} &\sim \text{Poisson}( \textstyle\sum_{k=1}^K \theta_{ik} \beta_{kd}),
 \end{split}
 \end{equation}
 where $\beta_k \in \mathbb{R}_+^{D}$ denote the $k$th latent factors and $\theta_i \in \mathbb{R}_{+}^{K}$ denote the weights for song $i$. $a$ and $b$ are model hyperparameters. $c$ is a scalar on the weights that we tune to maximize the likelihood. 
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\textwidth]{fig/pmf_tagging}
+      \caption{Improvement in performance with the number of mini-batches consumed for the PMF-Stoc-full system with $J=512$.  Red lines indicate the performance of PMF-Batch which is trained on 10k 
+      examples; that system's performance is exceeded after fewer than 5 mini-batches.}
+      \label{fig:performance}
+\end{figure}
 
 There are a couple of reasons to choose a Poisson model over a more traditional Gaussian model\cite{salakhutdinov2007probabilistic}. First, the Poisson distribution is a more natural choice to model count data. Secondly, real-world tagging data is extremely noisy and sparse. If a tag is not associated with a song in the data, it could be either because that tag does not apply to the song, or simply because no one has labelled the song with the tag yet. The Poisson matrix factorization model has the desirable property that it does not penalize values of $0$ as strongly as the Gaussian distribution \cite{paisley2015handbook}. Therefore, even weakly labelled data can be used to learn the Poisson model.  
 
