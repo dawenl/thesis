@@ -152,6 +152,13 @@ logs, and past purchases. We will explore recommender systems for both implicit 
 
 \PP Add a cartoon about the latent space from matrix factorization
 
+\begin{figure}
+  \centering
+    \includegraphics[width=\textwidth]{fig/cf_cartoon}
+      \caption{CF cartoon}
+      \label{chpt:background:fig:cf_cartoon}
+\end{figure}
+
 From a generative modeling perspective they
 can be understood as first drawing user and item latent factors corresponding,
 respectively, to user preferences and item attributes. Then drawing 
@@ -166,26 +173,53 @@ the item factors. Formally, Gaussian matrix factorization is \citep{mnih2007prob
  \end{split}
  \label{chpt:background:eq:gmf}
  \end{equation}
-where $\mb\theta_u$ and $\mb\beta_i$ represent user $u$'s latent preferences and
-item $i$'s attributes respectively. We use the mean and covariance to
+where $\mb\theta_u$ and $\mb\beta_i$ represent user $u$'s latent preferences and item $i$'s attributes respectively. We use the mean and covariance to
 parametrize the Gaussian distribution. $\lambda_\theta$, $\lambda_\beta$, and
 $\lambda_y$ can be treated as hyperparameters, or be given priors for a full Bayesian treatment. $\mathrm{I}_K$ stands for the identity
-matrix of dimension $K$. The maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
+matrix of dimension $K$. A graphical model representation of the Gaussian matrix factorization model is shown in \Cref{chpt:background:fig:gmf}.
 
-\PP Derive ALS. Without loss of generality, we set $\lambda_y = 1$.
+\begin{figure}[ht]
+  \centering
+     \input{gmf}
+  \caption{Graphical model representation for the Gaussian matrix factorization.}
+\label{chpt:background:fig:gmf}
+\end{figure}
+
+We derive coordinate updates to obtain the maximum \textit{a posteriori} estimates of the Gaussian matrix factorization model, as this is closely related to the model inference we develop in the later chapters. Without loss of generality, we set $\lambda_y = 1$ -- since we are only doing a point estimate, we can always scale $\lambda_\theta$ and $\lambda_\beta$ by $\lambda_y$ to obtain the same solution. The complete log-likelihood of the model:
 
 \begin{equation*}
-\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|
+\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|.
 \end{equation*}
 
-\PP ALS updates:
+As we can see, maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
+
+
 \begin{equation}
-\begin{split}
-\mb\theta_u^\new &\leftarrow (\sum_{i: (u, i) \in \cO} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_{i: (u, i) \in \cO} y_{ui} \mb\beta_i)\\
-\mb\beta_i^\new &\leftarrow (\sum_{u: (u, i)\in\cO} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_{u: (u, i)\in\cO} y_{ui} \mb\theta_u)
-\end{split}
-\label{chpt:background:eq:als_gmf}
+\mb\theta_u^\new \leftarrow (\sum_{i: (u, i) \in \cO} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_{i: (u, i) \in \cO} y_{ui} \mb\beta_i)
+\label{chpt:background:eq:als_user}
 \end{equation}
+\begin{equation}
+\mb\beta_i^\new \leftarrow (\sum_{u: (u, i)\in\cO} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_{u: (u, i)\in\cO} y_{ui} \mb\theta_u)
+\label{chpt:background:eq:als_item}
+\end{equation}
+
+\begin{algorithm}
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
+\KwIn{A set $C = \{c_1, c_2, \ldots, c_r\}$ of denominations of coins, where $c_i > c_2 > \ldots > c_r$ and a positive number $n$}
+\KwOut{A set of user latent factors $\mb\theta_u$ ($u = 1, \dots, U$) and item latent factors $\mb\beta_i$ ($i = 1, \dots, I$)}
+$C \gets \emptyset$\;
+\While{not converged}{
+  \For{$u \gets 1$ \textbf{to} $U$}{
+  	Update user factor $\mb\theta_u$ (\Cref{chpt:background:eq:als_user})
+	}
+  \For{$i \gets 1$ \textbf{to} $I$}{
+  	Update $\mb\beta_i$ according to \Cref{chpt:background:eq:als_item}
+	}
+}
+\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$}\;
+\caption{{\sc ALS} Alternating least squares method for the Gaussian matrix factorization}
+\label{chpt:background:algo:gmf}
+\end{algorithm}
 
 \parhead{Collaborative filtering for implicit data.} \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
 

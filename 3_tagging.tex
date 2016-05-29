@@ -56,7 +56,7 @@ where $\beta_k \in \mathbb{R}_+^{D}$ denote the $k$th latent factors and $\theta
       \label{fig:performance}
 \end{figure}
 
-There are a couple of reasons to choose a Poisson model over a more traditional Gaussian model\cite{salakhutdinov2007probabilistic}. First, the Poisson distribution is a more natural choice to model count data. Secondly, real-world tagging data is extremely noisy and sparse. If a tag is not associated with a song in the data, it could be either because that tag does not apply to the song, or simply because no one has labelled the song with the tag yet. The Poisson matrix factorization model has the desirable property that it does not penalize values of $0$ as strongly as the Gaussian distribution \cite{paisley2015handbook}. Therefore, even weakly labelled data can be used to learn the Poisson model.  
+There are a couple of reasons to choose a Poisson model over a more traditional Gaussian model \citep{salakhutdinov2007probabilistic}. First, the Poisson distribution is a more natural choice to model count data. Secondly, real-world tagging data is extremely noisy and sparse. If a tag is not associated with a song in the data, it could be either because that tag does not apply to the song, or simply because no one has labelled the song with the tag yet. The Poisson matrix factorization model has the desirable property that it does not penalize values of $0$ as strongly as the Gaussian distribution \citep{paisley2015handbook,Gopalan:2015}. Therefore, even weakly labelled data can be used to learn the Poisson model.  
 
 \section{Variational Inference}\label{sec:inference}
 
@@ -182,13 +182,13 @@ Meanwhile, the amount of data in CAL500 is fairly small -- the data $\boldsymbol
 
 \begin{table}
 \centering
-  \begin{tabular}{ c | c  c  c | c  c }
-    \hline
-    Model & Prec & Recall & F-score & AROC & MAP \\ \hline
+  \begin{tabular}{ c  c  c  c  c  c }
+    \toprule
+    Model & Prec & Recall & F-score & AROC & MAP \\ \midrule
       CBA &  0.41 & 0.24    &   0.29    &   0.69  & 0.47 \\
      $\ell_2$ LogRegr & 0.48  &  0.26  & 0.34  &  0.72 & 0.50\\
     PMF-Batch & 0.42  &  0.23 & 0.30 & 0.67 & 0.45 \\
-    \hline
+    \bottomrule
   \end{tabular}
   \caption{Results for the top 78 popular tags on CAL500, for Codeword Bernoulli Average (CBA), $\ell_2$ regularized logistic regression ($\ell_2$ LogRegr), and Poisson matrix factorization with batch inference (PMF-Batch). The results for CBA and $\ell_2$ LogRegr are directly copied from \cite{xie2011music}.} 
   \label{tab:cal500}
@@ -210,37 +210,37 @@ The results are reported in Table \ref{tab:msd}. In general, the performance of 
 \begin{sidewaystable}
 \centering 
 %\small
-\begin{tabular}{  c  |  c |  c  c  c | c  c }
-\hline
+\begin{tabular}{  c    c   c  c  c  c  c }
+\toprule
 Codebook size & Model & Precision & Recall & F-score & AROC & MAP  \\
-\hline
- \multicolumn{1}{ c| }{\multirow{5}{*}{$J=256$} }& CBA & 0.112 (0.007) & 0.121 (0.008) &0.116	& 0.695 (0.005) &  0.112 (0.006) \\
- \multicolumn{1}{c|}{} & $\ell_2$ LogRegr & 0.091 (0.008) &	0.093 (0.006)	&0.092	&0.692 (0.005)	& 0.110 (0.006)\\
-  \multicolumn{1}{c|}{}  & PMF-Batch & 0.113 (0.007) & 0.105 (0.006)	 & 0.109 &	0.647 (0.005)	& 0.094 (0.005) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-$10K$ & 0.116 (0.007) & 0.127 (0.007) & 0.121 & 0.682 (0.005) & 0.105 (0.006) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-full & \bf 0.127 (0.008) &  \bf 0.143 (0.008)	 & \bf 0.134 & \bf 0.704 (0.005) & \bf 0.115 (0.006) \\\hline 
+\midrule
+ \multicolumn{1}{ c }{\multirow{5}{*}{$J=256$} }& CBA & 0.112 (0.007) & 0.121 (0.008) &0.116	& 0.695 (0.005) &  0.112 (0.006) \\
+ \multicolumn{1}{c}{} & $\ell_2$ LogRegr & 0.091 (0.008) &	0.093 (0.006)	&0.092	&0.692 (0.005)	& 0.110 (0.006)\\
+  \multicolumn{1}{c}{}  & PMF-Batch & 0.113 (0.007) & 0.105 (0.006)	 & 0.109 &	0.647 (0.005)	& 0.094 (0.005) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-$10K$ & 0.116 (0.007) & 0.127 (0.007) & 0.121 & 0.682 (0.005) & 0.105 (0.006) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-full & \bf 0.127 (0.008) &  \bf 0.143 (0.008)	 & \bf 0.134 & \bf 0.704 (0.005) & \bf 0.115 (0.006) \\ 
    
-    \hline
- \multicolumn{1}{ c| }{\multirow{5}{*}{$J=512$} }& CBA & 0.120 (0.007)&0.127 (0.008)&0.124&0.689 (0.005) & 0.117 (0.006) \\
- \multicolumn{1}{c|}{} & $\ell_2$ LogRegr & 0.096 (0.008)	& 0.108 (0.007) & 	0.101 &	0.693 (0.005)	& 0.113 (0.006)\\
-  \multicolumn{1}{c|}{}  & PMF-Batch & 0.111 (0.007)	& 0.108 (0.006)	&0.109&	0.645 (0.005)&	0.098 (0.005) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-$10K$ & 0.112 (0.007) &0.128 (0.007) & 0.120 &  0.687 (0.005) & 0.110 (0.006)\\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-full & \bf0.130 (0.008)& \bf 0.154 (0.008) & \bf 0.141 & \bf 0.715 (0.005) & \bf 0.122 (0.006) \\\hline 
+    \midrule
+ \multicolumn{1}{ c }{\multirow{5}{*}{$J=512$} }& CBA & 0.120 (0.007)&0.127 (0.008)&0.124&0.689 (0.005) & 0.117 (0.006) \\
+ \multicolumn{1}{c}{} & $\ell_2$ LogRegr & 0.096 (0.008)	& 0.108 (0.007) & 	0.101 &	0.693 (0.005)	& 0.113 (0.006)\\
+  \multicolumn{1}{c}{}  & PMF-Batch & 0.111 (0.007)	& 0.108 (0.006)	&0.109&	0.645 (0.005)&	0.098 (0.005) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-$10K$ & 0.112 (0.007) &0.128 (0.007) & 0.120 &  0.687 (0.005) & 0.110 (0.006)\\
+    \multicolumn{1}{c}{}  & PMF-Stoc-full & \bf0.130 (0.008)& \bf 0.154 (0.008) & \bf 0.141 & \bf 0.715 (0.005) & \bf 0.122 (0.006) \\ 
     
-    \hline
- \multicolumn{1}{ c| }{\multirow{5}{*}{$J=1024$} }& CBA & 0.118 (0.007)&0.126 (0.007)&0.122&0.692 (0.005)&0.117 (0.006) \\
- \multicolumn{1}{c|}{} & $\ell_2$ LogRegr &  0.113 (0.008)&0.129 (0.008)&0.120&0.698 (0.005)&0.115 (0.006\\
-  \multicolumn{1}{c|}{}  & PMF-Batch & 0.112 (0.007)	& 0.109 (0.006)	& 0.111 & 0.635 (0.005) & 0.098 (0.006) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-$10K$ & 0.111 (0.007) & 0.127 (0.007) & 0.118 & 0.687 (0.005) & 0.111 (0.006) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-full & \bf 0.127 (0.008) & \bf 0.146 (0.008) & \bf 0.136 & \bf 0.712 (0.005) & \bf 0.120 (0.006)\\\hline 
+    \midrule
+ \multicolumn{1}{ c }{\multirow{5}{*}{$J=1024$} }& CBA & 0.118 (0.007)&0.126 (0.007)&0.122&0.692 (0.005)&0.117 (0.006) \\
+ \multicolumn{1}{c}{} & $\ell_2$ LogRegr &  0.113 (0.008)&0.129 (0.008)&0.120&0.698 (0.005)&0.115 (0.006\\
+  \multicolumn{1}{c}{}  & PMF-Batch & 0.112 (0.007)	& 0.109 (0.006)	& 0.111 & 0.635 (0.005) & 0.098 (0.006) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-$10K$ & 0.111 (0.007) & 0.127 (0.007) & 0.118 & 0.687 (0.005) & 0.111 (0.006) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-full & \bf 0.127 (0.008) & \bf 0.146 (0.008) & \bf 0.136 & \bf 0.712 (0.005) & \bf 0.120 (0.006)\\ 
     
         
-    \hline
- \multicolumn{1}{ c| }{\multirow{5}{*}{$J=2048$} }& CBA &\bf 0.124 (0.007) & 0.129 (0.007) &0.127 &0.689 (0.005) & 0.117 (0.006) \\
- \multicolumn{1}{c|}{} & $\ell_2$ LogRegr & 0.115 (0.008) & 0.137 (0.008)	& 0.125 &0.698 (0.005) & \bf 0.118 (0.006)\\
-  \multicolumn{1}{c|}{}  & PMF-Batch & 0.109 (0.007) & 0.110 (0.006) & 0.110 & 0.637 (0.005)	&0.098 (0.006) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-$10K$ & 0.107 (0.007) & 0.124 (0.007) & 0.115 & 0.682 (0.005) & 0.106 (0.006) \\
-    \multicolumn{1}{c|}{}  & PMF-Stoc-full & 0.120 (0.007) & \bf 0.147 (0.008)	 & \bf 0.132 & \bf 0.712 (0.005) & \bf 0.118 (0.006) \\\hline 
+    \midrule
+ \multicolumn{1}{ c }{\multirow{5}{*}{$J=2048$} }& CBA &\bf 0.124 (0.007) & 0.129 (0.007) &0.127 &0.689 (0.005) & 0.117 (0.006) \\
+ \multicolumn{1}{c}{} & $\ell_2$ LogRegr & 0.115 (0.008) & 0.137 (0.008)	& 0.125 &0.698 (0.005) & \bf 0.118 (0.006)\\
+  \multicolumn{1}{c}{}  & PMF-Batch & 0.109 (0.007) & 0.110 (0.006) & 0.110 & 0.637 (0.005)	&0.098 (0.006) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-$10K$ & 0.107 (0.007) & 0.124 (0.007) & 0.115 & 0.682 (0.005) & 0.106 (0.006) \\
+    \multicolumn{1}{c}{}  & PMF-Stoc-full & 0.120 (0.007) & \bf 0.147 (0.008)	 & \bf 0.132 & \bf 0.712 (0.005) & \bf 0.118 (0.006) \\\bottomrule 
     
 \end{tabular}  
 \caption{ Annotation (evaluated using precision, recall, and F-score) and retrieval (evaluated using area under the receiver-operator curve (AROC) and mean average precision (MAP)) performance on the Million Song Dataset with various codebook sizes, from Codeword Bernoulli Average (CBA), $\ell_2$ regularized logistic regression ($\ell_2$ LogRegr), Poisson matrix factorization with batch inference (PMF-Batch) and stochastic inference by a single pass of the subset (PMF-Stoc-$10K$) and full data (PMF-Stoc-full). One standard error is reported in the parenthesis. }

@@ -10,8 +10,8 @@
 *.glo
 *.ist
 *.out
-*.pdf
 *.synctex.gz
 *.toc
+*.key
 .DS_Store
 *.swp
