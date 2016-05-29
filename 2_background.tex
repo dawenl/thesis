@@ -18,7 +18,7 @@ of the plate. We use doted line to indicate that the dependency between model pa
 
 \begin{figure}[ht]
   \centering
-     \input{model_general}
+     \input{fig/model_general}
   \caption{Graphical model representation for the general latent variable models.}
 \label{chpt:background:fig:general}
 \end{figure}
@@ -144,23 +144,31 @@ logs, and past purchases. We will explore recommender systems for both implicit 
 
 \subsection{Collaborative filtering for recommender systems} \label{chpt:background:sec:cf}
 
-\PP Collaborative filtering is the workhorse of recommender systems.
+\PP Collaborative filtering is the workhorse of recommender systems. 
+
+\PP Collaborative filtering analyzes user preferences for items (e.g., books,
+movies, restaurants, academic papers) by exploiting the similarity patterns
+across users. 
 
 \PP Neighborhood-based \citep{sarwar2001item} and latent factor model \citep{koren2009matrix}.
 
-\parhead{Matrix factorization for collaborative filtering.} User-item preference data, whether explicit or implicit, can be encoded in a user by item matrix. Throughout this dissertation, a user is indexed by $u \in \{1, \dots, U\}$, an item is indexed by $i \in \{1, \dots, I\}$, and we will refer to this user by item matrix as the \emph{click matrix} or the \emph{interaction matrix}. Given the observed entries in this matrix $\{y_{ui}: (u, i) \in \cO\}$, the recommendation task is often framed as filling in the unobserved entries.  Matrix factorization models, which infer (latent) user preferences and item attributes by factorizing the click matrix, are standard in recommender systems \citep{koren2009matrix}. 
+\subsubsection{Matrix factorization for collaborative filtering.} 
+\label{chpt:background:sec:mf_cf}
 
-\PP Add a cartoon about the latent space from matrix factorization
+User-item preference data, whether explicit or implicit, can be encoded in a user by item matrix. Throughout this dissertation, a user is indexed by $u \in \{1, \dots, U\}$, an item is indexed by $i \in \{1, \dots, I\}$, and we will refer to this user by item matrix as the \emph{click matrix} or the \emph{interaction matrix}. Given the observed entries in this matrix $\{y_{ui}: (u, i) \in \cO\}$, the recommendation task is often framed as filling in the unobserved entries.  Matrix factorization models, which infer (latent) user preferences and item attributes by factorizing the click matrix, are standard in recommender systems \citep{koren2009matrix}. 
 
 \begin{figure}
   \centering
     \includegraphics[width=\textwidth]{fig/cf_cartoon}
-      \caption{CF cartoon}
+      \caption{An illustrative example of matrix factorization for collaborative filtering. Matrix factorization aims to find a latent preference space to embed both users and items such that if a user consumes an item, they will be embedded closer in this latent space.}
       \label{chpt:background:fig:cf_cartoon}
 \end{figure}
 
-From a generative modeling perspective they
-can be understood as first drawing user and item latent factors corresponding,
+\Cref{chpt:background:fig:cf_cartoon} demonstrates the basic idea behind matrix factorization for collaborative filtering. In this illustrative example, we have three users and three items, where each user consumes only one item. Matrix factorization aims to find a latent space to embed both users and items such that if a user consumes an item, they will be embedded closer in this latent space. The locations in this latent space correspond to the user preferences and item attributes obtained by factorizing the click matrix. To make recommendations for each user, we can take the unconsumed items which have high dot products with the user's latent factor. 
+
+How would this work? Consider a metalhead who has listened to a lot of \textit{Metallica} but not \textit{Iron Maiden}. It is reasonable to assume that there are many other users with similar tastes listened to songs from both bands, which makes the latent factors for both \textit{Metallica} and \textit{Iron Maiden} very close in the latent space. Therefore, when making recommendations for this user, the songs from \textit{Iron Maiden} will likely have higher dot products, which will be recommended by the learned matrix factorization model.  
+
+From a generative modeling perspective, the model can be understood as first drawing user and item latent factors corresponding,
 respectively, to user preferences and item attributes. Then drawing 
 observations from a specific distribution (e.g., a Poisson
 or a Gaussian) with its mean parametrized by the dot product between the user and
@@ -173,26 +181,28 @@ the item factors. Formally, Gaussian matrix factorization is \citep{mnih2007prob
  \end{split}
  \label{chpt:background:eq:gmf}
  \end{equation}
-where $\mb\theta_u$ and $\mb\beta_i$ represent user $u$'s latent preferences and item $i$'s attributes respectively. We use the mean and covariance to
+where $\mb\theta_u$ and $\mb\beta_i$ represent user $u$'s latent preferences and item $i$'s attributes respectively. We use the mean and (co)variance to
 parametrize the Gaussian distribution. $\lambda_\theta$, $\lambda_\beta$, and
 $\lambda_y$ can be treated as hyperparameters, or be given priors for a full Bayesian treatment. $\mathrm{I}_K$ stands for the identity
 matrix of dimension $K$. A graphical model representation of the Gaussian matrix factorization model is shown in \Cref{chpt:background:fig:gmf}.
 
 \begin{figure}[ht]
   \centering
-     \input{gmf}
+     \input{fig/gmf}
   \caption{Graphical model representation for the Gaussian matrix factorization.}
 \label{chpt:background:fig:gmf}
 \end{figure}
 
-We derive coordinate updates to obtain the maximum \textit{a posteriori} estimates of the Gaussian matrix factorization model, as this is closely related to the model inference we develop in the later chapters. Without loss of generality, we set $\lambda_y = 1$ -- since we are only doing a point estimate, we can always scale $\lambda_\theta$ and $\lambda_\beta$ by $\lambda_y$ to obtain the same solution. The complete log-likelihood of the model:
+We derive coordinate updates to obtain the maximum \textit{a posteriori} estimates of the Gaussian matrix factorization model, as they are closely related to the model inference we develop in the later chapters. Since we are only obtaining point estimates of the model parameters, we can always scale $\lambda_\theta$ and $\lambda_\beta$ by $\lambda_y$ to obtain the same solution. Without loss of generality, we set $\lambda_y = 1$. The complete log-likelihood of the model is:
 
-\begin{equation*}
+\begin{equation}
 \cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|.
-\end{equation*}
+\label{chpt:background:eq:gmf_logll}
+\end{equation}
 
-As we can see, maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
+As we can see, the maximum \emph{a posteriori} estimates of the Gaussian matrix factorization model is equivalent to the solution of minimizing the squared loss between the estimated and actual preferences $\sum_{(u, i)\in \mathcal{O}} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2$ with $\ell_2$ regularization on the latent factors.
 
+The basic idea of the coordinate updates for the Gaussian matrix factorization model is to only update one of the user or item factor ($\mb\theta_u$ or $\mb\beta_i$) at a time when keeping everything else fixed. Taking the gradient of the complete log-likelihood (\Cref{chpt:background:eq:gmf_logll}) with respect to one of the latent factors and setting it to $0$, we obtain the following updates:
 
 \begin{equation}
 \mb\theta_u^\new \leftarrow (\sum_{i: (u, i) \in \cO} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_{i: (u, i) \in \cO} y_{ui} \mb\beta_i)
@@ -203,25 +213,31 @@ As we can see, maximum \emph{a posteriori} estimates of the Gaussian matrix fact
 \label{chpt:background:eq:als_item}
 \end{equation}
 
+Every single update resembles that of ridge regression \citep{friedman2001elements} where the responses are $y_{ui}$ and the covariates are the latent factors. Therefore, the coordinate updates for the Gaussian matrix factorization is often called \textit{alternating least squares} (ALS). The full algorithm is summarized in \Cref{chpt:background:algo:gmf}. Note that the updates are embarrassingly parallelizable across users and items. 
+
 \begin{algorithm}
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
-\KwIn{A set $C = \{c_1, c_2, \ldots, c_r\}$ of denominations of coins, where $c_i > c_2 > \ldots > c_r$ and a positive number $n$}
-\KwOut{A set of user latent factors $\mb\theta_u$ ($u = 1, \dots, U$) and item latent factors $\mb\beta_i$ ($i = 1, \dots, I$)}
-$C \gets \emptyset$\;
+\KwIn{A set of observed entires in the click matrix $\{y_{ui}: (u, i)\in\cO\}$}
+\KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
+%$C \gets \emptyset$\;
+Randomly initialize $\mb\theta_{1:U}$, $\mb\beta_{1:I}$\;
 \While{not converged}{
   \For{$u \gets 1$ \textbf{to} $U$}{
   	Update user factor $\mb\theta_u$ (\Cref{chpt:background:eq:als_user})
 	}
   \For{$i \gets 1$ \textbf{to} $I$}{
-  	Update $\mb\beta_i$ according to \Cref{chpt:background:eq:als_item}
+  	Update item factor $\mb\beta_i$  (\Cref{chpt:background:eq:als_item})
 	}
 }
 \Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$}\;
-\caption{{\sc ALS} Alternating least squares method for the Gaussian matrix factorization}
+\caption{{\sc ALS} Alternating least squares for the Gaussian matrix factorization}
 \label{chpt:background:algo:gmf}
 \end{algorithm}
 
-\parhead{Collaborative filtering for implicit data.} \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
+\subsubsection{Collaborative filtering for implicit data.} 
+\label{chpt:background:sec:cf_implicit}
+
+The model described in \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
 
 Mirroring methods for explicit data, many methods treat unclicked items as those a user does not like.  But this assumption is mistaken, and overestimates the effect of the unclicked items.  Some of these
 items---many of them, in large-scale settings---are unclicked because
@@ -243,26 +259,48 @@ click and itself is unorthodox; because of it \gls{WMF} is not a generative
 model. As we will describe in \Cref{sec:model} we obtain a proper generative
 model by adding an exposure latent variable. 
 
-\PP Derive ALS for \gls{WMF}. Recall that observed set $\cO$ contains all the entries in the click matrix.
-
+The maximum \textit{a posteriori} estimates of \gls{WMF} can also be obtained via ALS with minor modification. For notational convenience, we define $c_{ui} \triangleq c_{y_{ui}}$. The complete log-likelihood for \gls{WMF} is (recall that observed set $\cO$ contains all the entries in the click matrix):
 \begin{equation*}
 \cL = \sum_{u, i} c_{ui}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|
 \end{equation*}
-
-\PP ALS updates:
+Again, we take the gradient with respect to one of the factors and set it to $0$, which leads to the following ALS updates:
 \begin{equation}
-\begin{split}
-\mb\theta_u^\new &\leftarrow (\sum_i c_{ui} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)\\
-\mb\beta_i^\new &\leftarrow (\sum_u c_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_u c_{ui} y_{ui} \mb\theta_u)
-\end{split}
-\label{chpt:background:eq:als_wmf}
+\mb\theta_u^\new \leftarrow (\sum_i c_{ui} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)
+\label{chpt:background:eq:wals_user}
+\end{equation}
+\begin{equation}
+\mb\beta_i^\new \leftarrow (\sum_u c_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K)^{-1} (\sum_u c_{ui} y_{ui} \mb\theta_u)
+\label{chpt:background:eq:wals_item}
 \end{equation}
 
-\PP speed up trick:
+However, unlike \Cref{chpt:background:eq:als_user} and \Cref{chpt:background:eq:als_item}, the summation inside of the matrix inversion is over all the users or items, which can be computationally challenging, especially considering that we will have to do this computation for every single factor update (there are in total $U + I$ factors to be updated in one iteration). \citet{hu2008collaborative} propose a clever trick to speed up the computation substantially by breaking up the summation into two parts as follows (here we only demonstrate the case for updating the user factor $\mb\theta_u$, the same can be applied to item factor $\mb\beta_i$):
 \begin{align*}
 &(\sum_i c_{ui} \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)\\
-=~& (\sum_i (c_{ui} - c_0) \mb\beta_i \mb\beta_i^\top + \sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K)^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i)
+=~& (\sum_i (c_{ui} - c_0) \mb\beta_i \mb\beta_i^\top + \underbrace{\sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K}_{\textrm{precompute once per iteration}})^{-1} (\sum_i c_{ui} y_{ui} \mb\beta_i).
 \end{align*}
+
+The second part $\sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K$ is shared across all the user factor updates, thus can be precomputed once per iteration. The first part $\sum_i (c_{ui} - c_0)\mb\beta_i\mb\beta_i^\top$ can be efficiently computed because $c_{ui} - c_0$ is non-zero only when $y_{ui} = 1$ and normally the click matrix is highly sparse. Furthermore, just like ALS for the Gaussian matrix factorization, all the updates are embarrassingly parallelizable across users and items. The full algorithm of ALS for \gls{WMF} is summarized in \Cref{chpt:background:algo:wmf}. With the speed-up trick and embarrassing parallelization, ALS for \gls{WMF} can be easily applied to datasets with millions of users and items. 
+
+\begin{algorithm}
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
+\KwIn{Click matrix $y_{ui}$, the confidence for clicked $c_1$ and unclicked $c_0$}
+\KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
+%$C \gets \emptyset$\;
+Randomly initialize $\mb\theta_{1:U}$, $\mb\beta_{1:I}$\;
+\While{not converged}{
+  Precompute $\sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{I}_K$\;
+  \For{$u \gets 1$ \textbf{to} $U$}{
+  	Update user factor $\mb\theta_u$ (\Cref{chpt:background:eq:wals_user})
+	}
+  Precompute $\sum_u c_0 \mb\theta_u \mb\theta_u^\top + \lambda_\beta \mathrm{I}_K$\;
+  \For{$i \gets 1$ \textbf{to} $I$}{
+  	Update item factor $\mb\beta_i$  (\Cref{chpt:background:eq:wals_item})
+	}
+}
+\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$}\;
+\caption{{\sc W-ALS} Alternating least squares for \gls{WMF}}
+\label{chpt:background:algo:wmf}
+\end{algorithm}
 
 \gls{WMF} treats the collaborative filtering problem with implicit data as a
 regression problem. Concretely, consumed user-item pairs are assigned a

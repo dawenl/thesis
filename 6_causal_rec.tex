@@ -366,7 +366,9 @@ parameters.
 % we need in the exposure model because $a$ blocks $y$.  (i think we
 % need some graphical models.)
 
-\parhead{The algorithm.}  We first estimate the exposure model from
+\section{Inference}  
+
+We first estimate the exposure model from
 the observed data.  This can be the popularity model or Poisson
 factorization.  Then, we use the fitted exposure model to weight the
 data (by the inverse probability) and fit the click model.  Finally we
@@ -813,6 +815,8 @@ From \Cref{tab:results}, we make the following observations.
   future work, we will investigate different propensity score
   smoothing techniques.
 \end{enumerate}
+
+\section{Summary}
 
 % \begin{table*}
 % \centering
