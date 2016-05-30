@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+
+ % Define nodes
+  \node[obs]                               (y) {$y_{id}$};
+  \node[latent, above=of y, xshift=-1.2cm] (t) {$\theta_{ik}$};
+  \node[latent, above=of y, xshift=1.2cm]  (b) {$\beta_{kd}$};
+
+
+  % Connect the nodes
+  \edge {b,t} {y} ; %
+
+  % Plates
+  \plate {tb} {(t)(b)} {$K$} ;
+  \plate {yb} {(b)(y) (tb.north east)} {$D$} ;
+  \plate {} {(t)(y) (tb.north west)(yb.north west)(yb.south west)} {$I$} ;
+
+\end{tikzpicture}

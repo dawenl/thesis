@@ -144,13 +144,9 @@ logs, and past purchases. We will explore recommender systems for both implicit 
 
 \subsection{Collaborative filtering for recommender systems} \label{chpt:background:sec:cf}
 
-\PP Collaborative filtering is the workhorse of recommender systems. 
+Collaborative filtering is the workhorse of recommender systems. It is widely used in many commercial websites, e.g., Amazon uses various collaborative filtering algorithms to suggest products (``Customers Who Bought This Item Also Bought''), and Netflix uses collaborative filtering algorithms extensively in their homepage to suggest new movies and TV shows to watch.
 
-\PP Collaborative filtering analyzes user preferences for items (e.g., books,
-movies, restaurants, academic papers) by exploiting the similarity patterns
-across users. 
-
-\PP Neighborhood-based \citep{sarwar2001item} and latent factor model \citep{koren2009matrix}.
+Collaborative filtering analyzes user preferences for items by exploiting the similarity patterns across users. There are two major classes of collaborative filtering algorithms: neighborhood-based model \citep{sarwar2001item} and the matrix factorization model \citep{koren2009matrix}. In this dissertation, we will mainly focus on the matrix factorization for collaborative filtering. 
 
 \subsubsection{Matrix factorization for collaborative filtering.} 
 \label{chpt:background:sec:mf_cf}
@@ -217,7 +213,7 @@ Every single update resembles that of ridge regression \citep{friedman2001elemen
 
 \begin{algorithm}
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
-\KwIn{A set of observed entires in the click matrix $\{y_{ui}: (u, i)\in\cO\}$}
+\KwIn{A set of observed entires in the click matrix $\{y_{ui}: (u, i)\in\cO\}$, regularization parameters $\lambda_\theta$ and $\lambda_\beta$}
 \KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
 %$C \gets \emptyset$\;
 Randomly initialize $\mb\theta_{1:U}$, $\mb\beta_{1:I}$\;
@@ -256,7 +252,7 @@ y_{ui} &\sim \mathcal{N}(\mb\theta_u^\top\mb\beta_i, c^{-1}_{y_{ui}}),
 \end{align*}
 where the ``confidence'' $c$ is set such that $c_1 > c_0$. This dependency between a
 click and itself is unorthodox; because of it \gls{WMF} is not a generative
-model. As we will describe in \Cref{sec:model} we obtain a proper generative
+model. As we will describe in \Cref{chpt:expomf} we obtain a proper generative
 model by adding an exposure latent variable. 
 
 The maximum \textit{a posteriori} estimates of \gls{WMF} can also be obtained via ALS with minor modification. For notational convenience, we define $c_{ui} \triangleq c_{y_{ui}}$. The complete log-likelihood for \gls{WMF} is (recall that observed set $\cO$ contains all the entries in the click matrix):
@@ -283,7 +279,7 @@ The second part $\sum_i c_0 \mb\beta_i \mb\beta_i^\top + \lambda_\theta \mathrm{
 
 \begin{algorithm}
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
-\KwIn{Click matrix $y_{ui}$, the confidence for clicked $c_1$ and unclicked $c_0$}
+\KwIn{Click matrix $y_{ui}$, the confidence for clicked $c_1$ and unclicked $c_0$, regularization parameters $\lambda_\theta$ and $\lambda_\beta$}
 \KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
 %$C \gets \emptyset$\;
 Randomly initialize $\mb\theta_{1:U}$, $\mb\beta_{1:I}$\;
