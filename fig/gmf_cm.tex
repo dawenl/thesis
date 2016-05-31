@@ -1,0 +1,26 @@
+\begin{tikzpicture}
+
+ % Define nodes
+  \node[obs]                               (y) {$y_{ui}$};
+  \node[latent, above=of y, xshift=-1.2cm] (w) {$\mb\theta_u$};
+  \node[latent, right=0.6cm of y]  (x) {$\mb\beta_i$};
+  \node[const, above=of w] (lw) {$\lambda_\theta$};
+  \node[latent, above=of x] (h) {$\mbh_i$};
+  \node[latent, above=0.8cm of x, xshift=1.2cm] (we) {$\mbW$};
+  \node[const, right=of x] (lx) {$\lambda_\beta$};
+  \node[const, above=of h] (f) {$f(\cdot)$};
+
+
+  % Connect the nodes
+  \edge {x,w,t} {y} ; %
+  \edge {lw} {w};
+  \edge {lx} {x};
+  \edge {h} {x};
+  \edge {we} {x};
+  \edge {f} {h};
+
+  % Plates
+  \plate {yx} {(h)(y)} {$I$} ;
+  \plate {} {(w)(y)(yx.north west)(yx.south west)} {$U$} ;
+
+\end{tikzpicture}

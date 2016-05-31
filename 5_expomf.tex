@@ -153,10 +153,10 @@ For every combination of users $u=1,\dots,U$ and items $i=1,\dots,I$, consider t
 
 Whether a user is exposed to an item comes from a Bernoulli. Conditional on being exposed, user's preference comes from a matrix factorization model. Similar to the standard methodology, we factorize this conditional distribution to $K$ user preferences $\theta_{i,1:K}$ and $K$ item attributes $\beta_{u,1:K}$,
 \begin{eqnarray} %\;\;\mathrm{for}\; k=1,\dots,K
-	\boldsymbol\theta_{u} &\sim& \mathcal{N}(\bzero, \lambda_\theta^{-1} I_K) \nonumber \\
-	\boldsymbol\beta_{i} &\sim& \mathcal{N}(\bzero, \lambda_\beta^{-1} I_K)  \nonumber \\
+	\mb\theta_{u} &\sim& \mathcal{N}(\bzero, \lambda_\theta^{-1} I_K) \nonumber \\
+	\mb\beta_{i} &\sim& \mathcal{N}(\bzero, \lambda_\beta^{-1} I_K)  \nonumber \\
 	a_{ui} &\sim& \mathrm{Bernoulli}(\mu_{ui}) \nonumber \\
-	y_{ui} \g a_{ui} = 1 &\sim& \mathcal{N}(\boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda_y^{-1}) \nonumber \\
+	y_{ui} \g a_{ui} = 1 &\sim& \mathcal{N}(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \nonumber \\
 	y_{ui} \g a_{ui} = 0 &\sim& \delta_0,
 	\label{eq:gen_model}
  \end{eqnarray}
@@ -184,9 +184,9 @@ for user $u$ and item $i$,
 %	\label{eq:a_y_joint}
 %\end{eqnarray}
 \begin{flalign}
-	\log p( & a_{ui}, y_{ui} \g \mu_{ui}, \boldsymbol\theta_u, \boldsymbol\beta_i, \lambda_y^{-1}) && \nonumber \\ 
+	\log p( & a_{ui}, y_{ui} \g \mu_{ui}, \mb\theta_u, \mb\beta_i, \lambda_y^{-1}) && \nonumber \\ 
 	= & \log \mathrm{Bernoulli}(a_{ui} \g \mu_{ui}) + 
-	a_{ui} \log \mathcal{N}(y_{ui} \g \boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda_y^{-1}) && \nonumber \\
+	a_{ui} \log \mathcal{N}(y_{ui} \g \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) && \nonumber \\
 	& + (1-a_{ui}) \log \mathbb{I}[y_{ui}=0], && %\mathbb{I}[y_{ui} = 0],
 	\label{eq:a_y_joint}
 \end{flalign}
@@ -195,14 +195,14 @@ where $\mathbb{I}[b]$ is the indicator function that evaluates to 1 when $b$ is 
 What does the distribution in \Cref{eq:a_y_joint} say 
 about the model's exposure beliefs when no clicks are observed? 
 When the predicted preference is high 
-(i.e., when $\boldsymbol\theta_u^\top \boldsymbol\beta_i$ is high) 
-then the log likelihood of no clicks $\log \mathcal{N}(0 \g \boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda^{-1}_y)$ is low and likely non-positive.
+(i.e., when $\mb\theta_u^\top \mb\beta_i$ is high) 
+then the log likelihood of no clicks $\log \mathcal{N}(0 \g \mb\theta_u^\top \mb\beta_i, \lambda^{-1}_y)$ is low and likely non-positive.
 This feature penalizes the model 
 for placing probability mass on $a_{ui}=1$, 
 forcing us to believe that user $u$ is \emph{not} exposed to item $i$. 
-(The converse argument also holds for low values of $\boldsymbol\theta_u^\top \boldsymbol\beta_i$). 
+(The converse argument also holds for low values of $\mb\theta_u^\top \mb\beta_i$). 
 Interestingly, a low value of $a_{ui}$ 
-downweights the evidence for $\boldsymbol\theta_u$ and $\boldsymbol\beta_i$ 
+downweights the evidence for $\mb\theta_u$ and $\mb\beta_i$ 
 (this is clear by considering extreme values: 
 when $a_{ui}=0$, the user and item factors do not affect the log joint in Eq.~\ref{eq:a_y_joint} at all; 
 when $a_{ui}=1$, we recover standard matrix factorization). 
@@ -270,8 +270,8 @@ However, we found that empirical performance is highly sensitive to this choice,
 motivating the need to place models on the prior for $\mu_{ui}$ 
 with flexible parameters. 
 
-We introduce observed exposure covariates $\mathbf{x}_i$ and exposure model parameters $\boldsymbol\psi_{u}$ 
-and condition $\mu_{ui} \g \boldsymbol{\psi}_{u}, \boldsymbol{x}_{i}$ 
+We introduce observed exposure covariates $\mathbf{x}_i$ and exposure model parameters $\mb\psi_{u}$ 
+and condition $\mu_{ui} \g \mb{\psi}_{u}, \mb{x}_{i}$ 
 according to some domain-specific structure. 
 The extended graphical model with exposure covariates 
 is shown in \Cref{fig:plate_diagram_side_info}. 
@@ -321,26 +321,26 @@ In both cases, $\mathbf{x}_i$ is all positive and normalizes to 1.
 Denoting $\sigma$ as the sigmoid function, 
 we set
 \begin{equation}
-	\mu_{ui} = \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i), 
+	\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i), 
 \end{equation}
-where we learn the coefficients $\boldsymbol\psi_u$ 
+where we learn the coefficients $\mb\psi_u$ 
 for each user $u$. Furthermore, we can include intercepts with various levels and interactions \cite{gelman2006data}. 
 
-How to interpret the coefficients $\boldsymbol\psi_u$? 
+How to interpret the coefficients $\mb\psi_u$? 
 The first interpretation is that of logistic regression, 
 where the independent variables are $\mathbf{x}_i$, 
 the dependent binary variables are $a_{ui}$, 
-and the coefficients to learn are $\boldsymbol\psi_u$. 
+and the coefficients to learn are $\mb\psi_u$. 
 %This leads to an obvious extension: add an intercept $\mu_{ui} = \sigma(\psi_u \pi_i + c)$, 
 %corresponding to hierarchical logistic regression [REF]. 
 
 The second interpretation is from a recommender systems perspective: 
-$\boldsymbol\psi_u$ represents the topics (or geographical points of interest) that a user is usually exposed to, 
-restricting the choice set to documents and venues that match $\boldsymbol\psi_u$. 
+$\mb\psi_u$ represents the topics (or geographical points of interest) that a user is usually exposed to, 
+restricting the choice set to documents and venues that match $\mb\psi_u$. 
 For example, if the $l^\mathrm{th}$ topic represents neural networks, 
 and $x_{il}$ is high, 
 then the user must be an avid consumer of neural network papers 
-(i.e., $\boldsymbol\psi_{ul}$ must be high) 
+(i.e., $\mb\psi_{ul}$ must be high) 
 for the model to include an academic paper $i$ in the exposure set of $u$.
 In the location domain if the $l^\mathrm{th}$ cluster represents Brooklyn, 
 and $x_{il}$ is high, 
@@ -393,35 +393,40 @@ means that the update for the latent exposure variables and user and item factor
 \parhead{E-step.}
 In the E-step, we compute expectation of the exposure latent variable $\E[a_{ui}]$ for all user and item combinations ($u$, $i$) for which there are no observed clicks (recall that the presence of clicks $y_{ui}>0$ means that $a_{ui}=1$ deterministically),
 \begin{equation}
-\E[a_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i, \mu_{ui}, y_{ui} = 0] = \frac{\mu_{ui} \cdot \mathcal{N}(0 | \boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})}{\mu_{ui}\cdot \mathcal{N}(0 |  \boldsymbol\theta_u^\top \boldsymbol\beta_i, \lambda_y^{-1}) + (1 - \mu_{ui})}.
+\E{a_{ui} \g \mb\theta_u, \mb\beta_i, \mu_{ui}, y_{ui} = 0} = \frac{\mu_{ui} \cdot \mathcal{N}(0 | \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})}{\mu_{ui}\cdot \mathcal{N}(0 |  \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) + (1 - \mu_{ui})}.
 \label{eq:update_a}
 \end{equation}
-where $\mathcal{N}(0 \g \boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})$ stands for the probability density function of $\mathcal{N}(\boldsymbol\theta_u^\top\boldsymbol\beta_i, \lambda_y^{-1})$ evaluated at $0$. 
+where $\mathcal{N}(0 \g \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})$ stands for the probability density function of $\mathcal{N}(\mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})$ evaluated at $0$. 
 
 \parhead{M-step.} 
 %Denote $P \in [0, 1]^{U\times I}$ the posterior computed from E-step for each user-item pair (if $y_{ui} > 0$, $p_{ui} = 1$). For notational convenience, we define the concatenated user latent factors matrix $\Theta \overset{\triangle}{=} [\theta_1 | \cdots | \theta_U ]^T  \in \mathbb{R}^{U \times K}$ and item latent factors matrix $B \overset{\triangle}{=} [\beta_1 | \cdots | \beta_I ]^T  \in \mathbb{R}^{I \times K}$. Thus the update for factors is
-For notational convenience, we define $p_{ui} = \E[a_{ui} \g \theta_u, \beta_i, \mu_{ui}, y_{ui} = 0]$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
+For notational convenience, we define $p_{ui} = \E{a_{ui} \g \theta_u, \beta_i, \mu_{ui}, y_{ui} = 0}$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
 \begin{align}
-\boldsymbol\theta_u &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \boldsymbol\beta_i \boldsymbol\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \boldsymbol\beta_i ) \label{eq:update_theta}\\
-\boldsymbol\beta_i &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \boldsymbol\theta_u \boldsymbol\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \boldsymbol\theta_u), \label{eq:update_beta}
+\mb\theta_u &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \mb\beta_i \mb\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \mb\beta_i ) \label{eq:update_theta}\\
+\mb\beta_i &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \mb\theta_u), \label{eq:update_beta}
 \end{align}
 
-\begin{algorithm}[t!]
-\caption{Inference for ExpoMF}
+\begin{algorithm}
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
+\KwIn{click matrix $\bY$, exposure covariates $x_{1:I}$ (topics or locations, optional)}
+\KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
+%$C \gets \emptyset$\;
+Random initialization: user factors $\mb\theta_{1:U}$, item factors $\mb\beta_{1:I}$, exposure priors~$\mu_{1:I}$ (for per-item $\mu_i$), OR exposure model parameters $\mb\psi_{1:U}$ (with exposure model)\;
+\While{performance on validation set increases}{
+  Compute expected exposure $\bA$ (\Cref{eq:update_a})\;
+  Update user factors $\mb\theta_{1:U}$ (\Cref{eq:update_theta})\;	
+  Update item factors $\mb\beta_{1:I}$ (\Cref{eq:update_beta})\;
+  \If{ExpoMF with per-item $\mu_i$}{
+  Update priors $\mu_{i}$ (\Cref{eq:mu_i})
+  }
+  \If{ExpoMF with exposure model $\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i)$}{
+  Update coefficients $\mb\psi_u$ (\Cref{eq:update_psi} or \Cref{eq:update_psi_sgd})
+  }
+
+}
+\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$}\;
+\caption{{\sc Expo-ALS} Inference for ExpoMF}
 \label{alg:exposure_mf}
-% \begin{algorithmic}[1]
-% \State \textbf{input:} click matrix $\bY$, exposure covariates $x_{1:I}$ (topics or locations, optional).
-% \State \textbf{random initialization:} user factors $\boldsymbol\theta_{1:U}$, item factors $\boldsymbol\beta_{1:I}$, exposure priors~$\mu_{1:I}$ (for per-item $\mu_i$), OR exposure model parameters $\boldsymbol\psi_{1:U}$ (with exposure model).
-% \While {performance on validation set increases}
-% \State Compute expected exposure $\bA$ (\Cref{eq:update_a})
-% \State Update user factors $\boldsymbol\theta_{1:U}$ (\Cref{eq:update_theta})
-% \State Update item factors $\boldsymbol\beta_{1:I}$ (\Cref{eq:update_beta})
-% \State ExpoMF with per-item $\mu_i$:
-% \Statex \hspace*{.8cm} Update priors $\mu_{i}$ (\Cref{eq:mu_i})
-% \State ExpoMF with exposure model $\mu_{ui} = \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i)$:
-% \Statex \hspace*{.8cm} Update coefficients $\boldsymbol\psi_u$ (\Cref{eq:update_psi} or (\ref{eq:update_psi_sgd}))
-% \EndWhile 
-% \end{algorithmic}
 \end{algorithm}
 
 \subsubsection*{Inference for the Exposure Prior $\mu_{ui}$}
@@ -441,31 +446,31 @@ $\mu_{ui}$ under the various models we presented in \Cref{sec:modeling_mu}.
 \mu_i \leftarrow \frac{\alpha_1 + \sum_u p_{ui}- 1}{\alpha_1 + \alpha_2 + U - 2}
 \end{equation}
 
-\parhead{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i)$, where $\mathbf{x}_i$ is given by pre-processing (topic analysis or clustering), presents us with the challenge of maximizing the log likelihood with respect to exposure model parameters $\boldsymbol\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log likelihood with respect to $\boldsymbol\psi_u$,
+\parhead{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i)$, where $\mathbf{x}_i$ is given by pre-processing (topic analysis or clustering), presents us with the challenge of maximizing the log likelihood with respect to exposure model parameters $\mb\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log likelihood with respect to $\mb\psi_u$,
 \begin{equation}
-	\boldsymbol\psi_u^{\text{new}} \leftarrow \boldsymbol\psi_u + \eta \nabla_{\boldsymbol\psi_u} \mathcal{L}, %^\mathrm{(previous)}
+	\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta \nabla_{\mb\psi_u} \mathcal{L}, %^\mathrm{(previous)}
 	\label{eq:update_psi}
 \end{equation}
 for some learning rate $\eta$, where
 \begin{equation}
-	\nabla_{\boldsymbol\psi_u} \mathcal{L} = \textstyle \frac{1}{I}\sum_i ( p_{ui} - \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i))\mathbf{x}_i.
+	\nabla_{\mb\psi_u} \mathcal{L} = \textstyle \frac{1}{I}\sum_i ( p_{ui} - \sigma(\mb\psi_u^\top \mathbf{x}_i))\mathbf{x}_i.
 \end{equation}
 
 This can be computationally challenging especially for large item-set sizes $I$. Therefore, we perform (mini-batch) stochastic gradient descent: at each iteration $t$, we randomly subsample a small batch of items $B_t$ and take a noisy gradient steps:
 \begin{equation} \label{eq:update_psi_sgd}
-\boldsymbol\psi_u^{\text{new}} \leftarrow \boldsymbol\psi_u + \eta_t \tilde{\boldsymbol{g}}_t
+\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta_t \tilde{\mb{g}}_t
 \end{equation}
 for some learning rate $\eta_t$, where
 \begin{equation}
-\tilde{\boldsymbol{g}}_t = \textstyle \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i)) \mathbf{x}_i.
+\tilde{\mb{g}}_t = \textstyle \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mathbf{x}_i)) \mathbf{x}_i.
 \end{equation}
 
 For each EM iteration, we found it sufficient to do a single update to the
-exposure model parameter $\boldsymbol\psi_u$ (as opposed to updating until it
+exposure model parameter $\mb\psi_u$ (as opposed to updating until it
 reaches convergence). This partial M-step~\cite{neal1998view} is much faster in
 practice. 
 %while still giving close
-%good performance. % to fully updating $\boldsymbol\psi_u$.
+%good performance. % to fully updating $\mb\psi_u$.
 
 \subsubsection*{Complexity and Implementation Details}
 
@@ -474,21 +479,18 @@ A naive implementation of the weighted matrix factorization (WMF) \cite{hu2008co
 In ExpoMF's implementation, explicitly storing the exposure matrix $\bA$ is impractical for even medium-sized datasets. As an alternative, we perform the E-step on the fly: only the necessary part of the exposure matrix $\bA$ is constructed for the updates of the user/item factors and exposure priors $\mu_{ui}$. As shown in \Cref{sec:experiments}, with parallelization and the on-the-fly E-step, ExpoMF can be easily fit to medium-to-large datasets.\footnote{The source code to reproduce all the experimental results is available at: \url{https://github.com/dawenl/expo-mf}.}
 
 \subsection{Prediction} \label{sec:pred}
-In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\boldsymbol\theta_u^\top\boldsymbol\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations  to the posterior given by the EM algorithm\footnote{This quantity is also the treatment effect $\E[y_{ui} \g a_{ui}=1, \boldsymbol\theta_u, \boldsymbol\beta_i] - \E[y_{ui} \g a_{ui}=0, \boldsymbol\theta_u, \boldsymbol\beta_i]$ in the potential outcomes framework, since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
+In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\mb\theta_u^\top\mb\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations  to the posterior given by the EM algorithm\footnote{This quantity is also the treatment effect $\E{y_{ui} \g a_{ui}=1, \mb\theta_u, \mb\beta_i} - \E{y_{ui} \g a_{ui}=0, \mb\theta_u, \mb\beta_i}$ in the potential outcomes framework, since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
 However, ExpoMF can also make predictions by integrating out the uncertainty from the exposure latent variable $a_{ui}$:
-% \begin{equation}
-% \begin{split}
-% \E_y[y_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i] &= \E_a\big[\E_y [y_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i, a_{ui}]\big]\\
-% &= \textstyle\sum_{a_{ui}\in \{0, 1\}} \mathbb{P}(a_{ui}) \E_y [y_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i, a_{ui}] \\
-% &= \mu_{ui} \cdot \boldsymbol\theta_u^\top\boldsymbol\beta_i
-% \end{split}
-% \end{equation}
-\note{Prediction equations}
+\begin{equation}
+\begin{split}
+\mathbb{E}_y[y_{ui} \g \mb\theta_u, \mb\beta_i] &= \mathbb{E}_a\big[\mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}]\big]\\
+&= \textstyle\sum_{a_{ui}\in \{0, 1\}} \mathbb{P}(a_{ui}) \mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}] \\
+&= \mu_{ui} \cdot \mb\theta_u^\top\mb\beta_i
+\end{split}
+\end{equation}
 We experimented with both predictions in our study and found that the
 simple dot product works better for ExpoMF with per-item $\mu_i$ while
-$\E[y_{ui} \g \boldsymbol\theta_u, \boldsymbol\beta_i]$ works better for ExpoMF with exposure covariates. We provide further insights about this difference in \Cref{sec:si_doc}.
-
-
+$\E{y_{ui} \g \mb\theta_u, \mb\beta_i}$ works better for ExpoMF with exposure covariates. We provide further insights about this difference in \Cref{sec:si_doc}.
 
 
 \section{Related work}
@@ -653,7 +655,7 @@ also contains locations for the venues which we will use to guide
 location-based recommendation (\Cref{sec:si_location}).  
 \end{itemize}
 
-The final dimensions of these datasets are summarized in \Cref{tab:data}.
+The important attributes of these datasets are summarized in \Cref{tab:data}.
 
 \subsection{Experimental setup} 
 %\PP Experiment setup: split dataset to train/test/validation, hyperparameter grid search. 
@@ -668,14 +670,14 @@ details) on the validation set. Hyper-parameters for ExpoMF-based models
 and baseline models are also selected according to the same criterion.
 
 To make predictions, for each user $u$, we rank each item using its predicted
-preference ${y}^*_{ui} = \boldsymbol\theta_u^\top \boldsymbol\beta_i$, $i = 1, \cdots, I$.
+preference ${y}^*_{ui} = \mb\theta_u^\top \mb\beta_i$, $i = 1, \cdots, I$.
 We then exclude items from the training and validation sets and calculate all the
 metrics based on the resulting ordered list. Further when using
 ExpoMF with exposure covariates we found that performance was improved by predicting missing preferences
-according to $\mathbb{E}[y_{ui}|\boldsymbol\theta_u,\boldsymbol\beta_i]$ (see \Cref{sec:pred} for details).
+according to $\mathbb{E}[y_{ui}|\mb\theta_u,\mb\beta_i]$ (see \Cref{sec:pred} for details).
 %\begin{align}
-%  \E_y[y_{ui}|\boldsymbol\theta_u,\boldsymbol\beta_i] &= \E_{a_{ui}}\left[E_y[y_{ui}|\boldsymbol\theta_u,\boldsymbol\beta_i,a_{ui}]\right] \\ \nonumber
-%                              &= p(a_{ui}=1)\boldsymbol\theta_u^\top\boldsymbol\beta_i. \nonumber
+%  \E_y[y_{ui}|\mb\theta_u,\mb\beta_i] &= \E_{a_{ui}}\left[E_y[y_{ui}|\mb\theta_u,\mb\beta_i,a_{ui}]\right] \\ \nonumber
+%                              &= p(a_{ui}=1)\mb\theta_u^\top\mb\beta_i. \nonumber
 %\end{align}
 
 \subsection{Performance measures}
@@ -890,12 +892,12 @@ component of ExpoMF.
 In this use case, we model the user exposure based on the topics of
 articles. We use latent Dirichlet allocation (LDA) \cite{blei2003latent},
 a model of document collections, to model article content. 
-Assuming there are $K$ topics $\Phi = \boldsymbol\phi_{1:K}$, each of which is a categorical distribution over a fixed set of vocabulary, LDA treats each document as a mixture of these topics where the topic proportion $\mathbf{x}_i$ is inferred from the data. One can understand LDA as representing documents in a low-dimensional ``topic'' space with the topic proportion $\mathbf{x}_i$ being their coordinates.  
+Assuming there are $K$ topics $\Phi = \mb\phi_{1:K}$, each of which is a categorical distribution over a fixed set of vocabulary, LDA treats each document as a mixture of these topics where the topic proportion $\mathbf{x}_i$ is inferred from the data. One can understand LDA as representing documents in a low-dimensional ``topic'' space with the topic proportion $\mathbf{x}_i$ being their coordinates.  
 
 We use the topic proportion $\mathbf{x}_i$ learned from the Mendeley dataset as
 exposure covariates. Following the notation of \Cref{sec:modeling_mu}, our
 hierarchical ExpoMF is:
-\begin{displaymath} \mu_{ui}= \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
+\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
 where we include a per-user bias term $\gamma_u$. Under this model, a
 molecular biology paper and a computer science paper that a computer
 scientist has not read will likely be treated differently: the model will
@@ -907,7 +909,7 @@ since that are more likely to be have been exposed.
 
 Our model, Content ExpoMF, is trained following the algorithm in
 \Cref{alg:exposure_mf}. For updating exposure-related model parameters
-$\boldsymbol\psi_{u}$ and $\gamma_u$, we take mini-batch gradient steps with a
+$\mb\psi_{u}$ and $\gamma_u$, we take mini-batch gradient steps with a
 batch-size of 10 users and a constant step size of $0.5$ for 10 epochs.
 
 \begin{table}
@@ -1002,7 +1004,7 @@ Recall from \Cref{sec:modeling_mu} that location exposure covariates are created
 by first clustering all venues (using $K$-means) and then finding the
 representation of each venue in this clustering space. Similarly as in Content
 ExpoMF (\Cref{sec:si_doc}), Location ExpoMF departs from ExpoMF:
-\begin{displaymath} \mu_{ui}= \sigma(\boldsymbol\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
+\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
 where $x_{ik}$ is the venue $i$'s expected assignment to cluster $k$ and
 $\gamma_u$ is a per-user bias term.\footnote{We named Content ExpoMF
 and Location ExpoMF differently to make it clear to the reader that they

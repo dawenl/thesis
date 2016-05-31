@@ -24,7 +24,7 @@ Matrix factorization techniques, in particular, \gls{NMF}, have been widely used
 \section{Data representation} \label{chpt:tagging:sec:data}
 We first describe the data that is used in the matrix completion problem. For our automatic tagging system, the data comes from two sources: vector-quantized audio features and a ``bag-of-tags'' representation. 
 \begin{itemize}
-\item \parhead{Vector-quantized audio features.} Instead of directly working with audio features, we vector quantize all the features following the standard procedure: We run the \emph{K}-means algorithm on a subset of randomly selected training data to learn $J$ cluster centroids (codewords). Then for each song, we assign each frame to the cluster with the smallest Euclidean distance to the centroid. We form the VQ feature $y_{\text{VQ}} \in \mathbb{N}^J$ by counting the number of assignments to each cluster across the entire song. 
+\item \parhead{Vector-quantized audio features.} Instead of directly working with audio features, we vector quantize all the features following the standard procedure: We run the $k$-means algorithm on a subset of randomly selected training data to learn $J$ cluster centroids (codewords). Then for each song, we assign each frame to the cluster with the smallest Euclidean distance to the centroid. We form the VQ feature $y_{\text{VQ}} \in \mathbb{N}^J$ by counting the number of assignments to each cluster across the entire song. 
 
 \item \parhead{Bag-of-tags.} Similar to the bag-of-words representation, which is commonly used to represent documents, we represent the tagging information (whether or not the tag applies to a song) with a binary bag-of-tags vector $y_{\text{BoT}}\in \{0, 1\}^{|V|}$, where $V$ is the set of all tags. \end{itemize}
 
