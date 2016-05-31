@@ -3,14 +3,7 @@
 
 \chapter{Modeling User Exposure in Recommendation} \label{chpt:expomf}
 
-
-% colors
-%\usepackage[usenames,dvipsnames]{xcolor}
-%\definecolor{shadecolor}{gray}{0.9}
-
-%shorthand math
-
-
+In this chapter and the next chapter, we will focus on general models for recommender systems. 
 Collaborative filtering analyzes user preferences for items (e.g., books,
 movies, restaurants, academic papers) by exploiting the similarity patterns
 across users. In implicit feedback settings, all the items, including the ones 
@@ -18,55 +11,35 @@ that a user did not consume, are taken into consideration. But this
 assumption does not accord with the common sense understanding that users have
 a limited scope and awareness of items. For example, a user might not have
 heard of a certain paper, or might live too far away from a restaurant to
-experience it. In the language of causal analysis \cite{imbens2015causal}, the
+experience it. In the language of causal analysis \citep{imbens2015causal}, the
 assignment mechanism (i.e., the items that a user is exposed to) is a latent
 variable that may change for various user/item combinations. 
 In this paper, we propose a new probabilistic approach that directly
 incorporates \emph{user exposure} to items into collaborative filtering.
 The exposure is modeled as a latent variable and the model infers its
 value from data. In doing so, we recover one of the most successful
-state-of-the-art approaches as a special case of our model
-\cite{hu2008collaborative}, and provide a plug-in method for conditioning
+state-of-the-art approaches \gls{WMF} as a special case of our model
+\citep{hu2008collaborative}, and provide a plug-in method for conditioning
 exposure on various forms of \emph{exposure covariates} (e.g., topics in text,
 venue locations). We show that our scalable inference algorithm
 outperforms existing benchmarks in four different domains both with and
 without exposure covariates.
 
-%%A category including the fourth, optional field follows...
-%\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
-
-%\terms{Theory}
-
-%\keywords{recommender systems, collaborative filtering, matrix factorization}
-
 
 \section{Introduction}
-\label{sec:introduction}
+\label{chpt:expomf:sec:intro}
 
-% [xxxx] i think what this introduction needs is a concrete example
-% and a plot.  i really like the mendeley example of two users,
-% systems and machine learning and the ML paper.  -- dmb
-
-The more prevalent mode is recommendation from implicit data.  In
-implicit data, each user expresses a binary decision about items---for
-example this can be clicking, purchasing, viewing---and we aim to
-predict unclicked items that she would want to click on. Unlike
-ratings data, implicit data is easily accessible.  While ratings data
-requires action on the part of the users, implicit data is often a
-natural byproduct of their behavior, e.g., browsing histories, click
-logs, and past purchases.
-
-
+As motivated in \Cref{chpt:background:sec:recsys}, it is crucial to make good recommendation on the web, as users are overwhelmed with choice. In this chapter, we focus on recommendation with implicit data (see \Cref{chpt:background:sec:data} for definition). 
 
 Existing approaches account for this by downweighting the unclicked
-items.  In \citet{hu2008collaborative} the data about unclicked items are given a
+items.  In \gls{WMF} \citep{hu2008collaborative} the data about unclicked items are given a
 lower ``confidence'', expressed through the variance of a Gaussian
-random variable.  In \citet{rendle2009bpr}, the unclicked items are artificially
+random variable.  In Bayesian personalized ranking \citep{rendle2009bpr}, the unclicked items are artificially
 subsampled at a lower rate in order to reduce their influence on the
 estimation.  These methods are effective, but they involve heuristic
 alterations to the data.
 
-In this paper, we take a direct approach to solving this problem.  We
+We take a direct approach to solving this problem.  We
 develop a probabilistic model for recommendation called Exposure MF
 (abbreviated as ExpoMF) that separately captures whether a user has been exposed to an item from
 whether a user has ultimately decided to click on it.  This leads to an
@@ -92,7 +65,7 @@ enables new innovations in implicit recommendation
 models. Specifically, we can build models of users' exposure that
 are guided by additional information such as item content, if
 exposure to the items typically happens via search, or user/item
-location, if the users and items are geographically organized.  
+location, if the users and items are geographically organized. 
 %Furthermore, Content Exposure MF also outperforms a model for 
 
 As an example imagine a recommender system for diners in New York City and
@@ -106,14 +79,15 @@ Las Vegas restaurants.
 We studied our method with user listening history from a music intelligence company, clicks from a scientific e-print server, user
 bookmarks from an online reference manager, and user checkins at venues from a 
 location-based social network. In all cases, ExpoMF matches or surpasses
-the state-of-the-art method of \citet{hu2008collaborative}. Furthermore, when
+the state-of-the-art method of \gls{WMF} \citep{hu2008collaborative}. Furthermore, when
 available, we use extra information to inform our user exposure model. In those
 cases using the extra information outperforms the simple ExpoMF model.
 Further, when using document content information our model also
 outperforms a method specially developed for recommending documents using content and user click information 
-\cite{wang2011collaborative}. Finally, we illustrate the
+\citep{wang2011collaborative}. We illustrate the
 alternative-rock-listener and the New-York-dinner examples using real data fit 
-with our models in \Cref{fig:expo_exp} and \Cref{fig:si}. 
+with our models in \Cref{chpt:expomf:fig:expo_exp} and \Cref{chpt:expomf:fig:si}. 
+Finally, we demonstrate the versatility of ExpoMF by showcasing a couple examples which incorporate exposure from different sources (e.g., the authors of a paper, or friends in a social network). 
 
 %We show that Exposure MF advantageously compares to the state-of-the-art
 %model of \citet{hu2008collaborative} on several recommendation datasets. 
@@ -122,13 +96,6 @@ with our models in \Cref{fig:expo_exp} and \Cref{fig:si}.
 %their respective domains Location Exposure MF and Content Exposure MF
 %outperform the simpler Exposure MF model.
 
-
-This paper is organized as follows. We first review collaborative filtering models in \Cref{sec:background}. We
-then introduce ExpoMF in \Cref{sec:model} and location and content
-specific models in the subsequent subsection. We draw connections between ExpoMF and causal inference as well as other recommendation research paths in
-\Cref{sec:related_work}. Finally we present an empirical study in
-\Cref{sec:experiments}.
-
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "consider"
@@ -136,36 +103,38 @@ specific models in the subsequent subsection. We draw connections between ExpoMF
 
 
 
-\section{Exposure Matrix Factorization}\label{sec:model}
+\section{Exposure matrix factorization}\label{sec:model}
 
 We present exposure matrix factorization (ExpoMF). 
 In \Cref{sec:model_description}, we describe the main model. 
 In \Cref{sec:modeling_mu} we discuss several ways 
 of incorporating external information into ExpoMF (i.e., topics from text, locations). 
 %Then, in Section~\ref{sec:potential_outcomes}, we note the close similarities between our model and the potential outcomes framework for causality. 
-We derive inference procedures for our model (and variants) in \Cref{sec:inference}. Finally we discuss how to make predictions given our model in \Cref{sec:pred}.
+We derive inference procedures for our model (and variants) in \Cref{sec:inference}. Finally we discuss how to make predictions given our model in \Cref{chpt:expomf:sec:pred}.
 
-\subsection{Model Description}
+\subsection{Model description}
 \label{sec:model_description}
 %\PP introduce our model in a general form: the choice matrix $a_{ui} \sim \mathrm{Bernoulli}(\mu_{ui})$. Explain $a_{ui}$, connect to assignment mechanism
 
-For every combination of users $u=1,\dots,U$ and items $i=1,\dots,I$, consider two sets of variables. The first matrix $\bA = \left\{ a_{ui} \right\}$ indicates whether user $u$ has been exposed to item $i$. The second matrix $\bY = \left\{ y_{ui} \right\}$ indicates whether or not user $u$ clicked on item $i$.
+For every combination of users $u=1,\dots,U$ and items $i=1,\dots,I$, consider two sets of variables. The first matrix $\bA = \left\{ a_{ui} \right\}$ indicates whether user $u$ has been exposed to item $i$ (exposure matrix). The second matrix $\bY = \left\{ y_{ui} \right\}$ indicates whether or not user $u$ clicked on item $i$ (click matrix).
 
-Whether a user is exposed to an item comes from a Bernoulli. Conditional on being exposed, user's preference comes from a matrix factorization model. Similar to the standard methodology, we factorize this conditional distribution to $K$ user preferences $\theta_{i,1:K}$ and $K$ item attributes $\beta_{u,1:K}$,
-\begin{eqnarray} %\;\;\mathrm{for}\; k=1,\dots,K
-	\mb\theta_{u} &\sim& \mathcal{N}(\bzero, \lambda_\theta^{-1} I_K) \nonumber \\
-	\mb\beta_{i} &\sim& \mathcal{N}(\bzero, \lambda_\beta^{-1} I_K)  \nonumber \\
-	a_{ui} &\sim& \mathrm{Bernoulli}(\mu_{ui}) \nonumber \\
-	y_{ui} \g a_{ui} = 1 &\sim& \mathcal{N}(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \nonumber \\
-	y_{ui} \g a_{ui} = 0 &\sim& \delta_0,
-	\label{eq:gen_model}
- \end{eqnarray}
+Whether a user is exposed to an item comes from a Bernoulli. Conditional on being exposed, user's preference comes from a Gaussian matrix factorization model, which factorizes this conditional distribution to $K$ user preferences $\theta_{i,1:K}$ and $K$ item attributes $\beta_{u,1:K}$,
+\begin{equation}
+	\begin{split}
+	\mb\theta_{u} &\sim \cN(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \\
+	\mb\beta_{i} &\sim \cN(\bzero, \lambda_\beta^{-1} \mathrm{I}_K)  \\
+	a_{ui} &\sim \mathrm{Bernoulli}(\mu_{ui}) \\
+	y_{ui} \g a_{ui} = 1 &\sim \cN(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \\
+	y_{ui} \g a_{ui} = 0 &\sim \delta_0,
+	\end{split}
+	\label{chpt:expomf:eq:expo_mf}
+ \end{equation}
 where $\delta_0$ denotes that $p(y_{ui} = 0 \g a_{ui} = 0) = 1$, and we
 introduced a set of hyperparameters denoting the inverse variance
 ($\lambda_\theta$, $\lambda_\beta$, $\lambda_y$). $\mu_{ui}$ is the prior
 probability of exposure, we discuss various ways of setting or learning it
 in subsequent sections. 
-A graphical representation of the model in Equation~(\ref{eq:gen_model}) is given in \Cref{fig:plate_diagram}. 
+A graphical representation of the model in \Cref{chpt:expomf:eq:expo_mf} is given in \Cref{fig:plate_diagram}. 
 
 We observe the complete click matrix $\bY$. These have a special structure. When $y_{ui} > 0$, we know that $a_{ui} = 1$. When $y_{ui} = 0$, then $a_{ui}$ is latent. 
 The user might have been exposed to item $i$ and decided not to click (i.e., $a_{ui}=1$, $y_{ui} = 0$); 
@@ -173,30 +142,25 @@ or she may have never seen the item (i.e., $a_{ui}=0$, $y_{ui}=0$).
 We note that since $\bY$ is usually sparse in practice, 
 most $a_{ui}$ will be latent.
 
-The model described in Equation~(\ref{eq:gen_model})
+The model described in \Cref{chpt:expomf:eq:expo_mf}
 leads to the following log joint probability\footnote{N.B., we follow the convention that $0 \log 0 = 0$ to allow the log joint to be defined when $y_{ui}>0$.} of exposures and clicks 
 for user $u$ and item $i$,
-%\begin{eqnarray}
-%	&& \log p(a_{ui}, y_{ui} \g \mu_{ui}, \theta_u, \beta_i, \sigma) \nonumber \\ 
-%	&=& \log \mathrm{Bernoulli}(a_{ui} \g \mu_{ui}) +
-%	a_{ui} \log \mathcal{N}(y_{ui} \g \theta_u^\top \beta_i, \sigma^2) \nonumber \\
-%	&& + (1-a_{ui}) \log \delta_{y_{ui}=0}. %\mathbb{I}[y_{ui} = 0],
-%	\label{eq:a_y_joint}
-%\end{eqnarray}
-\begin{flalign}
-	\log p( & a_{ui}, y_{ui} \g \mu_{ui}, \mb\theta_u, \mb\beta_i, \lambda_y^{-1}) && \nonumber \\ 
+\begin{equation}
+\begin{split}
+	\log p( & a_{ui}, y_{ui} \g \mu_{ui}, \mb\theta_u, \mb\beta_i, \lambda_y^{-1}) \\ 
 	= & \log \mathrm{Bernoulli}(a_{ui} \g \mu_{ui}) + 
-	a_{ui} \log \mathcal{N}(y_{ui} \g \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) && \nonumber \\
-	& + (1-a_{ui}) \log \mathbb{I}[y_{ui}=0], && %\mathbb{I}[y_{ui} = 0],
+	a_{ui} \log \mathcal{N}(y_{ui} \g \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \\
+	& + (1-a_{ui}) \log \mathbb{I}[y_{ui}=0], %\mathbb{I}[y_{ui} = 0],
+	\end{split}
 	\label{eq:a_y_joint}
-\end{flalign}
+\end{equation}
 where $\mathbb{I}[b]$ is the indicator function that evaluates to 1 when $b$ is true, and 0 otherwise. 
 
 What does the distribution in \Cref{eq:a_y_joint} say 
 about the model's exposure beliefs when no clicks are observed? 
 When the predicted preference is high 
 (i.e., when $\mb\theta_u^\top \mb\beta_i$ is high) 
-then the log likelihood of no clicks $\log \mathcal{N}(0 \g \mb\theta_u^\top \mb\beta_i, \lambda^{-1}_y)$ is low and likely non-positive.
+then the log-likelihood of no clicks $\log \mathcal{N}(0 \g \mb\theta_u^\top \mb\beta_i, \lambda^{-1}_y)$ is low and likely non-positive.
 This feature penalizes the model 
 for placing probability mass on $a_{ui}=1$, 
 forcing us to believe that user $u$ is \emph{not} exposed to item $i$. 
@@ -204,19 +168,14 @@ forcing us to believe that user $u$ is \emph{not} exposed to item $i$.
 Interestingly, a low value of $a_{ui}$ 
 downweights the evidence for $\mb\theta_u$ and $\mb\beta_i$ 
 (this is clear by considering extreme values: 
-when $a_{ui}=0$, the user and item factors do not affect the log joint in Eq.~\ref{eq:a_y_joint} at all; 
+when $a_{ui}=0$, the user and item factors do not affect the log joint in \Cref{eq:a_y_joint} at all; 
 when $a_{ui}=1$, we recover standard matrix factorization). 
-Like weighted matrix factorization (WMF) \cite{hu2008collaborative}, ExpoMF shares the same feature of selectively downweighting evidence from the click matrix. 
-%has emerged in recent years as a successful approach to 
-%inference in collaborative filtering. 
-%We briefly compare to one such approach, \citet{hu2008collaborative}, 
-%when we discuss related work in \Cref{sec:related_work}.
+Like \gls{WMF} \citep{hu2008collaborative}, ExpoMF shares the same feature of selectively downweighting evidence from the click matrix. 
 
 In ExpoMF, fixing the entries of the exposure matrix to a single value
 (e.g., $a_{ui}=1, \forall u, i$) recovers Gaussian probabilistic matrix
-factorization \cite{mnih2007probabilistic} (see \Cref{sec:background}). WMF is also a special case of
-our model which can be obtained by fixing ExpoMF's exposure matrix using
-$c_0$ and $c_1$ as above.
+factorization \cite{mnih2007probabilistic} (see \Cref{chpt:background:sec:mf_cf}). \gls{WMF} is also a special case of
+our model which can be obtained by fixing ExpoMF's exposure matrix using the confidence $c_0$ and $c_1$ (see \Cref{chpt:background:sec:cf_implicit}).
 
 The intuitions we developed for 
 user exposure from the joint probability 
@@ -227,34 +186,25 @@ there are a rich set of choices
 available in the modeling of $\mu_{ui}$. 
 We discuss several of these next.
 
-%\begin{figure*}[!tbp]
-%  \centering
-%  \subfloat[Exposure MF.]{\includegraphics[width=0.3\textwidth]{./fig/plate_diagram.pdf}\label{fig:plate_diagram}}
-%  %\hfill
-%  \hspace{20pt}
-%  \subfloat[Exposure MF with side information.]{\includegraphics[width=0.3\textwidth]{./fig/plate_diagram_side_info.pdf}\label{fig:plate_diagram_side_info}}
-%  \caption{My flowers.}
-%\end{figure*}
-
 \begin{figure}
   \centering
   \begin{subfigure}[t]{4in}
   \centering
   \includegraphics{fig/plate_diagram.pdf}
-  \label{fig:plate_diagram}
   \caption{Exposure MF.}
+  \label{fig:plate_diagram}
   \end{subfigure}
   \\
   \begin{subfigure}[t]{4in}
   \centering
   \includegraphics{fig/plate_diagram_side_info.pdf}
-  \label{fig:plate_diagram_side_info}
   \caption{Exposure MF with exposure covariates.}
+  \label{fig:plate_diagram_side_info}
   \end{subfigure}
   \caption{Graphical representation of the exposure MF model (both with and without exposure covariates). The lightly shaded node $a_{ui}$ indicates that it is partially observed (i.e., it is observed when $y_{ui} = 1$ and unobserved otherwise).}
 \end{figure}
 
-\subsection{Hierarchical Modeling of Exposure}
+\subsection{Hierarchical modeling of exposure}
 \label{sec:modeling_mu}
 %\subsection{Incorporating Side Information}
 
@@ -270,7 +220,7 @@ However, we found that empirical performance is highly sensitive to this choice,
 motivating the need to place models on the prior for $\mu_{ui}$ 
 with flexible parameters. 
 
-We introduce observed exposure covariates $\mathbf{x}_i$ and exposure model parameters $\mb\psi_{u}$ 
+We introduce observed exposure covariates $\mbx_i$ and exposure model parameters $\mb\psi_{u}$ 
 and condition $\mu_{ui} \g \mb{\psi}_{u}, \mb{x}_{i}$ 
 according to some domain-specific structure. 
 The extended graphical model with exposure covariates 
@@ -311,24 +261,24 @@ In the domain of location-based recommendation,
 the exposure covariates are the locations of the venues being recommended. 
 We treat both in a similar way. 
 
-Consider a $L$-dimensional ($L$ does not necessarily equal the latent space dimension $K$ in the matrix factorization model) representation $\mathbf{x}_i$ 
+Consider a $L$-dimensional ($L$ does not necessarily equal the latent space dimension $K$ in the matrix factorization model) representation $\mbx_i$ 
 of the content of document $i$ 
-obtained through natural language processing (e.g., word embeddings \cite{mikolov2013distributed}, latent Dirichlet allocation \cite{blei2003latent}), 
+obtained through natural language processing (e.g., word embeddings \citep{mikolov2013distributed}, latent Dirichlet allocation \citep{blei2003latent}), 
 or the position of venue $i$ obtained by first clustering all the venues in the data set 
 then finding the expected assignment to $L$ clusters 
 for each venue. 
-In both cases, $\mathbf{x}_i$ is all positive and normalizes to 1. 
-Denoting $\sigma$ as the sigmoid function, 
+In both cases, $\mbx_i$ is all positive and normalizes to 1. 
+Denoting $\sigma(\cdot)$ as the sigmoid function, 
 we set
-\begin{equation}
-	\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i), 
-\end{equation}
+\begin{equation*}
+	\mu_{ui} = \sigma(\mb\psi_u^\top \mbx_i), 
+\end{equation*}
 where we learn the coefficients $\mb\psi_u$ 
-for each user $u$. Furthermore, we can include intercepts with various levels and interactions \cite{gelman2006data}. 
+for each user $u$. Furthermore, we can include intercepts with various levels and interactions \citep{gelman2006data}. 
 
 How to interpret the coefficients $\mb\psi_u$? 
 The first interpretation is that of logistic regression, 
-where the independent variables are $\mathbf{x}_i$, 
+where the independent variables are $\mbx_i$, 
 the dependent binary variables are $a_{ui}$, 
 and the coefficients to learn are $\mb\psi_u$. 
 %This leads to an obvious extension: add an intercept $\mu_{ui} = \sigma(\psi_u \pi_i + c)$, 
@@ -355,22 +305,7 @@ for the model to include venues near there in the exposure set of $u$.
 
 \subsection{Inference}
 \label{sec:inference}
-We use expectation-maximization (EM) \cite{dempster1977maximum} to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model.\footnote{There are various other inference methods we could have used, such as Markov chain Monte Carlo \cite{smith1993bayesian} or variational inference \cite{wainwright2008graphical}. We chose EM for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{alg:exposure_mf}.
-% LC: commented out for original www'16 submission
-%The full derivation is in the Appendix. %\hl{[todo: make sure we have an appendix]} 
-%\hl{[todo: add algorithm box to top of page]}
-
-%plan:
-%
-%1. present the general inference for general $\mu_{ui}$: E-step, compute posterior, M-step update factors
-%
-%2. for each different option of choice matrix, describe how to update the model for $\mu_{ui}$ (derivation in appendix) 
-%
-%3. how to make prediction
-%
-%(at some point, we should connect hu et al as a special case of our model)
-
-
+We use expectation-maximization (EM) algorithm to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model (see \Cref{chpt:background:sec:em}).\footnote{There are various other inference methods we could have used, such as Markov chain Monte Carlo \citep{neal1993probabilistic,robert2013monte} or variational inference \citep{jordan1999introduction,wainwright2008graphical}. We chose EM for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{chpt:expomf:algo:expomf}.
 
 %\subsubsection{Inference for exposure MF.}
 %\label{sec:inf_basic_model}
@@ -379,7 +314,7 @@ We use expectation-maximization (EM) \cite{dempster1977maximum} to find the maxi
 %\mathcal{L} = \sum_{u, i} \mathds{1}\{a_{ui} = 1\} \big(\log\mu + \log p(y_{ui} | \theta_u^T\beta_i)\big) + \mathds{1}\{a_{ui} = 0\} \log (1 - \mu)
 %\end{equation}
 The EM inference procedure for the basic model, ExpoMF, 
-can be found by writing out the full log likelihood of the model, 
+can be found by writing out the full log-likelihood of the model, 
 then alternating between finding the expectations of missing data (exposure)
 in the E(xpectation)-step and finding maximum of the likelihood with respect to the parameters in the M(aximization)-step. 
 This procedure is analytical for our model because it is conditionally conjugate, 
@@ -391,7 +326,7 @@ between the priors for $\mu_{ui}$ and the rest of the model (given $\mu_{ui}$)
 means that the update for the latent exposure variables and user and item factors are not altered for any exposure model we use. We present these general updates first.
 
 \parhead{E-step.}
-In the E-step, we compute expectation of the exposure latent variable $\E[a_{ui}]$ for all user and item combinations ($u$, $i$) for which there are no observed clicks (recall that the presence of clicks $y_{ui}>0$ means that $a_{ui}=1$ deterministically),
+In the E-step, we compute expectation of the exposure latent variable $\E{a_{ui}}$ for all user and item combinations ($u$, $i$) for which there are no observed clicks (recall that the presence of clicks $y_{ui}>0$ means that $a_{ui}=1$ deterministically),
 \begin{equation}
 \E{a_{ui} \g \mb\theta_u, \mb\beta_i, \mu_{ui}, y_{ui} = 0} = \frac{\mu_{ui} \cdot \mathcal{N}(0 | \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})}{\mu_{ui}\cdot \mathcal{N}(0 |  \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) + (1 - \mu_{ui})}.
 \label{eq:update_a}
@@ -402,16 +337,57 @@ where $\mathcal{N}(0 \g \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})$ stands for 
 %Denote $P \in [0, 1]^{U\times I}$ the posterior computed from E-step for each user-item pair (if $y_{ui} > 0$, $p_{ui} = 1$). For notational convenience, we define the concatenated user latent factors matrix $\Theta \overset{\triangle}{=} [\theta_1 | \cdots | \theta_U ]^T  \in \mathbb{R}^{U \times K}$ and item latent factors matrix $B \overset{\triangle}{=} [\beta_1 | \cdots | \beta_I ]^T  \in \mathbb{R}^{I \times K}$. Thus the update for factors is
 For notational convenience, we define $p_{ui} = \E{a_{ui} \g \theta_u, \beta_i, \mu_{ui}, y_{ui} = 0}$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
 \begin{align}
-\mb\theta_u &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \mb\beta_i \mb\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \mb\beta_i ) \label{eq:update_theta}\\
-\mb\beta_i &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \mb\theta_u), \label{eq:update_beta}
+\mb\theta_u^\new &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \mb\beta_i \mb\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \mb\beta_i ) \label{eq:update_theta}\\
+\mb\beta_i^\new &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \mb\theta_u), \label{eq:update_beta}
 \end{align}
+Again, this looks very similar to the \textit{alternating least squares} update of \gls{WMF}, which reveals the close connection between ExpoMF and \gls{WMF}.
+
+\subsubsection{Inference for the exposure prior $\mu_{ui}$}
+\label{sec:inf_hier_model}
+We now present inference for the hierarchical variants of ExpoMF. 
+% As described in \Cref{sec:modeling_mu}, conditional independence 
+% between the priors for $\mu_{ui}$ and the rest of the model (given $\mu_{ui}$) 
+% means that the only altered updates in hierarchical ExpoMF 
+% is the update for $\mu_{ui}$, and, if applicable, its prior random variables. 
+% This means that, relative to \Cref{sec:inf_basic_model}, the entire E-step is unaltered 
+% and that the M-step updates to user and item factors are also the same (that is, updates in Eq.~\ref{eq:update_a},~\ref{eq:update_theta},~and~\ref{eq:update_beta} still hold). 
+In particular we highlight the updates to 
+$\mu_{ui}$ under the various models we presented in \Cref{sec:modeling_mu}.
+
+\parhead{Update for per-item $\mu_{i}$.} Maximizing the log-likelihood with respect to $\mu_i$ is equivalent to finding the mode of the complete conditional $\mathrm{Beta}(\alpha_1 + \sum_u p_{ui}, \alpha_2 + U - \sum_u p_{ui})$, which is:
+\begin{equation}\label{eq:mu_i}
+\mu_i \leftarrow \frac{\alpha_1 + \sum_u p_{ui}- 1}{\alpha_1 + \alpha_2 + U - 2}
+\end{equation}
+
+\parhead{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\mb\psi_u^\top \mbx_i)$, where $\mbx_i$ is given by pre-processing (topic analysis or location clustering), presents us with the challenge of maximizing the log-likelihood with respect to exposure model parameters $\mb\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log-likelihood with respect to $\mb\psi_u$,
+\begin{equation}
+	\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta \nabla_{\mb\psi_u} \mathcal{L}, %^\mathrm{(previous)}
+	\label{eq:update_psi}
+\end{equation}
+for some learning rate $\eta$, where
+\begin{equation*}
+	\nabla_{\mb\psi_u} \mathcal{L} = \textstyle \frac{1}{I}\sum_i ( p_{ui} - \sigma(\mb\psi_u^\top \mbx_i))\mbx_i.
+\end{equation*}
+
+This can be computationally challenging especially for large item-set sizes $I$. Therefore, we perform (mini-batch) stochastic gradient descent: at each iteration $t$, we randomly subsample a small batch of items $B_t$ and take a noisy gradient steps:
+\begin{equation} \label{eq:update_psi_sgd}
+\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta_t \tilde{\mb{g}}_t
+\end{equation}
+for some learning rate $\eta_t$, where
+\begin{equation*}
+\tilde{\mb{g}}_t = \textstyle \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mbx_i)) \mbx_i.
+\end{equation*}
+
+For each EM iteration, we found it sufficient to do a single update to the
+exposure model parameter $\mb\psi_u$ (as opposed to updating until it
+reaches convergence). This partial M-step \citep{neal1998view} is much faster in practice. 
 
 \begin{algorithm}
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
-\KwIn{click matrix $\bY$, exposure covariates $x_{1:I}$ (topics or locations, optional)}
-\KwOut{A set of user latent factors $\mb\theta_{1:U}$ and item latent factors $\mb\beta_{1:I}$}
+\KwIn{Click matrix $\bY$, exposure covariates $x_{1:I}$ (topics or locations, optional)}
+\KwOut{User latent factors $\mb\theta_{1:U}$, item latent factors $\mb\beta_{1:I}$, exposure priors~$\mu_{1:I}$ (for per-item $\mu_i$), OR exposure model parameters $\mb\psi_{1:U}$ (with exposure model)}
 %$C \gets \emptyset$\;
-Random initialization: user factors $\mb\theta_{1:U}$, item factors $\mb\beta_{1:I}$, exposure priors~$\mu_{1:I}$ (for per-item $\mu_i$), OR exposure model parameters $\mb\psi_{1:U}$ (with exposure model)\;
+Random initialization: $\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mu_{1:I}$, OR $\mb\psi_{1:U}$\;
 \While{performance on validation set increases}{
   Compute expected exposure $\bA$ (\Cref{eq:update_a})\;
   Update user factors $\mb\theta_{1:U}$ (\Cref{eq:update_theta})\;	
@@ -419,88 +395,45 @@ Random initialization: user factors $\mb\theta_{1:U}$, item factors $\mb\beta_{1
   \If{ExpoMF with per-item $\mu_i$}{
   Update priors $\mu_{i}$ (\Cref{eq:mu_i})
   }
-  \If{ExpoMF with exposure model $\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i)$}{
+  \If{ExpoMF with exposure model $\mu_{ui} = \sigma(\mb\psi_u^\top \mbx_i)$}{
   Update coefficients $\mb\psi_u$ (\Cref{eq:update_psi} or \Cref{eq:update_psi_sgd})
   }
 
 }
-\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$}\;
+\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mu_{1:I}$, OR $\mb\psi_{1:U}$}\;
 \caption{{\sc Expo-ALS} Inference for ExpoMF}
-\label{alg:exposure_mf}
+\label{chpt:expomf:algo:expomf}
 \end{algorithm}
 
-\subsubsection*{Inference for the Exposure Prior $\mu_{ui}$}
-\label{sec:inf_hier_model}
-We now present inference for the hierarchical variants of Exposure~MF. 
-%As described in Section~\ref{sec:modeling_mu}, conditional independence 
-%between the priors for $\mu_{ui}$ and the rest of the model (given $\mu_{ui}$) 
-%means that the only altered updates in hierarchical exposure~MF 
-%is the update for $\mu_{ui}$, and, if applicable, its prior random variables. 
-%This means that, relative to Section~\ref{sec:inf_basic_model}, the entire E-step is unaltered 
-%and that the M-step updates to user and item factors are also the same (that is, updates in Eq.~\ref{eq:update_a},~\ref{eq:update_theta},~and~\ref{eq:update_beta} still hold). 
-In particular we highlight the updates to 
-$\mu_{ui}$ under the various models we presented in \Cref{sec:modeling_mu}.
+\subsubsection{Complexity and implementation details}
 
-\parhead{Update for per-item $\mu_{i}$.} Maximizing the log likelihood with respect to $\mu_i$ is equivalent to finding the mode of the complete conditional $\text{Beta}(\alpha_1 + \sum_u p_{ui}, \alpha_2 + U - \sum_u p_{ui})$, which is:
-\begin{equation}\label{eq:mu_i}
-\mu_i \leftarrow \frac{\alpha_1 + \sum_u p_{ui}- 1}{\alpha_1 + \alpha_2 + U - 2}
-\end{equation}
+A naive implementation of the \gls{WMF} has the same complexity as ExpoMF in terms of updating the user and item factors. However, the trick that is used to speed up computations in \gls{WMF} described in \Cref{chpt:background:sec:cf_implicit} cannot be applied to ExpoMF due to the non-uniformness of the exposure latent variable $a_{ui}$. On the other hand, the factor updates are still independent across users and items. These updates can therefore easily be parallelized.
 
-\parhead{Update for exposure covariates (topics, location).} Setting $\mu_{ui} = \sigma(\mb\psi_u^\top \mathbf{x}_i)$, where $\mathbf{x}_i$ is given by pre-processing (topic analysis or clustering), presents us with the challenge of maximizing the log likelihood with respect to exposure model parameters $\mb\psi_u$. Since there is no analytical solution for the mode, we resort to following the gradients of the log likelihood with respect to $\mb\psi_u$,
-\begin{equation}
-	\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta \nabla_{\mb\psi_u} \mathcal{L}, %^\mathrm{(previous)}
-	\label{eq:update_psi}
-\end{equation}
-for some learning rate $\eta$, where
-\begin{equation}
-	\nabla_{\mb\psi_u} \mathcal{L} = \textstyle \frac{1}{I}\sum_i ( p_{ui} - \sigma(\mb\psi_u^\top \mathbf{x}_i))\mathbf{x}_i.
-\end{equation}
+In ExpoMF's implementation, explicitly storing the exposure matrix $\bA$ is impractical for even medium-sized datasets. As an alternative, we perform the E-step on the fly: only the necessary part of the exposure matrix $\bA$ is constructed for the updates of the user/item factors and exposure priors $\mu_{ui}$. As shown in \Cref{chpt:expomf:sec:exp}, with parallelization and the on-the-fly E-step, ExpoMF can be easily fit to medium-to-large datasets.\footnote{The source code to reproduce all the experimental results is available at: \url{https://github.com/dawenl/expo-mf}.}
 
-This can be computationally challenging especially for large item-set sizes $I$. Therefore, we perform (mini-batch) stochastic gradient descent: at each iteration $t$, we randomly subsample a small batch of items $B_t$ and take a noisy gradient steps:
-\begin{equation} \label{eq:update_psi_sgd}
-\mb\psi_u^{\text{new}} \leftarrow \mb\psi_u + \eta_t \tilde{\mb{g}}_t
-\end{equation}
-for some learning rate $\eta_t$, where
-\begin{equation}
-\tilde{\mb{g}}_t = \textstyle \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mathbf{x}_i)) \mathbf{x}_i.
-\end{equation}
-
-For each EM iteration, we found it sufficient to do a single update to the
-exposure model parameter $\mb\psi_u$ (as opposed to updating until it
-reaches convergence). This partial M-step~\cite{neal1998view} is much faster in
-practice. 
-%while still giving close
-%good performance. % to fully updating $\mb\psi_u$.
-
-\subsubsection*{Complexity and Implementation Details}
-
-A naive implementation of the weighted matrix factorization (WMF) \cite{hu2008collaborative} has the same complexity as ExpoMF in terms of updating the user and item factors. However, the trick that is used to speed up computations in WMF cannot be applied to ExpoMF due to the non-uniformness of the exposure latent variable $a_{ui}$. On the other hand, the factor updates are still independent across users and items. These updates can therefore easily be parallelized.
-
-In ExpoMF's implementation, explicitly storing the exposure matrix $\bA$ is impractical for even medium-sized datasets. As an alternative, we perform the E-step on the fly: only the necessary part of the exposure matrix $\bA$ is constructed for the updates of the user/item factors and exposure priors $\mu_{ui}$. As shown in \Cref{sec:experiments}, with parallelization and the on-the-fly E-step, ExpoMF can be easily fit to medium-to-large datasets.\footnote{The source code to reproduce all the experimental results is available at: \url{https://github.com/dawenl/expo-mf}.}
-
-\subsection{Prediction} \label{sec:pred}
-In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\mb\theta_u^\top\mb\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations  to the posterior given by the EM algorithm\footnote{This quantity is also the treatment effect $\E{y_{ui} \g a_{ui}=1, \mb\theta_u, \mb\beta_i} - \E{y_{ui} \g a_{ui}=0, \mb\theta_u, \mb\beta_i}$ in the potential outcomes framework, since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
+\subsection{Prediction} \label{chpt:expomf:sec:pred}
+In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\mb\theta_u^\top\mb\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations to the posterior given by the EM algorithm\footnote{This quantity is also the treatment effect $\E{y_{ui} \g a_{ui}=1, \mb\theta_u, \mb\beta_i} - \E{y_{ui} \g a_{ui}=0, \mb\theta_u, \mb\beta_i}$ in the potential outcomes framework (see \Cref{chpt:background:sec:potential}), since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
 However, ExpoMF can also make predictions by integrating out the uncertainty from the exposure latent variable $a_{ui}$:
-\begin{equation}
+\begin{equation*}
 \begin{split}
 \mathbb{E}_y[y_{ui} \g \mb\theta_u, \mb\beta_i] &= \mathbb{E}_a\big[\mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}]\big]\\
 &= \textstyle\sum_{a_{ui}\in \{0, 1\}} \mathbb{P}(a_{ui}) \mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}] \\
 &= \mu_{ui} \cdot \mb\theta_u^\top\mb\beta_i
 \end{split}
-\end{equation}
+\end{equation*}
 We experimented with both predictions in our study and found that the
 simple dot product works better for ExpoMF with per-item $\mu_i$ while
-$\E{y_{ui} \g \mb\theta_u, \mb\beta_i}$ works better for ExpoMF with exposure covariates. We provide further insights about this difference in \Cref{sec:si_doc}.
+$\E{y_{ui} \g \mb\theta_u, \mb\beta_i}$ works better for ExpoMF with exposure covariates. We provide further insights about this difference in \Cref{chpt:expomf:sec:si_doc}.
 
 
 \section{Related work}
-\label{sec:related_work}
+\label{chpt:expomf:sec:related}
 
 In this section we highlight connections between ExpoMF and other
 similar research directions. 
 
 
-%is a special case of the model described in Eq.~\ref{eq:gen_model}.
+%is a special case of the model described in Eq.~\ref{chpt:expomf:eq:expo_mf}.
 %we briefly compare to their approach.
 %they optimize the function,
 %\begin{displaymath}
@@ -512,7 +445,7 @@ similar research directions.
 %. 
 
 \parhead{Causal inference.} Our work borrows ideas from the field of
-causal inference~\cite{pearl2009causality,imbens2015causal}. Causal inference aims at understanding and
+causal inference \citep{pearl2009causality,imbens2015causal}. Causal inference aims at understanding and
 explaining the effect of one variable on another. 
 
 One particular aim of causal inference is to answer counterfactual
@@ -521,7 +454,7 @@ user click through rate?''.  While online studies may answer such a question, th
 typically expensive even for large electronic commerce companies.
 Obtaining answers to such questions using observational data alone (e.g.,
 log data) is therefore of important practical
-interest~\cite{bottou2015counterfactual,li2010contextual,swaminathan2015counterfactual}.
+interest \citep{bottou2015counterfactual,li2010contextual,swaminathan2015counterfactual}.
 
 We establish a connection with the potential outcome framework of
 \citet{rubin1974ece}. In this framework one differentiates the assignment mechanism,
@@ -544,7 +477,7 @@ investigation, models that emerged from this line of work share
 commonalities with our approach.  Specifically, \citet{DBLP:conf/uai/MarlinZRS07,ling12response}
 separate the \emph{selection model} (the exposure matrix) from the
 \emph{data model} (the matrix factorization). However, their
-interpretation, rooted in the theory of missing data~\cite{little1986statistical}, leads to a
+interpretation, rooted in the theory of missing data \citep{little1986statistical}, leads to a
 much different interpretation of the selection model. They hypothesize
 that the value of a rating influences whether or not a user will report
 the rating (this implicitly captures the effect that users mostly consume
@@ -568,61 +501,60 @@ stochastically sampled.
 \parhead{Exposure in other contexts.} In zero-inflated Poisson regression, a
 latent binary random variable, similar to our exposure variable is introduced to ``explain away'' the structural zeros, such that the
 underlying Poisson model can better capture the count data
-\cite{lambert1992zero}. This type of model is common in Economics where it is used
-to account for overly frequent zero-valued observations.  
+\citep{lambert1992zero}. This type of model is common in Economics where it is used to account for overly frequent zero-valued observations.  
 
-ExpoMF can also be considered as an instance of a spike-and-slab model~\cite{ishwaran2005spike} where the ``spike'' comes from the exposure variables and the matrix factorization component forms the flat ``slab'' part. 
+ExpoMF can also be considered as an instance of a spike-and-slab model \citep{ishwaran2005spike} where the ``spike'' comes from the exposure variables and the matrix factorization component forms the flat ``slab'' part. 
 
 \parhead{Versatile CF models.} As we show in \Cref{sec:modeling_mu},
 ExpoMF's exposure matrix can be used to model external information describing user
 and item interactions. This is in contrast to most CF models which are
 crafted to model a single type of data (e.g., document content when
-recommendation scientific papers \cite{wang2011collaborative}). An exception is
+recommendation scientific papers \citep{wang2011collaborative}). An exception is
 factorization machines (FM) of \citet{rendle2010fm}. FM models all types of
 (numeric) user, item or user-item features. FM considers the interaction
 between all features and learns specific parameters for each interaction.
 
 
 \section{Empirical study}
-\label{sec:experiments}
+\label{chpt:expomf:sec:exp}
 
 In this section we study the recommendation performance of ExpoMF by fitting
 the model to several datasets. We provide further insights into ExpoMF's
 performance by exploring the resulting model fits. We highlight that: 
 \begin{itemize} 
-\item ExpoMF performs comparably better than the state-of-the-art WMF
+\item ExpoMF performs comparably better than the state-of-the-art \gls{WMF}
 \cite{hu2008collaborative} on four datasets representing user clicks, checkins,
 bookmarks and listening behavior.
 \item When augmenting ExpoMF with exposure covariates its performance is
 further improved. ExpoMF with location covariates and ExpoMF with content
 covariates both outperform the simpler ExpoMF with per-item $\mu_i$.
-Furthermore, ExpoMF with content covariates outperforms a state-of-the-art
-document recommendation model \cite{wang2011collaborative}.  
+Furthermore, ExpoMF with content covariates outperforms \gls{CTR} \citep{wang2011collaborative}, a state-of-the-art
+document recommendation model.  
 \item Through posterior exploration we provide insights into ExpoMF's user-exposure modeling.
 \end{itemize} 
 
 \subsection{Datasets}
 Throughout this study we use four medium to large-scale user-item consumption datasets from various domains: 
-1) taste profile subset (TPS) of the million song dataset \cite{bertin2011million}; 2) scientific articles data from
-arXiv\footnote{\url{http://arxiv.org}}; 3) user bookmarks from Mendeley\footnote{\url{http://mendeley.com}}; and 4) check-in
-data from the Gowalla dataset \cite{cho2011friendship}. In more details:
+1) taste profile subset (TPS) of the million song dataset \citep{bertin2011million}; 2) scientific articles data from
+arXiv; 3) user bookmarks from Mendeley\footnote{\url{http://mendeley.com}}; and 4) check-in
+data from the Gowalla dataset \citep{cho2011friendship}. In more details:
 
 \begin{table}
 \centering
 \begin{tabular}{ c c c c c  }
-  \hline
+  \toprule
    & \textbf{TPS} & \textbf{Mendeley} & \textbf{Gowalla} & \textbf{ArXiv} \\
-   \hline
+   \midrule
   \# of users & 221,830 & 45,293 & 57,629 & 37,893   \\
   \# of items & 22,781& 76,237 & 47,198 & 44,715 \\
   \# interactions & 14.0M &  2.4M & 2.3M & 2.5M\\
   $\%$ interactions & 0.29\% & 0.07\% & 0.09\% & 0.15\%\\
-  \hline 
+  \bottomrule 
 \end{tabular}
 \caption{Attributes of datasets after pre-processing. Interactions are non-zero
 entries (listening counts, clicks, and checkins). \% interactions refers to the
-density of the user-item interaction matrix ($\bY$).}
-\label{tab:data}
+density of the user-item click matrix ($\bY$).}
+\label{chpt:expomf:tab:data}
 \end{table}
 
 \begin{itemize}
@@ -635,7 +567,7 @@ songs that are listened to by at least 50 users.
 
 \item \emph{ArXiv:} contains user-paper clicks derived from log data collected
 in 2012 by the arXiv pre-print server. Multiple clicks
-by the same user on a single paper are considered to be a single click. We
+by the same user on the same paper are considered to be a single click. We
 pre-process the data to ensure that all users and items have a minimum of 10
 clicks. 
 
@@ -645,17 +577,17 @@ manager''. The behavior data is filtered such that each
 user has at least 10 papers in her library and the papers that are bookmarked
 by at least 20 users are kept. In addition this dataset contains the
 content of the papers which we pre-process using standard techniques to
-yield a 10K words vocabulary. In \Cref{sec:si_doc} we make use of paper
+yield a 10K words vocabulary. In \Cref{chpt:expomf:sec:si_doc} we make use of paper
 content to inform ExpoMF's exposure model.  
 
 \item \emph{Gowalla:} contains user-venue checkins from a location-based social
 network. We pre-process the data such that all
 users and venues have a minimum of 20 checkins. Furthermore, this dataset
 also contains locations for the venues which we will use to guide 
-location-based recommendation (\Cref{sec:si_location}).  
+location-based recommendation (\Cref{sec:chpt:expomf:sec:si_location}).  
 \end{itemize}
 
-The important attributes of these datasets are summarized in \Cref{tab:data}.
+The important attributes of these datasets are summarized in \Cref{chpt:expomf:tab:data}.
 
 \subsection{Experimental setup} 
 %\PP Experiment setup: split dataset to train/test/validation, hyperparameter grid search. 
@@ -664,7 +596,7 @@ For each dataset we randomly split the observed user-item interactions
 into training/test/validation sets with 70/20/10 proportions. In all the experiments, the dimension 
 of the latent space for collaborative filtering model $K$ is 100. The
 model is trained following the inference algorithm described in
-\Cref{sec:inference}. We monitor the convergence of the algorithm using
+\Cref{chpt:expomf:algo:expomf}. We monitor the convergence of the algorithm using
 the truncated normalized discounted cumulative gain ({NDCG@100}, see below for
 details) on the validation set. Hyper-parameters for ExpoMF-based models
 and baseline models are also selected according to the same criterion.
@@ -674,55 +606,31 @@ preference ${y}^*_{ui} = \mb\theta_u^\top \mb\beta_i$, $i = 1, \cdots, I$.
 We then exclude items from the training and validation sets and calculate all the
 metrics based on the resulting ordered list. Further when using
 ExpoMF with exposure covariates we found that performance was improved by predicting missing preferences
-according to $\mathbb{E}[y_{ui}|\mb\theta_u,\mb\beta_i]$ (see \Cref{sec:pred} for details).
-%\begin{align}
-%  \E_y[y_{ui}|\mb\theta_u,\mb\beta_i] &= \E_{a_{ui}}\left[E_y[y_{ui}|\mb\theta_u,\mb\beta_i,a_{ui}]\right] \\ \nonumber
-%                              &= p(a_{ui}=1)\mb\theta_u^\top\mb\beta_i. \nonumber
-%\end{align}
+according to $\mathbb{E}[y_{ui}|\mb\theta_u,\mb\beta_i]$ (see \Cref{chpt:expomf:sec:pred} for details).
 
 \subsection{Performance measures}
-
-\begin{table*}
-\centering
-\begin{tabular}{ c | c c | c c | c c | c c  }
-   & \multicolumn{2}{c}{\textbf{TPS}} & \multicolumn{2}{c}{\textbf{Mendeley}} & \multicolumn{2}{c}{\textbf{Gowalla}} & \multicolumn{2}{c}{\textbf{ArXiv}} \\ \hline
-    & WMF & ExpoMF	& WMF & ExpoMF 	& WMF& ExpoMF &	 WMF & ExpoMF \\ \hline
-  Recall@20 &  0.195 &  \textbf{0.201}              & 0.128 &  \textbf{0.139}                & \textbf{0.122} & 0.118                          &  0.143 & \textbf{0.147} \\
-  Recall@50 &  \textbf{0.293} &  0.286              & 0.210 & \textbf{0.221}                  & \textbf{0.192} & 0.186                         & \textbf{0.237} & 0.236 \\
-  NDCG@100  &  0.255 &  \textbf{0.263}              & 0.149 & \textbf{0.159}                 & \textbf{0.118} & 0.116                         & 0.154 & \textbf{0.157} \\
-  MAP@100   &  0.092 &  \textbf{0.109}             & 0.048 & \textbf{0.055}                  & \textbf{0.044} & 0.043                         & 0.051 & \textbf{0.054}\\
-\end{tabular}
-\caption{Comparison between WMF \cite{hu2008collaborative} and ExpoMF. While
-the differences in performance are generally small, ExpoMF performs comparably better than WMF across datasets.}
-\label{tab:cfresults}
-\end{table*}
 
 To evaluate the recommendation performance, we report both Recall@$k$, a standard
 information retrieval measure, as well as two ranking-specific
 metrics: mean average precision (MAP@$k$) and
-NDCG@$k$.\footnote{\citet{hu2008collaborative} propose mean percentile
-rank (MPR) as an evaluation metric for implicit feedback recommendation. Denote perc$(u, i)$ as the percentile-ranking of item $i$ within the ranked list of all items for user $u$. That is, perc$(u, i)$ = 0\% if item $i$ is ranked first in the list, and perc$(u, i)$ = 100\% if item $i$ is ranked last. Then MPR is defined as:
-\begin{displaymath}
-\text{MPR} = \frac{\sum_{u, i} y^{\text{test}}_{u, i} \cdot \text{perc}(u, i)}{\sum_{u, i} y^{\text{test}}_{u, i}}
-\end{displaymath}
-We do not use this metric because MPR penalizes ranks linearly -- if one algorithm ranks all the heldout test items in the middle of the list, while another algorithm ranks half of the heldout test items at the top while the other half at the bottom, both algorithms will get similar MPR, while clearly the second algorithm is more desirable. On the other hand, the metrics we use here will clearly prefer the second algorithm.}
+NDCG@$k$.
 
 We denote $\text{rank}(u, i)$ as the rank of item $i$ in user $u$'s
 predicted list and $\mathbf{y}_u^{\text{test}}$ as the set of items in the
 heldout test set for user $u$.
-
 
 \begin{itemize}
 \item Recall@$k$: For each user $u$, Recall@$k$ is computed as follows:
 \begin{displaymath}
 \text{Recall@}k =\sum_{i\in\mathbf{y}^{\text{test}}_u} \frac{\mathbb{I}\{\text{rank}(u, i) \leq k\}}{\min(k, |\mathbf{y}_u^{\text{test}}|) }
 \end{displaymath}
-where $\mathbb{I}\{\cdot\}$ is the indicator function. In all our experiments we report both $k=20$ and $k=50$. We do not report Precision@$k$ due to the noisy nature of the implicit feedback data: even if an item $i\notin \mathbf{y}_u^{\text{test}}$, it is possible that the user will consume it in the future. This makes Precision@$k$ less interpretable since it is prone to fluctuations. 
+where $\mathbb{I}\{\cdot\}$ is the indicator function. In all our experiments we report both $k=20$ and $k=50$. This is slightly different from the metric we used in \Cref{chpt:content:sec:exp_rec}: the expression in the denominator evaluates to the minimum between $k$ and the
+number of items consumed by user $u$. In this way, Recall@$k$ is normalized to have a maximum of 1. This corresponds to successfully retrieving all the relevant items in top $k$ of the list. We do not report Precision@$k$ due to the noisy nature of the implicit feedback data: even if an item $i\notin \mathbf{y}_u^{\text{test}}$, it is possible that the user will consume it in the future. This makes Precision@$k$ less interpretable since it is prone to fluctuations. 
 \item MAP@$k$: Mean average precision calculates the mean of users' average precision. The (truncated) average precision for user $u$ is: 
 \begin{displaymath}
   \text{Average Precision}@k = \sum_{n=1}^k \frac{\text{Precision}@n}{\min(n,|\mathbf{y}_u^{\text{test}}|)}.
 \end{displaymath}
-\item NDCG@$k$: Emphasizes the importance of the top ranks by logarithmically discounting ranks. NDCG@$k$ for each user is computed as follows:
+\item NDCG@$k$: Similar to the untruncated NDCG that we used in \Cref{chpt:content:sec:exp_rec}, it emphasizes the importance of the top ranks by logarithmically discounting ranks. NDCG@$k$ for each user is computed as follows:
 \begin{displaymath}
 \text{DCG}@k = \sum_{i=1}^k \frac{2^{rel_i} - 1}{\log_2(i + 1)}; ~ \text{NDCG}@k = \frac{\text{DCG}@k}{\text{IDCG}@k}
 \end{displaymath}
@@ -739,12 +647,12 @@ consistent when using other values of $k$.
 
 \subsection{Baselines}
 
-We compare ExpoMF to weighted matrix factorization (WMF), the standard
+We compare ExpoMF to \gls{WMF}, the standard
 state-of-the-art method for collaborative filtering with implicit data
-\cite{hu2008collaborative}. WMF is described in \Cref{sec:background}.
+\citep{hu2008collaborative}. 
 
 We also experimented with Bayesian personalized ranking (BPR)
-\cite{rendle2009bpr}, a ranking model for implicit collaborative filtering. However preliminary results were not competitive with other
+\citep{rendle2009bpr}, a ranking model for implicit collaborative filtering which approximately optimizes the area under the ROC curve (AUC). However preliminary results were not competitive with other
 approaches. BPR is trained using stochastic optimization which can be
 sensible to hyper-parameter values (especially hyper-parameters related to
 the optimization procedure). A more exhaustive search over hyper-parameters
@@ -755,45 +663,44 @@ could yield more competitive results.
 We describe specific baselines relevant to modeling exposure covariates
 in their dedicated subsections.
 
-\subsection{Studying Exposure MF} 
-\label{sec:expomf_study}
+\subsection{Studying ExpoMF} 
+\label{chpt:expomf:sec:expomf_study}
 
-
-\begin{figure*}[!tbp]
-  \centering
-   \includegraphics[width=.9\textwidth]{fig/rh_fl}
-   \caption{We compare the inferred posteriors of the exposure matrix for two
-  users (denoted by blue dots) and compare against the prior probability for exposure (red dashed lined). On the top, user A is a fan of the bands Radiohead and Interpol. 
-  Accordingly, the model downweights unlistened songs from these two
-  bands. User B has broader interests and notably enjoys listening to
-  the very popular band Florence and the Machine. Similarly as for user A,
-  unlistened tracks of Florence and the Machine get downweighted in the
-   posterior.}
-  \label{fig:expo_exp}
-\end{figure*}
-
-
-\parhead{Empirical evaluation.} Results comparing ExpoMF to WMF on our four
+\parhead{Empirical evaluation.} Results comparing ExpoMF to \gls{WMF} on our four
 datasets are given in
-\Cref{tab:cfresults}. Each metric is averaged across all the users.
-We notice that ExpoMF performs comparably better than WMF on most
+\Cref{chpt:expomf:tab:cfresults}. Each metric is averaged across all the users.
+We notice that ExpoMF performs comparably better than \gls{WMF} on most
 datasets (the standard errors are on the order of $10^{-4}$) %\footnote{There is little point arguing about ``statistical
 %significance'' because given the number of users to average over, the
 %standard errors for the metrics are vanishingly small.}, 
 though the difference in performance is small. In addition, higher values
-of NDCG@100 and MAP@100 (even when Recall@$50$ is lower) indicate that the
+of NDCG@$100$ and MAP@$100$ (even when Recall@$50$ is lower) indicate that the
 top-ranked items by ExpoMF tend to be more relevant to users' interests.  
 
+\begin{table}
+\centering
+\begin{tabular}{ c  c c  c c  c c  c c  }
+   & \multicolumn{2}{c}{\textbf{TPS}} & \multicolumn{2}{c}{\textbf{Mendeley}} & \multicolumn{2}{c}{\textbf{Gowalla}} & \multicolumn{2}{c}{\textbf{ArXiv}} \\ \toprule
+    & WMF & ExpoMF	& WMF & ExpoMF 	& WMF& ExpoMF &	 WMF & ExpoMF \\ \midrule
+  Recall@20 &  0.195 &  \textbf{0.201}              & 0.128 &  \textbf{0.139}                & \textbf{0.122} & 0.118                          &  0.143 & \textbf{0.147} \\
+  Recall@50 &  \textbf{0.293} &  0.286              & 0.210 & \textbf{0.221}                  & \textbf{0.192} & 0.186                         & \textbf{0.237} & 0.236 \\
+  NDCG@100  &  0.255 &  \textbf{0.263}              & 0.149 & \textbf{0.159}                 & \textbf{0.118} & 0.116                         & 0.154 & \textbf{0.157} \\
+  MAP@100   &  0.092 &  \textbf{0.109}             & 0.048 & \textbf{0.055}                  & \textbf{0.044} & 0.043                         & 0.051 & \textbf{0.054}\\ \bottomrule
+\end{tabular}
+\caption{Comparison between \gls{WMF} \citep{hu2008collaborative} and ExpoMF. While
+the differences in performance are generally small, ExpoMF performs comparably better than WMF across datasets.}
+\label{chpt:expomf:tab:cfresults}
+\end{table}
 
-\parhead{Exploratory analysis.} We now explore 
-posterior distributions of the exposure latent variables of two specific users from the TSP dataset. This
+
+\parhead{Exploratory analysis.} We now explore the posterior distributions of the exposure latent variables of two specific users from the TSP dataset. This
 exploration provides insights into how ExpoMF infers user exposure. 
 
-The top figure of \Cref{fig:expo_exp} shows the inferred exposure latent variable
+The top figure of \Cref{chpt:expomf:fig:expo_exp} shows the inferred exposure latent variable
 $\mathbb{E}[a_{ui}]$ corresponding to $y_{ui} = 0$ for user A.
 $\mathbb{E}[a_{ui}]$ is plotted along with the empirical item popularity
 (measured by number of times a song was listened to in the training set).
-We also plot the interpolated per-item consideration prior $\mu_i$ 
+We also plot the interpolated per-item exposure prior $\mu_i$ 
 learned using \Cref{eq:mu_i}. There is a strong relationship between song
 popularity and consideration (this is true across users). User A's
 training data revealed that she has only listened to songs from either
@@ -806,9 +713,9 @@ are a few ``outliers'' which mostly contain songs from Radiohead and
 Interpol that user A did not listen to (some of them are in fact held out
 in the test set). Effectively, a lower posterior $\mathbb{E}[a_{ui}]$ than
 the prior indicates that the model downweights these unlistened songs
-more. In contrast, WMF downweights all songs uniformly. 
+more. In contrast, \gls{WMF} downweights all songs uniformly. 
 
-A second example is shown in the bottom figure of \Cref{fig:expo_exp}. User B mostly
+A second example is shown in the bottom figure of \Cref{chpt:expomf:fig:expo_exp}. User B mostly
 listens to \emph{indie} rock bands (e.g. Florence and the Machine, Arctic
 Monkeys, and The Kills). ``Dog Days are Over'' by Florence and the Machine
 is the second most popular song in this dataset, behind ``Fireworks'' by
@@ -820,32 +727,40 @@ due to her not having been exposed to it. In contrast the model infers
 that the user probably did not like ``Fireworks'' even though it is
 popular.
 
+\begin{figure}[!tbp]
+  \centering
+   \includegraphics[width=\textwidth]{fig/rh_fl}
+   \caption{We compare the inferred posteriors of the exposure matrix for two
+  users (denoted by blue dots) and compare against the prior probability for exposure (red dashed lined). On the top, user A is a fan of the bands Radiohead and Interpol. 
+  Accordingly, the model downweights unlistened songs from these two
+  bands. User B has broader interests and notably enjoys listening to
+  the very popular band Florence and the Machine. Similarly as for user A,
+  unlistened tracks of Florence and the Machine get downweighted in the
+   posterior.}
+  \label{chpt:expomf:fig:expo_exp}
+\end{figure}
 
-\subsection{Incorporating Exposure Covariates}
+
+\subsection{Incorporating exposure covariates}
 %\hl{LC: Add something about our model w. side-information not being for
 %out-of-matrix predictions.}
 
 %Highlight: 1) popularity overwhelms exposure MF (point to Figure). 2)
 %Side-Info helps CF focus on things you have been exposed to. 
 
-\Cref{fig:expo_exp} demonstrates that ExpoMF strongly associates user
-exposure to item popularity. This is partly due to the fact that the
+\Cref{chpt:expomf:fig:expo_exp} demonstrates that ExpoMF strongly associates user exposure to item popularity. This is partly due to the fact that the
 model's prior is parametrized with a per-item term $\mu_i$. 
-
-% LC: This is interesting insight but additional context is required to allow
-% the read to understand what it means. 
-%This also explains why it is not a good idea to make a prediction with $\mathbb{E}[y_{ui}] = \mu_{ui} \cdot \theta_u^\top\beta_i$ for ExpoMF without side information because it will be highly biased towards popular items. \hl{We must mention the two ways to make prediction before} 
+(This also explains why it is not a good idea to make a prediction with $\mathbb{E}[y_{ui}] = \mu_{ui} \cdot \theta_u^\top\beta_i$ for ExpoMF without exposure covariates because it will be highly biased towards popular items.)  
 Here we are interested in using exposure covariates to provide additional
 information about the (likely) exposure of users to items (see
 \Cref{fig:plate_diagram_side_info}). 
 
 Recall that the role of these exposure covariates
-is to allow the matrix factorization component to focus
- on items that the user has been exposed to. In particular this can be done
+is to allow the matrix factorization component to focus on items that the user has been exposed to. In particular this can be done
 in the model by upweighting (increasing their probability of exposure)
 items that users were (likely) exposed to and downweighting items that
 were not. A motivating example with restaurant recommendations and New York
-City versus Las Vegas diners was discussed in \Cref{sec:introduction}.
+City versus Las Vegas diners was discussed in \Cref{chpt:expomf:sec:intro}.
 %and further discussed in \Cref{sec:model}. 
 
 %Concretely, imagine a restaurant recommender system that has
@@ -876,7 +791,7 @@ compared to ExpoMF with per-item $\mu_i$.
 
 %2. arXiv. Let's say I'm a neural network nut- morning, noon, and night, I read about them. Collaborative filtering should only care about the papers I've read and the neural network papers that I didn't read (i.e., "the papers I could have read but chose not to"). That's a controversial claim, but that's what our model is saying when applied to arXiv data.
 
-\subsubsection*{Content Covariates}\label{sec:si_doc}
+\subsubsection{Content covariates}\label{chpt:expomf:sec:si_doc}
 
 Scientists---whether through a search engine, a personal recommendation
 or other means---have a higher likelihood of being exposed to papers
@@ -890,14 +805,13 @@ component of ExpoMF.
 %biology. 
 
 In this use case, we model the user exposure based on the topics of
-articles. We use latent Dirichlet allocation (LDA) \cite{blei2003latent},
-a model of document collections, to model article content. 
-Assuming there are $K$ topics $\Phi = \mb\phi_{1:K}$, each of which is a categorical distribution over a fixed set of vocabulary, LDA treats each document as a mixture of these topics where the topic proportion $\mathbf{x}_i$ is inferred from the data. One can understand LDA as representing documents in a low-dimensional ``topic'' space with the topic proportion $\mathbf{x}_i$ being their coordinates.  
+articles. We use \gls{LDA} \citep{blei2003latent},
+a model of document collections, to model article content. \gls{LDA} was briefly reviewed in \Cref{chpt:content:sec:ctm}.   
 
-We use the topic proportion $\mathbf{x}_i$ learned from the Mendeley dataset as
+We use the topic proportion $\mbx_i$ learned from the Mendeley dataset as
 exposure covariates. Following the notation of \Cref{sec:modeling_mu}, our
 hierarchical ExpoMF is:
-\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
+\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mbx_i + \gamma_u)\end{displaymath}
 where we include a per-user bias term $\gamma_u$. Under this model, a
 molecular biology paper and a computer science paper that a computer
 scientist has not read will likely be treated differently: the model will
@@ -908,73 +822,49 @@ component of the model will focus on modeling computer science papers
 since that are more likely to be have been exposed. 
 
 Our model, Content ExpoMF, is trained following the algorithm in
-\Cref{alg:exposure_mf}. For updating exposure-related model parameters
+\Cref{chpt:expomf:algo:expomf}. For updating exposure-related model parameters
 $\mb\psi_{u}$ and $\gamma_u$, we take mini-batch gradient steps with a
 batch-size of 10 users and a constant step size of $0.5$ for 10 epochs.
 
 \begin{table}
 \centering
 \begin{tabular}{ c c c c}
-\hline
-            & ExpoMF & Content ExpoMF & CTR \cite{wang2011collaborative} \\ \hline
+\toprule
+            & ExpoMF & Content ExpoMF & \gls{CTR} \citep{wang2011collaborative} \\ \midrule
   Recall@20 & 0.139 & \textbf{0.144}         & 0.127 \\ 
   Recall@50 & 0.221 & \textbf{0.229}         & 0.210 \\ 
   NDCG@100  & 0.159 & \textbf{0.165}         & 0.150 \\ 
   MAP@100   & 0.055 & \textbf{0.056}        & 0.049 \\ 
-\hline 
+\bottomrule 
 \end{tabular}
-\caption{Comparison between Content ExpoMF and ExpoMF on Mendeley. We also compare collaborative topic regression (CTR) \cite{wang2011collaborative}, a model makes use of the same additional information as Content ExpoMF. }
-\label{tab:si_doc_results}
+\caption{Comparison between Content ExpoMF and ExpoMF on Mendeley. We also compare with \gls{CTR} \citep{wang2011collaborative}, a model makes use of the same additional information as Content ExpoMF. (\gls{CTR} is reviewed in \Cref{chpt:content:sec:ctm}.)}
+\label{chpt:expomf:tab:si_doc_results}
 \end{table}
 
-
-\begin{figure*}
-  \centering
-    \includegraphics[width=\textwidth]{fig/vanilla_vs_SI}
-    \caption{We compare the inferred exposure posterior of ExpoMF (top row)
-    and Content ExpoMF (bottom row). On the left are the posteriors of user A
-    who is interested in statistical machine learning while on the right
-    user B is interested in computer system research. Neither users have
-    read the ``Latent Dirichlet Allocation'' paper. ExpoMF
-    infers that both users have about equal probability of having been
-    exposed to it. As we discussed in \Cref{sec:expomf_study} (and demonstrated in \Cref{fig:expo_exp}) this is mostly based on the
-    popularity of this paper. In contrast, Content ExpoMF infers that
-    user A has more likely been exposed to this paper because of the closeness
-    between that paper's content and user A's interest. Content ExpoMF
-    therefore upweights the paper. Given user B's interests the paper is
-    correctly downweighted by the model.}
-    \label{fig:si}
-\end{figure*}
-
 \parhead{Study.} We evaluate the empirical performance of Content ExpoMF and report results
-in \Cref{tab:si_doc_results}. We compare to collaborative topic
-regression (CTR), a state-of-the-art method for recommending scientific
-papers \cite{wang2011collaborative} combining both LDA and WMF.\footnote{Note that to train CTR
+in \Cref{chpt:expomf:tab:si_doc_results}. We compare to \gls{CTR}, a state-of-the-art method for recommending scientific
+papers \citep{wang2011collaborative} combining both \gls{LDA} and \gls{WMF}.\footnote{Note that to train \gls{CTR}
 we first learned a document topic model, fixed it and then learned the
 user preference model. It was suggested by its authors
 that this learning procedure provided computational advantages while not hindering performance significantly \citep{wang2011collaborative}.}
-We did not compare with the more recent and scalable collaborative topic
-Poisson factorization (CTPF) \cite{gopalan2014content} since the resulting
-performance differences may have been the result of CTPF Poisson
-likelihood (versus Gaussian likelihood for both ExpoMF and WMF).
+We did not compare with the more recent and scalable \gls{CTPF} \citep{gopalan2014content} since the resulting
+performance differences may have been the result of \gls{CTPF} Poisson
+likelihood (versus Gaussian likelihood for both ExpoMF and \gls{WMF}). Both \gls{CTR} and \gls{CTPF} were reviewed in \Cref{chpt:content}.
 
-We note that CTR's performance falls in-between the performance of ExpoMF
-and WMF (from \Cref{tab:data}). CTR is particularly well suited to the
+We note that \gls{CTR}'s performance falls in-between the performance of ExpoMF
+and \gls{WMF} (from \Cref{chpt:expomf:tab:data}). \gls{CTR} is particularly well suited to the
 \emph{cold-start} case which is not the data regime we focus on in this
 study (i.e., recall that we have only kept papers that have been
 bookmarked by at least 20 users).
 
-
-%Further CTR should nonetheless match WMF's performance. We will carefully study this issue in the future.
-
-\Cref{fig:si} highlights the behavior of Content ExpoMF compared to that
+\Cref{chpt:expomf:fig:si} highlights the behavior of Content ExpoMF compared to that
 of regular ExpoMF. Two users are selected: User A (left column) is
 interested in statistical machine learning and Bayesian statistics. User B
 (right column) is interested in computer systems. Neither of them have
-read ``Latent Dirichlet Allocation'' (LDA) a seminal paper that falls within user A's
+read ``Latent Dirichlet Allocation'' (\gls{LDA}), a seminal paper that falls within user A's
 interests. On the top row we show the posterior of the exposure
 latent variables $\mathbb{E}[a_{ui}]$ for two users (user A and user B)
-inferred from ExpoMF with per-item $\mu_i$. LDA is shown using a white dot.
+inferred from ExpoMF with per-item $\mu_i$. \gls{LDA} is shown using a white dot.
 Overall both users' estimated exposures are dominated by the empirical item
 popularity. 
 
@@ -982,7 +872,7 @@ In contrast, on the bottom row we plot the results of Content ExpoMF.
 Allowing the model to use the documents' content to infer user exposure
 offers greater flexibility compared to the simple ExpoMF model. 
 This extra flexibility may also explain why there is an advantage in using
-inferred exposure to predict missing observations (see \Cref{sec:pred}).
+inferred exposure to predict missing observations (see \Cref{chpt:expomf:sec:pred}).
 Namely when exposure covariates are available the model can better capture the
 underlying user exposures to items. In contrast using the inferred exposure to
 predict with the simple ExpoMF model performs worse.
@@ -993,55 +883,72 @@ predict with the simple ExpoMF model performs worse.
 %better capture the potential exposure, it will be helpful to blend it in and
 %make a collective prediction.
 
+\begin{figure}
+  \centering
+    \includegraphics[width=\textwidth]{fig/vanilla_vs_SI}
+    \caption{We compare the inferred exposure posterior of ExpoMF (top row)
+    and Content ExpoMF (bottom row). On the left are the posteriors of user A
+    who is interested in statistical machine learning while on the right
+    user B is interested in computer system research. Neither users have
+    read the ``Latent Dirichlet Allocation'' paper. ExpoMF
+    infers that both users have about equal probability of having been
+    exposed to it. As we discussed in \Cref{chpt:expomf:sec:expomf_study} (and demonstrated in \Cref{chpt:expomf:fig:expo_exp}) this is mostly based on the
+    popularity of this paper. In contrast, Content ExpoMF infers that
+    user A has more likely been exposed to this paper because of the closeness
+    between that paper's content and user A's interest. Content ExpoMF
+    therefore upweights the paper. Given user B's interests the paper is
+    correctly downweighted by the model.}
+    \label{chpt:expomf:fig:si}
+\end{figure}
+
 %We present three use-cases to incorporate side-information.
-\subsubsection*{Location Covariates}
-\label{sec:si_location}
+\subsubsection{Location covariates}
+\label{sec:chpt:expomf:sec:si_location}
 
 When studying the Gowalla dataset we can use venue location as exposure covariates.
 %We show another use case where venue locations are treated as side information (Location ExpoMF) for user-venue check-ins from Gowalla dataset. 
 
 Recall from \Cref{sec:modeling_mu} that location exposure covariates are created
-by first clustering all venues (using $K$-means) and then finding the
+by first clustering all venues (using $k$-means) and then finding the
 representation of each venue in this clustering space. Similarly as in Content
-ExpoMF (\Cref{sec:si_doc}), Location ExpoMF departs from ExpoMF:
-\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mathbf{x}_i + \gamma_u)\end{displaymath}
+ExpoMF (\Cref{chpt:expomf:sec:si_doc}), Location ExpoMF departs from ExpoMF:
+\begin{displaymath} \mu_{ui}= \sigma(\mb\psi_u^\top \mbx_i + \gamma_u)\end{displaymath}
 where $x_{ik}$ is the venue $i$'s expected assignment to cluster $k$ and
 $\gamma_u$ is a per-user bias term.\footnote{We named Content ExpoMF
 and Location ExpoMF differently to make it clear to the reader that they
 condition on content and location features respectively. Both models are
 in fact mathematically equivalent.}
 
+%\PP Point out this is a very straightforward model, we can have user-specific length-scale $\ell_u$ (e.g., certain users tends to go further to explore while others prefer visiting the venues close by). 
+
+\parhead{Study.} We train Location ExpoMF following the same procedure as
+Content ExpoMF. We report the empirical comparison between \gls{WMF}, ExpoMF and
+Location ExpoMF in \Cref{chpt:expomf:tab:si_location_results}. We note that Location
+ExpoMF outperforms both \gls{WMF} and the simpler version of ExpoMF. 
+
 \begin{table}
 \centering
 \begin{tabular}{c c c c}
-\hline
-            & WMF & ExpoMF & Location ExpoMF \\ \hline
+\toprule
+            & WMF & ExpoMF & Location ExpoMF \\ \midrule
   Recall@20 & 0.122 & 0.118 & \textbf{0.129} \\
   Recall@50 & 0.192 & 0.186 & \textbf{0.199} \\
   NDCG@100  & 0.118 & 0.116 & \textbf{0.125} \\
   MAP@100   & 0.044 & 0.043 & \textbf{0.048} \\
-\hline
+\bottomrule
 \end{tabular}
 \caption{Comparison between Location ExpoMF and ExpoMF with per-item
 $\mu_i$ on Gowalla. Using location exposure covariates outperforms the
-simpler ExpoMF and WMF according to all metrics.}
-\label{tab:si_location_results}
+simpler ExpoMF and \gls{WMF} according to all metrics.}
+\label{chpt:expomf:tab:si_location_results}
 \end{table}
 
-
-%\PP Point out this is a very straightforward model, we can have user-specific length-scale $\ell_u$ (e.g., certain users tends to go further to explore while others prefer visiting the venues close by). 
-
-\parhead{Study.} We train Location ExpoMF following the same procedure as
-Content ExpoMF. We report the empirical comparison between WMF, ExpoMF and
-Location ExpoMF in \Cref{tab:si_location_results}. We note that Location
-ExpoMF outperforms both WMF and the simpler version of ExpoMF. 
-
-For comparison purposes we also developed a simple baseline FilterWMF which makes use of the
-location covariates. FilterWMF filters out venues recommended by WMF that are inaccessible (too far) to the user. Since user
+For comparison purposes we also developed a simple baseline Filter\gls{WMF} which makes use of the
+location covariates. Filter\gls{WMF} filters out venues recommended by \gls{WMF} that are inaccessible (too far) to the user. Since user
 location is not directly available in the dataset, we estimate it using the
 geometric median of all the venues the user has checked into. 
 The median is preferable to the mean because it is better at handling outliers and is more likely to choose a typical visit location. 
-However, the results of this simple FilterWMF baseline are worse than the results of the
+However, the results of this simple Filter\gls{WMF} baseline are worse than the results of the
 regular WMF. We attribute this performance to the fact that having a single focus of location 
 is too strong an assumption to capture visit behavior of users well. 
 In addition, since we randomly split the data, it is possible that a user's
@@ -1049,25 +956,34 @@ checkins at city A and city B are split between the training and test set.
 We leave the exploration of better location-aware baselines to future work. 
 
 
-\section{Extentions}
-\section{Gaussian MF with author exposure}
-\subsection{Model V1.0}
-Each item (paper) $i$ is represented as a vector $x_i \in \{0, 1\}^A$ where $A$ is the number of unique authors. $x_{ia} = 1$ if author $a$ is included in the author list for paper $i$. 
+\section{Extensions}
 
-The generative process:
-\begin{itemize}
-\item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
-\item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
-\item For each user-item pair $(u, i)$, draw latent exposure variable $a_{ui} \sim \text{Bern}(\sigma(\psi_u^\top x_i + \gamma_u))$:
-\begin{itemize}
-\item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
-\item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
-\end{itemize}
-\end{itemize}
+Besides the Content and Location ExpoMF from \Cref{chpt:expomf:sec:exp}, in this section we further demonstrate the versatility of the proposed ExpoMF model by incorporating exposure from various sources: 1) authors of a paper; 2) friends in a social network. We also demonstrate the ``plug-in'' nature of ExpoMF, showing how inference can be performed without much change from the algorithm we developed in \Cref{sec:inference}.
 
-The inference is straightforward, but without hack it is almost impractical since it involves a $U\times A$ dense coefficient matrix $\psi_{1:U}$.
+\subsection{Author exposure}
 
-\subsection{Model V2.0}
+In \Cref{chpt:expomf:sec:si_doc}, we assume that whether or not a scientist is exposed to a particular paper depends on the content of the paper. Here we make a different assumption: the exposure is dependent on the authors who wrote the paper -- this is a reasonable assumption, as understandably more famous authors can get more attention because of their frames. 
+
+% Each item (paper) $i$ is represented as a vector $x_i \in \{0, 1\}^A$ where $A$ is the number of unique authors. $x_{ia} = 1$ if author $a$ is included in the author list for paper $i$. 
+
+% The generative process:
+% \begin{itemize}
+% \item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
+% \item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
+% \item For each user-item pair $(u, i)$, draw latent exposure variable $a_{ui} \sim \text{Bern}(\sigma(\psi_u^\top x_i + \gamma_u))$:
+% \begin{itemize}
+% \item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
+% \item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
+% \end{itemize}
+% \end{itemize}
+
+% 
+
+A straightforward model of author exposure would be to represent item (paper) $i$ as an exposure covariates vector $\mbx_i \in \{0, 1\}^A$ where $A$ is the total number of unique authors. $x_{ia} = 1$ if author $a$ is included in the author list for paper $i$ and $x_{ia} = 0$ otherwise. Then it can be fit in the same fashion as Content and Location ExpoMF, where we learn $\psi_{1:U}$ for user's exposure to authors.  
+
+However, there are two problems with this simple model: The inference is straightforward, but without hack it is almost impractical since it involves a $U\times A$ dense coefficient matrix $\psi_{1:U}$.
+
+
 Model V1.0 does not take into account the co-author influence. For example, Dave and John wrote many papers together, but if a user only read Dave's paper, then the exposure model in V1.0 will not consider John's paper more likely to be exposed comparing to some other random authors. As a workaround, we can learn a latent representation for each author based on the co-authors (similar to word embedding), so that ideally John and Dave will end up being similar in this learned latent space because of the similarity among co-authors. This should also help with the same author name with different spellings.
 
 To start simple, let's assume we have learned author embedding $x_a$ ($a = 1,\cdots, A$) -- preferably normalized, given that we will take the average in the model -- from some author-paper data (could be simple matrix factorization, or something similar to word2vec). 
@@ -1082,10 +998,13 @@ The generative process:
 \item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
 \end{itemize}
 \end{itemize}
-Here $\mu_{ui} = \sigma((\frac{1}{|A_i|}\sum_{a\in A_i} x_a)^\top \psi_u + \gamma_u)$ where $A_i$ is the set of authors for paper $i$. 
+
+Following the notation of \Cref{sec:modeling_mu}, the hierarchical ExpoMF is defined as:
+\[\mu_{ui} = \sigma((\frac{1}{|A_i|}\sum_{a\in A_i} x_a)^\top \psi_u + \gamma_u),\]
+where $A_i$ is the set of authors for paper $i$. 
 
 
-\section{Gaussian MF with social networks}
+\subsection{Social network exposure}
 The generative process:
 \begin{itemize}
 \item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
@@ -1170,7 +1089,7 @@ where $\phi^\tau_{uiv} \geq 0$, $\phi^\gamma_{ui} \geq 0$, $\phi^\alpha_{ui} \ge
 \end{align*}
 
 
-\section{Conclusion}
+\section{Summary}
 
 %\PP Causal analysis.
 %

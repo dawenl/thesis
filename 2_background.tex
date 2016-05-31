@@ -136,7 +136,8 @@ likes; negatively rated items indicate items that she does not like. Explicit da
 
 In implicit data, each user expresses a binary decision about items\footnote{In principle, implicit data can go beyond binary: For example, the number of times a user listened to certain songs can also be considered as implicit feedback. However, in practice we find that the binary indicator of \textit{interaction} tends to carry the most signal. }---for
 example this can be clicking, purchasing, viewing---and we aim to
-predict unclicked items that she would want to click on. Unlike
+predict unclicked items that she would want to click on. (We use the verb ``click'' throughout this dissertation for concreteness; this can be any type of interaction, including
+``download,'' ``purchase,'' ``listen,'' or ``watch.'') Unlike
 ratings data, implicit data is easily accessible.  While ratings data
 requires action on the part of the users, implicit data is often a
 natural byproduct of their behavior, e.g., browsing histories, click
@@ -148,7 +149,7 @@ Collaborative filtering is the workhorse of recommender systems. It is widely us
 
 Collaborative filtering analyzes user preferences for items by exploiting the similarity patterns across users. There are two major classes of collaborative filtering algorithms: neighborhood-based model \citep{sarwar2001item} and the matrix factorization model \citep{koren2009matrix}. In this dissertation, we will mainly focus on the matrix factorization for collaborative filtering. 
 
-\subsubsection{Matrix factorization for collaborative filtering.} 
+\subsubsection{Matrix factorization for collaborative filtering} 
 \label{chpt:background:sec:mf_cf}
 
 User-item preference data, whether explicit or implicit, can be encoded in a user by item matrix. Throughout this dissertation, a user is indexed by $u \in \{1, \dots, U\}$, an item is indexed by $i \in \{1, \dots, I\}$, and we will refer to this user by item matrix as the \emph{click matrix} or the \emph{interaction matrix}. Given the observed entries in this matrix $\{y_{ui}: (u, i) \in \cO\}$, the recommendation task is often framed as filling in the unobserved entries.  Matrix factorization models, which infer (latent) user preferences and item attributes by factorizing the click matrix, are standard in recommender systems \citep{koren2009matrix}. 
@@ -230,7 +231,7 @@ Randomly initialize $\mb\theta_{1:U}$, $\mb\beta_{1:I}$\;
 \label{chpt:background:algo:gmf}
 \end{algorithm}
 
-\subsubsection{Collaborative filtering for implicit data.} 
+\subsubsection{Collaborative filtering for implicit data} 
 \label{chpt:background:sec:cf_implicit}
 
 The model described in \Cref{chpt:background:eq:gmf} can be equally applied to both explicit and implicit data. The real difference is how to define the observed set $\cO$: For explicit data, it can simply be the user-item pairs where user $u$ has clicked on (rated) item $i$. However, we can not copy the same definition for implicit data. The reason is that the data is binary and thus, when inferring a user's preferences, we must use unclicked items (otherwise, it would be like training a classifier with only positive labels\footnote{Recommendation from implicit data is also known as one-class collaborative filtering \citep{pan2008one}.}), i.e., $\cO$ contains all the entires in the click matrix. 
@@ -318,7 +319,7 @@ methods for parameter estimation.
 
 Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
 
-\subsection{Potential outcome framework}
+\subsection{Potential outcome framework}\label{chpt:background:sec:potential}
 
 The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. In this framework, each individual has a potential outcome when assigned the treatment $a = 1$ and a potential
 outcome when not assignment the treatment $a = 0$. One measurement of the causal effect is the average difference (over individuals) between those potential outcomes. In the language of graphical models \citep{pearl2009causality},

@@ -5,18 +5,18 @@
 
 We develop a causal inference approach to recommender systems.
 Observational recommendation data contains two sources of
-  information: which items each user decided to look at and which of
-  those items each user liked.  We assume these two types of
-  information come from different models---the \textit{exposure} data
-  comes from a model by which users discover items to consider; the
-  \textit{click} data comes from a model by which users decide which
-  items they like.  Traditionally, recommender systems use the
-  click data alone (or ratings data) to infer the user preferences.
-  But this inference is biased by the exposure data, i.e., that users
-  do not consider each item independently at random.  We use causal
-  inference to correct for this bias. On real-world data, we
-  demonstrate that causal inference for recommender systems leads
-  to improved generalization to new data.
+information: which items each user decided to look at and which of
+those items each user liked.  We assume these two types of
+information come from different models---the \textit{exposure} data
+comes from a model by which users discover items to consider; the
+\textit{click} data comes from a model by which users decide which
+items they like.  Traditionally, recommender systems use the
+click data alone (or ratings data) to infer the user preferences.
+But this inference is biased by the exposure data, i.e., that users
+do not consider each item independently at random.  We use causal
+inference to correct for this bias. On real-world data, we
+demonstrate that causal inference for recommender systems leads
+to improved generalization to new data.
 
 
 \section{Introduction}
@@ -68,7 +68,8 @@ generalization to new data.
 
 
 
-\parhead{Related work.} \citet{Marlin09NMAR} first formalized
+\subsection{Related work} 
+\citet{Marlin09NMAR} first formalized
 statistical models for correcting rating-selection bias. They posit
 that a user's decision to rate an item depends on the user's opinion
 of the item. They propose a mechanism to correct for this self-selection
@@ -156,9 +157,7 @@ those preferences in a recommendation system.
 We begin with notation for the data.  A user is indexed by $u$ and an
 item is indexed by $i$.  There are two types of observations.  The
 \textit{exposure data} is $a_{ui}$, whether user $u$ had the
-opportunity to click on item $i$.  (We use the verb ``click'' for
-concreteness; this can be any type of interaction, including
-``download,'' ``purchase,'' ``listen,'' or ``watch.'') The
+opportunity to click on item $i$. The
 \textit{click data} is $y_{ui}$, an indicator of whether user $u$
 clicked on item $i$ (liked) or decided to skip the item (disliked).
 
@@ -610,26 +609,26 @@ heldout test set, we compute the predictive log-probability based on
 its value and whether we predict conditionally or marginally (see \Cref{eq:marginal_preds}).
 
 Conditional prediction uses
-$\mathbb{E}[y_{ui} \mid a_{ui} = 1, \mathcal{D}]$. If $y_{ui} = 1$, we
+$\mathbb{E}[y_{ui} \g a_{ui} = 1, \mathcal{D}]$. If $y_{ui} = 1$, we
 compute right-tail conditional predictive log-probability for
 positively preferred items,
 \begin{align*}
-  \log \mathbb{P}(y^{\text{pred}}_{ui} > 1 \mid a_{ui} = 1,
+  \log \mathbb{P}(y^{\text{pred}}_{ui} > 1 \g a_{ui} = 1,
   \mathcal{D}).
 \end{align*}
 Otherwise we compute left-tail conditional predictive
 log-probability
 \begin{align*}
-  \log \mathbb{P}(y^{\text{pred}}_{ui} \leq 0 \mid a_{ui} = 1,
+  \log \mathbb{P}(y^{\text{pred}}_{ui} \leq 0 \g a_{ui} = 1,
   \mathcal{D}).
 \end{align*}
 Both correspond to Gaussian tail-probability for matrix factorization.
 
-Marginal prediction uses $\mathbb{E}[y_{ui} \mid \mathcal{D}]$. If
+Marginal prediction uses $\mathbb{E}[y_{ui} \g \mathcal{D}]$. If
 $y_{ui} = 1$, we compute right-tail marginal predictive
 log-probability,
 \begin{align*}
-  \log \mathbb{P}(y^\text{pred}_{ui} > 1 \mid \mathcal{D}) =
+  \log \mathbb{P}(y^\text{pred}_{ui} > 1 \g \mathcal{D}) =
   \log\pi_{ui} + \log \mathbb{P}(y^\text{pred} > 1 | a_{ui} = 1,
   \mathcal{D})
 \end{align*}
@@ -637,8 +636,8 @@ log-probability,
 item $i$.) Otherwise we compute left-tail marginal predictive
 log-probability
   \begin{align*}
-    \log \mathbb{P}(y^\text{pred}_{ui} \leq 0 \mid \mathcal{D}) =
-    \log\big(\pi_{ui} \mathbb{P}(y^\text{pred}_{ui} \leq 0 \mid a_{ui} =
+    \log \mathbb{P}(y^\text{pred}_{ui} \leq 0 \g \mathcal{D}) =
+    \log\big(\pi_{ui} \mathbb{P}(y^\text{pred}_{ui} \leq 0 \g a_{ui} =
     1, \mathcal{D}) + (1 - \pi_{ui})\big).
   \end{align*}
 
