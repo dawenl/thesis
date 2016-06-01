@@ -87,7 +87,7 @@ outperforms a method specially developed for recommending documents using conten
 \citep{wang2011collaborative}. We illustrate the
 alternative-rock-listener and the New-York-dinner examples using real data fit 
 with our models in \Cref{chpt:expomf:fig:expo_exp} and \Cref{chpt:expomf:fig:si}. 
-Finally, we demonstrate the versatility of ExpoMF by showcasing a couple examples which incorporate exposure from different sources (e.g., the authors of a paper, or friends in a social network). 
+Finally, we demonstrate the versatility of ExpoMF by showcasing a couple of examples which incorporate exposure from different sources (e.g., the authors of a paper, or friends in a social network). 
 
 %We show that Exposure MF advantageously compares to the state-of-the-art
 %model of \citet{hu2008collaborative} on several recommendation datasets. 
@@ -305,7 +305,7 @@ for the model to include venues near there in the exposure set of $u$.
 
 \subsection{Inference}
 \label{sec:inference}
-We use expectation-maximization (EM) algorithm to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model (see \Cref{chpt:background:sec:em}).\footnote{There are various other inference methods we could have used, such as Markov chain Monte Carlo \citep{neal1993probabilistic,robert2013monte} or variational inference \citep{jordan1999introduction,wainwright2008graphical}. We chose EM for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{chpt:expomf:algo:expomf}.
+We use \gls{EM} algorithm to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model (see \Cref{chpt:background:sec:em}).\footnote{There are various other inference methods we could have used, such as Markov chain Monte Carlo \citep{neal1993probabilistic,robert2013monte} or variational inference \citep{jordan1999introduction,wainwright2008graphical}. We chose EM for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{chpt:expomf:algo:expomf}.
 
 %\subsubsection{Inference for exposure MF.}
 %\label{sec:inf_basic_model}
@@ -335,10 +335,10 @@ where $\mathcal{N}(0 \g \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})$ stands for 
 
 \parhead{M-step.} 
 %Denote $P \in [0, 1]^{U\times I}$ the posterior computed from E-step for each user-item pair (if $y_{ui} > 0$, $p_{ui} = 1$). For notational convenience, we define the concatenated user latent factors matrix $\Theta \overset{\triangle}{=} [\theta_1 | \cdots | \theta_U ]^T  \in \mathbb{R}^{U \times K}$ and item latent factors matrix $B \overset{\triangle}{=} [\beta_1 | \cdots | \beta_I ]^T  \in \mathbb{R}^{I \times K}$. Thus the update for factors is
-For notational convenience, we define $p_{ui} = \E{a_{ui} \g \theta_u, \beta_i, \mu_{ui}, y_{ui} = 0}$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
+For notational convenience, we define $p_{ui} = \E{a_{ui} \g \mb\theta_u, \mb\beta_i, \mu_{ui}, y_{ui} = 0}$ computed from the E-step. Without loss of generality, we define $p_{ui} = 1$ if $y_{ui} = 1$. The update for the latent collaborative filtering factors is:
 \begin{align}
-\mb\theta_u^\new &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \mb\beta_i \mb\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \mb\beta_i ) \label{eq:update_theta}\\
-\mb\beta_i^\new &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \mb\theta_u), \label{eq:update_beta}
+\mb\theta_u^\new &\leftarrow (\lambda_y \sum_i p_{ui} \mb\beta_i \mb\beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \mb\beta_i ) \label{eq:update_theta}\\
+\mb\beta_i^\new &\leftarrow (\lambda_y \sum_u p_{ui} \mb\theta_u \mb\theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \mb\theta_u), \label{eq:update_beta}
 \end{align}
 Again, this looks very similar to the \textit{alternating least squares} update of \gls{WMF}, which reveals the close connection between ExpoMF and \gls{WMF}.
 
@@ -366,7 +366,7 @@ $\mu_{ui}$ under the various models we presented in \Cref{sec:modeling_mu}.
 \end{equation}
 for some learning rate $\eta$, where
 \begin{equation*}
-	\nabla_{\mb\psi_u} \mathcal{L} = \textstyle \frac{1}{I}\sum_i ( p_{ui} - \sigma(\mb\psi_u^\top \mbx_i))\mbx_i.
+	\nabla_{\mb\psi_u} \mathcal{L} =  \frac{1}{I}\sum_i ( p_{ui} - \sigma(\mb\psi_u^\top \mbx_i))\mbx_i.
 \end{equation*}
 
 This can be computationally challenging especially for large item-set sizes $I$. Therefore, we perform (mini-batch) stochastic gradient descent: at each iteration $t$, we randomly subsample a small batch of items $B_t$ and take a noisy gradient steps:
@@ -375,7 +375,7 @@ This can be computationally challenging especially for large item-set sizes $I$.
 \end{equation}
 for some learning rate $\eta_t$, where
 \begin{equation*}
-\tilde{\mb{g}}_t = \textstyle \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mbx_i)) \mbx_i.
+\tilde{\mb{g}}_t =  \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mbx_i)) \mbx_i.
 \end{equation*}
 
 For each EM iteration, we found it sufficient to do a single update to the
@@ -405,7 +405,7 @@ Random initialization: $\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mu_{1:I}$, OR $\mb
 \label{chpt:expomf:algo:expomf}
 \end{algorithm}
 
-\subsubsection{Complexity and implementation details}
+\subsubsection{Complexity and implementation details}\label{chpt:expomf:sec:implmentation}
 
 A naive implementation of the \gls{WMF} has the same complexity as ExpoMF in terms of updating the user and item factors. However, the trick that is used to speed up computations in \gls{WMF} described in \Cref{chpt:background:sec:cf_implicit} cannot be applied to ExpoMF due to the non-uniformness of the exposure latent variable $a_{ui}$. On the other hand, the factor updates are still independent across users and items. These updates can therefore easily be parallelized.
 
@@ -417,7 +417,7 @@ However, ExpoMF can also make predictions by integrating out the uncertainty fro
 \begin{equation*}
 \begin{split}
 \mathbb{E}_y[y_{ui} \g \mb\theta_u, \mb\beta_i] &= \mathbb{E}_a\big[\mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}]\big]\\
-&= \textstyle\sum_{a_{ui}\in \{0, 1\}} \mathbb{P}(a_{ui}) \mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}] \\
+&= \sum_{a_{ui}\in \{0, 1\}} \mathbb{P}(a_{ui}) \mathbb{E}_y [y_{ui} \g \mb\theta_u, \mb\beta_i, a_{ui}] \\
 &= \mu_{ui} \cdot \mb\theta_u^\top\mb\beta_i
 \end{split}
 \end{equation*}
@@ -437,7 +437,7 @@ similar research directions.
 %we briefly compare to their approach.
 %they optimize the function,
 %\begin{displaymath}
-%%\textstyle\mathcal{L} = 
+%%\mathcal{L} = 
 %\sum_{u, i} c_{ui} (y_{ui} - \theta_u^\top \beta_i)^2 + \lambda_\theta
 %\sum_u\|\theta_u \|^2 + \lambda_\beta \sum_i \| \beta_i\|^2
 %\end{displaymath}
@@ -750,7 +750,7 @@ popular.
 
 \Cref{chpt:expomf:fig:expo_exp} demonstrates that ExpoMF strongly associates user exposure to item popularity. This is partly due to the fact that the
 model's prior is parametrized with a per-item term $\mu_i$. 
-(This also explains why it is not a good idea to make a prediction with $\mathbb{E}[y_{ui}] = \mu_{ui} \cdot \theta_u^\top\beta_i$ for ExpoMF without exposure covariates because it will be highly biased towards popular items.)  
+(This also explains why it is not a good idea to make a prediction with $\mathbb{E}[y_{ui} \g \mb\theta_u, \mb\beta_i] = \mu_{ui} \cdot \mb\theta_u^\top\mb\beta_i$ for ExpoMF without exposure covariates because it will be highly biased towards popular items.)  
 Here we are interested in using exposure covariates to provide additional
 information about the (likely) exposure of users to items (see
 \Cref{fig:plate_diagram_side_info}). 
@@ -958,7 +958,7 @@ We leave the exploration of better location-aware baselines to future work.
 
 \section{Extensions}
 
-Besides the Content and Location ExpoMF from \Cref{chpt:expomf:sec:exp}, in this section we further demonstrate the versatility of the proposed ExpoMF model by incorporating exposure from various sources: 1) authors of a paper; 2) friends in a social network. We also demonstrate the ``plug-in'' nature of ExpoMF, showing how inference can be performed without much change from the algorithm we developed in \Cref{sec:inference}.
+Besides the Content and Location ExpoMF from \Cref{chpt:expomf:sec:exp}, in this section we further demonstrate the versatility of the proposed ExpoMF model by incorporating exposure from various sources: 1) authors of a paper; 2) friends in a social network. We also demonstrate the ``plug-in'' nature of ExpoMF, showing how inference can be performed without much modification from the algorithm we developed in \Cref{sec:inference}.
 
 \subsection{Author exposure}
 
@@ -979,115 +979,178 @@ In \Cref{chpt:expomf:sec:si_doc}, we assume that whether or not a scientist is e
 
 % 
 
-A straightforward model of author exposure would be to represent item (paper) $i$ as an exposure covariates vector $\mbx_i \in \{0, 1\}^A$ where $A$ is the total number of unique authors. $x_{ia} = 1$ if author $a$ is included in the author list for paper $i$ and $x_{ia} = 0$ otherwise. Then it can be fit in the same fashion as Content and Location ExpoMF, where we learn $\psi_{1:U}$ for user's exposure to authors.  
+A straightforward model of author exposure would be to consider the author-paper matrix $\mbC \in \{0, 1\}^{A\times I}$, where $A$ is the total number of unique authors: $c_{ai} = 1$ if author $a$ is included in the author list of paper $i$ and $c_{ai} = 0$ otherwise. We treat each column $\mbc_i \in \{0, 1\}^A$ as an exposure covariates vector. Then we can fit this model in the same fashion as Content and Location ExpoMF, where we learn $\mb\psi_{1:U}$ for user's exposure to authors.  
 
-However, there are two problems with this simple model: The inference is straightforward, but without hack it is almost impractical since it involves a $U\times A$ dense coefficient matrix $\psi_{1:U}$.
+However, there are two problems with this simple model: 1) Even though the inference is straightforward following \Cref{chpt:expomf:algo:expomf}, it is almost impractical as it requires to store and constantly update a $U\times A$ dense exposure coefficient matrix $\mb\psi_{1:U}$ where $A$ can be as large as tens of thousands. 2) More importantly, this model does not take into account the influence from co-authorship. For example, imagine Dave and John have written many papers together. If a user only read Dave's papers, then the above-mentioned exposure model will not consider a paper by John more likely to be exposed comparing to the papers from some other random authors. 
 
+To overcome the second problem, we can learn a latent representation for each author by factorizing the author-paper matrix $\mbC$. Back to our example above, with this setup John and Dave will end up being close in this learned latent space because of the similarity among co-authors. Consequently, the user who only read Dave's papers will also have higher likelihood of being exposed to John's papers.\footnote{This could potentially help with the same author with different name spellings, which is very common in the ArXiv dataset.} 
 
-Model V1.0 does not take into account the co-author influence. For example, Dave and John wrote many papers together, but if a user only read Dave's paper, then the exposure model in V1.0 will not consider John's paper more likely to be exposed comparing to some other random authors. As a workaround, we can learn a latent representation for each author based on the co-authors (similar to word embedding), so that ideally John and Dave will end up being similar in this learned latent space because of the similarity among co-authors. This should also help with the same author name with different spellings.
+Let's assume we have learned author latent representation $\mbx_a$ ($a = 1,\cdots, A$) from author-paper matrix $\mbC$. The author-aware version of ExpoMF (we refer to as Author ExpoMF) is specified with the following hierarchical exposure prior (following the notation of \Cref{sec:modeling_mu}): 
+% The generative process:
+% \begin{itemize}
+% \item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
+% \item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
+% \item For each user-item pair $(u, i)$, draw latent exposure variable $a_{ui} \sim \text{Bern}(\mu_{ui})$:
+% \begin{itemize}
+% \item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
+% \item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
+% \end{itemize}
+% \end{itemize}
+%Following the notation of \Cref{sec:modeling_mu}, the hierarchical ExpoMF is defined as:
+\[\mu_{ui} = \sigma((\frac{1}{|A_i|}\sum_{a\in A_i} \mbx_a)^\top \mb\psi_u + \gamma_u),\]
+where $A_i$ is the set of authors of paper $i$ and $\gamma_u$ is again a user-dependent bias term. Here we take the average of the author latent representations to account for various amount of authors per paper: for ArXiv dataset that we analyzed, the number of authors per paper ranges from one to more than 150. 
 
-To start simple, let's assume we have learned author embedding $x_a$ ($a = 1,\cdots, A$) -- preferably normalized, given that we will take the average in the model -- from some author-paper data (could be simple matrix factorization, or something similar to word2vec). 
+Model inference for Author Exposure is similar to that of Content and Location ExpoMF, as we can treat $\frac{1}{|A_i|}\sum_{a\in A_i} \mbx_a$ as the exposure covariates. We use the same ArXiv dataset in \Cref{chpt:expomf:sec:exp} and pre-process the author-paper matrix $\mbC$ by only keeping the authors with at least 2 papers, which gives us $A = 38,627$ unique authors. We learn the author latent representation $\mbx_a$ with the Gaussian matrix factorization (\Cref{chpt:background:sec:mf_cf}) only on the observed $1$'s in the author-paper matrix $\mbC$. 
 
-The generative process:
-\begin{itemize}
-\item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
-\item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
-\item For each user-item pair $(u, i)$, draw latent exposure variable $a_{ui} \sim \text{Bern}(\mu_{ui})$:
-\begin{itemize}
-\item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
-\item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
-\end{itemize}
-\end{itemize}
+\begin{table}
+\centering
+\begin{tabular}{ c c c }
+\toprule
+            & ExpoMF & Author ExpoMF \\ \midrule
+  Recall@20 & 0.143 & \textbf{0.151}     \\ 
+  Recall@50 & \textbf{0.236} & 0.231   	 \\ 
+  NDCG@100  & 0.157 & \textbf{0.160}    \\ 
+  MAP@100   & 0.054 & \textbf{0.058}    \\ 
+\bottomrule 
+\end{tabular}
+\caption{Comparison between Author ExpoMF and ExpoMF on ArXiv. We can see that incorporating author exposure improves the recommendation performance over the simple ExpoMF.}
+\label{chpt:expomf:tab:si_author_results}
+\end{table}
 
-Following the notation of \Cref{sec:modeling_mu}, the hierarchical ExpoMF is defined as:
-\[\mu_{ui} = \sigma((\frac{1}{|A_i|}\sum_{a\in A_i} x_a)^\top \psi_u + \gamma_u),\]
-where $A_i$ is the set of authors for paper $i$. 
+\parhead{Quantitative results.} We report the recommendation performance of Author ExpoMF in \Cref{chpt:expomf:tab:si_author_results}. We also compare to ExpoMF (the results are copied from \Cref{chpt:expomf:tab:cfresults}). For Author ExpoMF, we predict the missing preferences according to $\E{y_{ui} \g \mb\theta_u, \mb\beta_i}$. As we can see, incorporating author exposure improves the metrics over the simple ExpoMF, even though the difference in performance is generally small. We note that by filtering out inactive authors, some papers will be considered having ``zero'' authors, i.e., $\mbx_a = \bzero$ for $\forall a\in A_i$. This means that its exposure will be solely dependent on the user-dependent bias term $\gamma_u$, which could be restrictive. 
+
+\parhead{Exploratory analysis.} To help develop intuition on how Author ExpoMF helps with recommendation by making use of the author exposure, we look into a particular user who has read a couple of papers about network analysis and social networks by Mark Newman. From the dataset, we can see that Aaron Clauset has published quite a few papers with Mark Newman on the same topics, of which this user hasn't read any. The author latent representation $\mbx_a$ for Mark Newman and Aaron Clauset are very close with a cosine similarity of $0.85$. Therefore, understandably Author ExpoMF recommends some of Aaron Clauset's papers on top of the recommended list. Furthermore, among these papers also include the ones that Aaron Clauset wrote with authors other than Mark Newman. For comparison, ExpoMF does not recommend any single paper from Aaron Clauset (except the one that he co-authored with Mark Newman) among the top 50. 
 
 
 \subsection{Social network exposure}
-The generative process:
-\begin{itemize}
-\item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
-\item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
-\item For each user-item pair $(u, i)$, draw latent exposure variable $a_{ui} \sim \text{Bern}(\sigma(\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u))$:
-\begin{itemize}
-\item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
-\item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
-\end{itemize}
-\end{itemize}
-where $N(u)$ is the set of users who are social friends with user $u$. $\tau_{uv}$ can be interpreted as user $v$'s influence on user $u$, which is learned as part of the inference procedure. 
 
-The inference for the exposure model is basically the same as logistic regression, where we take gradient steps to update $\tau_{uv}$ as well as $\gamma_u$:
+Users in a social network can be naturally influenced by their friends, e.g., we will be more likely to try out a song if a friend we trust recommends it. There have been many collaborative filtering models which exploits trust among friends in a social network \citep{ma2008sorec,ma2009learning,ma2011recommender,guo2015trustsvd,chaney2015probabilistic}. In this section, we develop a social-network-aware version of ExpoMF (Social ExpoMF) where users' exposure to items is influenced by their social friends.
+
+Social ExpoMF takes a similar approach to SocialPF \citep{chaney2015probabilistic} with the following generative process:
+\begin{equation}
+	\begin{split}
+	\mb\theta_{u} &\sim \cN(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \\
+	\mb\beta_{i} &\sim \cN(\bzero, \lambda_\beta^{-1} \mathrm{I}_K)  \\
+	\tilde{a}_{ui} &\sim \pois(\lambda_{ui}) \\
+	a_{ui} &= \mathbb{I}\{\tilde{a}_{ui} > 0\}\\
+	y_{ui} \g a_{ui} = 1 &\sim \cN(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) \\
+	y_{ui} \g a_{ui} = 0 &\sim \delta_0,
+	\end{split}
+	\label{chpt:expomf:eq:social_expomf}
+ \end{equation}
+where $\lambda_{ui} = \sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i$. $N(u)$ is the set of users who are social friends with user $u$. $\tau_{uv}$ can be interpreted as user $v$'s influence on user $u$, which is learned as part of the inference procedure. We also include user- and item-dependent bias terms $\gamma_u$ and $\alpha_i$. We constrain exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ to be nonnegative, so that the rate $\lambda_{ui}$ to the Poisson-distributed random variable $\tilde{a}_{ui}$ is also nonnegative. 
+
+How to interpret Social ExpoMF model? If $\tau_{uv}$ is high for user $u$, that means user $u$ is more likely to be exposed to the items that user $v$ (a social friend of user $u$) clicked on. Equivalently, a small value of $\tau_{uv}$ indicates that the items user $v$ clicked on will not likely expose to user $u$. If user $u$ and $v$ do not have any social overlap, then $\tau_{uv} = 0$. It is reasonable to assume the entire coefficient matrix $\mb\tau = \{\tau_{uv}\}\in \RR_+^{U\times U}$ is very sparse in practice. Consequently, we add bias terms $\mb\gamma = \{\gamma_u\} \in \RR_+^U$ and $\mb\alpha = \{\alpha_i\} \in \RR_+^I$ to capture the user- and item-level exposure patterns beyond the influence from social friends.  
+
+Here we use a Poisson exposure model instead of the Bernoulli-logistic model that has been applied to other ExpoMF variations. This is mostly for computational concerns, as the social network data can be computationally demanding to work with. \citet{Gopalan:2015} and \citet{chaney2015probabilistic} have demonstrated that Poisson model has the computational advantages especially on sparse data. 
+
+% \subsection{Poisson social exposure model} 
+% Alternatively, for more efficient inference, we can modify the model into the following:
+% \begin{itemize}
+% \item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
+% \item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
+% \item For each user-item pair $(u, i)$, draw latent exposure variable $\tilde{a}_{ui} \sim \text{Pois}(\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i)$, and define $a_{ui} = \mathbb{I}\{\tilde{a}_{ui} > 0\}$:
+% \begin{itemize}
+% \item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
+% \item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
+% \end{itemize}
+% \end{itemize}
+
+\subsubsection{A variational EM algorithm}
+
+The inference for Social ExpoMF is more complicated due to the truncated Poisson exposure model. We develop a variational \gls{EM} algorithm for efficient model inference, where in the E-step we compute (approximate) the posterior of $a_{ui}$ and in the M-step we update the exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ via maximum likelihood estimation.
+
+If we follow the general procedure of \gls{EM} algorithm in \Cref{chpt:background:sec:em} and write down the objective function, there will be a problematic term $\log \mathbb{P}(a_{ui} = 1) = \log (1 - \me^{-\lambda_{ui}})$ which prevents us from deriving closed-form coordinate updates. To work around it, we present a model augmentation strategy.\footnote{The augmentation strategy presented here comes from an unpublished note by Matthew D. Hoffman.}
+
+We first observe that $1 - \me^{-\lambda}$ is the \gls{CDF} of the $\mathrm{Exponential}(\lambda)$ distribution evaluated at $1$. Therefore, we can define an exponential distribution truncated at 1:
 \[
-\textstyle\tau_{uv}^\text{new} \leftarrow \tau_{uv} + \eta \cdot \frac{\partial \mathcal{L}}{\partial \tau_{uv}}
+\mathrm{Exponential}_1(t; \lambda) = \frac{\lambda}{1 - \me^{-\lambda}} \me^{-\lambda t}, t\in[0, 1]
 \]
-where:
+Furthermore, we define $\mathrm{Exponential}_1(t; 0) = \mathrm{Unif}[0, 1]$. We augment the model with 
+ $t_{ui} \g a_{ui} \sim \mathrm{Exponential}_1(t_{ui}; a_{ui}\lambda_{ui})$. Now the joint log-likelihood of $a_{ui}$ and $t_{ui}$ is:
 \[
-\textstyle\frac{\partial \mathcal{L}}{\partial \tau_{uv}} = \frac{1}{I}\sum_i (p_{ui} - \sigma(\sum_{w\in N(u)} \tau_{uw} y_{wi} + \gamma_u)) y_{vi}
-\] 
-A few notes:
-\begin{itemize}
-\item $\tau_{uv}$ will not contribute anything if $v \notin N(u)$. We can simply set those $\tau_{uv}$ to $0$ to have a sparse $\tau_{uv}$ matrix.
-\item Even though $y_{vi}$ is very sparse, we will need to take stochastic gradient steps by subsampling items because the part that $y_{vi}$ multiplies is still dense. 
-\end{itemize}
-
-\subsection*{Poisson social exposure model} Alternatively, for more efficient inference, we can modify the model into the following:
-\begin{itemize}
-\item For each user $u$, draw user latent factor $\theta_{u} \sim \mathcal{N}(0, \lambda_\theta^{-1} I_K)$.
-\item For each item $i$, draw item latent factor $\beta_{i} \sim \mathcal{N}(0, \lambda_\beta^{-1} I_K)$.
-\item For each user-item pair $(u, i)$, draw latent exposure variable $\tilde{a}_{ui} \sim \text{Pois}(\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i)$, and define $a_{ui} = \mathbb{I}\{\tilde{a}_{ui} > 0\}$:
-\begin{itemize}
-\item If $a_{ui} = 0$, the implicit rating $y_{ui} = 0$.
-\item Otherwise, $y_{ui} \sim \mathcal{N}(\theta_u^\top\beta_i, \lambda_y^{-1})$.
-\end{itemize}
-\end{itemize}
-
-\subsubsection*{A variational EM algorithm}
-For notational convenience, define $\lambda_{ui} = \sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i$. Note that $\log \mathbb{P}(a_{ui} = 1) = \log (1 - \me^{-\lambda_{ui}})$ which is the problematic term in the objective. Following the same strategy from previous section, we augment the model with $t_{ui} \mid a_{ui} \sim \text{Exponential}_1(t_{ui}; a_{ui}\lambda_{ui})$. Now the joint log-likelihood:
-\[
-\log p(a_{ui}, t_{ui}) = a_{ui} (\log \lambda_{ui} - t_{ui} \lambda_{ui}) - \lambda_{ui}(1 - a_{ui})
+\log p(a_{ui}, t_{ui}) = a_{ui} (\log \lambda_{ui} - t_{ui} \lambda_{ui}) - \lambda_{ui}(1 - a_{ui}),
 \]
 where the problematic term $\log (1 - \me^{-\lambda_{ui}})$ gets canceled.
 
-\paragraph{E-step} The complete data likelihood:
+\parhead{E-step.} The complete data log-likelihood is
+\begin{equation*}
+\mathcal{L} = \sum_{u, i} a_{ui}\log \cN(y_{ui} \g \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1}) + a_{ui} (\log \lambda_{ui} - t_{ui} \lambda_{ui}) - \lambda_{ui}(1 - a_{ui}) + \mathrm{priors}.
+\end{equation*}
+In the E-step, we use a variational distribution $q(a_{ui}, t_{ui})$ to approximate the true posterior. Since we can compute the posterior expectation of $a_{ui}$ exactly:
 \begin{equation}
-\mathcal{L} = \sum_{u, i} a_{ui}\log p(y_{ui} \mid \theta_u^\top\beta_i) + a_{ui} (\log \lambda_{ui} - t_{ui} \lambda_{ui}) - \lambda_{ui}(1 - a_{ui})
+\E{a_{ui} \g \mb\theta_u, \mb\beta_i, \lambda_{ui}, y_{ui} = 0} = \frac{(1 - \me^{-\lambda_{ui}}) \cdot \cN(0 | \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1})}{(1 - \me^{-\lambda_{ui}})\cdot \cN(0 |  \mb\theta_u^\top \mb\beta_i, \lambda_y^{-1}) + \me^{-\lambda_{ui}}},
+\label{chpt:expomf:eq:social_a}
 \end{equation}
-
-Since we can compute the posterior of $a_{ui}$ exactly:
-\begin{equation}
-\mathbb{P}(a_{ui} = 1 | y_{ui} = 0) = \frac{(1 - \me^{-\lambda_{ui}}) \cdot p(0 | \theta_u^\top\beta_i)}{(1 - \me^{-\lambda_{ui}})\cdot p(0 |  \theta_u^\top\beta_i) + \me^{-\lambda_{ui}}},
-\end{equation}
-we will only specify variational distribution for $t_{ui}$ as $q(t_{ui}) = \text{Exponential}_1(t_{ui}; \rho_{ui})$. Define $p_{ui} = \mathbb{P}(a_{ui} = 1 | y_{ui} = 0)$ and without loss of generality, we set $p_{ui} = 1$ if $y_{ui} > 0$. The variational objective for $t_{ui}$:
+we will only specify variational distribution for $t_{ui}$ as $q(t_{ui}) = \mathrm{Exponential}_1(t_{ui}; \rho_{ui})$. Define $p_{ui} = \E{a_{ui} \g \mb\theta_u, \mb\beta_i, \lambda_{ui}, y_{ui} = 0}$ and without loss of generality, we set $p_{ui} = 1$ if $y_{ui} > 0$. We tune the variational parameters $\mb\rho = \{\rho_{ui}\} \in \RR_+^{U\times I}$ to optimize the variational objective (\gls{ELBO}) for $t_{ui}$:
 \[
-\mathcal{L}^\text{VI}_{ui} = -p_{ui}\mathbb{E}_q[t_{ui}] \lambda_{ui} + \rho_{ui} \mathbb{E}_q[t_{ui}] - \log\rho_{ui} + \log(1 - \me^{-\rho_{ui}}) + \text{const}
+\cL^\textrm{VI}_{ui} = -p_{ui}\mathbb{E}_q[t_{ui}] \lambda_{ui} + \rho_{ui} \mathbb{E}_q[t_{ui}] - \log\rho_{ui} + \log(1 - \me^{-\rho_{ui}}) + \const
 \]
-The necessary expectation $\mathbb{E}_q[t_{ui}] = \frac{1}{\rho_{ui}} - \frac{1}{\me^{\rho_{ui}} - 1}$. Take the derivative w.r.t. $\rho_{ui}$ and set it to $0$, we get the following updates:
-\[
+where the necessary expectation is $\mathbb{E}_q[t_{ui}] = \frac{1}{\rho_{ui}} - \frac{1}{\me^{\rho_{ui}} - 1}$. Take the derivative of \gls{ELBO} with respect to $\rho_{ui}$ and set it to $0$, we get the following updates for the variational parameters:
+\begin{equation}
 \rho_{ui} \leftarrow p_{ui}\lambda_{ui}
-\]
-\paragraph{M-step}  The objective is the expected complete data likelihood:
-\begin{equation}
-\mathbb{E}_q[\mathcal{L}] = \sum_{u, i} p_{ui} \log p(y_{ui} \mid \theta_u^\top\beta_i) + p_{ui} (\log\lambda_{ui}- \mathbb{E}_q[t_{ui}] \lambda_{ui}) - \lambda_{ui}(1 - p_{ui})
+\label{chpt:expomf:eq:social_rho}
 \end{equation}
 
-The updates for collaborative filtering factors $\theta_u$ and $\beta_i$ are identical to all the previous models:
-\begin{align}
-\theta_u &\leftarrow \textstyle(\lambda_y \sum_i p_{ui} \beta_i \beta_i^\top +  \lambda_\theta I_K)^{-1} (\sum_i \lambda_y p_{ui} y_{ui} \beta_i ) \\
-\beta_i &\leftarrow \textstyle(\lambda_y \sum_u p_{ui} \theta_u \theta_u^\top + \lambda_\beta I_K)^{-1} (\sum_u \lambda_y p_{ui} {y}_{ui} \theta_u)
-\end{align}
+\parhead{M-step.}  The objective in the M-step is the expected complete data log-likelihood under the variational distribution:
+\begin{equation*}
+\mathbb{E}_q[\mathcal{L}] = \sum_{u, i} p_{ui} \log \cN(y_{ui} \g \mb\theta_u^\top\mb\beta_i, \lambda_y^{-1}) + p_{ui} (\log\lambda_{ui}- \mathbb{E}_q[t_{ui}] \lambda_{ui}) - \lambda_{ui}(1 - p_{ui}) + \const.
+\end{equation*}
+The updates for collaborative filtering latent factors $\mb\theta_u$ and $\mb\beta_i$ are identical to all the previous models (\Cref{eq:update_theta} and \Cref{eq:update_beta}) because of the conditional independence between the exposure prior and the matrix factorization part of the model (given exposure). 
 
-The updates for exposure factors $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ are more difficult because of the problematic term $\log (\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i)$, which we will lower bound via Jensen's inequality:
-\[
-\textstyle\log(\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i) \geq \sum_{v \in N(u)} \phi^{\tau}_{uiv} (\log\tau_{uv}y_{vi} - \log \phi_{uiv}^\tau) + \phi^\gamma_{ui} (\log \gamma_{u} - \log\phi^\gamma_{ui}) + \phi^\alpha_{ui} (\log \alpha_{i} - \log\phi^\alpha_{ui})
-\]
-where $\phi^\tau_{uiv} \geq 0$, $\phi^\gamma_{ui} \geq 0$, $\phi^\alpha_{ui} \geq 0$, and $\sum_{v\in N(u)} \phi^\tau_{uiv} + \phi^\gamma_{ui} + \phi^\alpha_{ui} = 1$. To tighten the lower bound, we update $\phi^\tau_{uiv}=\frac{\tau_{uv}y_{vi}}{\lambda_{ui}}$, $\phi^\gamma_{ui} = \frac{\gamma_u}{\lambda_{ui}}$, and $\phi^\alpha_{ui} = \frac{\alpha_i}{\lambda_{ui}}$. After lower-bounding the objective, we take the gradients w.r.t $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ and set them to $0$, which leads to the following multiplicative updates:
+The updates for exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ are more difficult because of the problematic term $\log \lambda_{ui} = \log (\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i)$. We follow the standard strategy to lower bound it via Jensen's inequality:
 \begin{align*}
+\log(\sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i) &\geq \sum_{v \in N(u)} \phi^{\tau}_{uiv} (\log\tau_{uv}y_{vi} - \log \phi_{uiv}^\tau) \\
+&+ \phi^\gamma_{ui} (\log \gamma_{u} - \log\phi^\gamma_{ui}) + \phi^\alpha_{ui} (\log \alpha_{i} - \log\phi^\alpha_{ui})
+\end{align*}
+where $\phi^\tau_{uiv} \geq 0$, $\phi^\gamma_{ui} \geq 0$, $\phi^\alpha_{ui} \geq 0$, and $\sum_{v\in N(u)} \phi^\tau_{uiv} + \phi^\gamma_{ui} + \phi^\alpha_{ui} = 1$. To tighten the lower bound, we update $\phi^\tau_{uiv}=\frac{\tau_{uv}y_{vi}}{\lambda_{ui}}$, $\phi^\gamma_{ui} = \frac{\gamma_u}{\lambda_{ui}}$, and $\phi^\alpha_{ui} = \frac{\alpha_i}{\lambda_{ui}}$. After lower-bounding the objective, we take the gradients with respect to $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ and set them to $0$, which leads to the following multiplicative updates:
+\begin{equation}
+\begin{split}
 \tau_{uv} &\leftarrow \frac{\sum_i \phi_{uiv}^\tau p_{ui}}{\sum_i y_{vi}\big(1 - p_{ui}(1 - \mathbb{E}_q[t_{ui}])\big)}\\
 \gamma_{u} &\leftarrow \frac{\sum_i \phi_{ui}^\gamma p_{ui}}{\sum_i \big(1 - p_{ui} (1 - \mathbb{E}_q[t_{ui}])\big)}\\
 \alpha_{i} &\leftarrow \frac{\sum_u \phi_{ui}^\alpha p_{ui}}{\sum_u \big(1 - p_{ui} (1 - \mathbb{E}_q[t_{ui}])\big)}
-\end{align*}
+\end{split}
+\label{chpt:expomf:eq:social_mstep}
+\end{equation}
+These updates closely resemble those of \gls{NMF} with generalized \gls{KL}-divergence loss function \citep{seung2001algorithms}. The full algorithm for Social ExpoMF is summarized in \Cref{chpt:expomf:algo:social_expomf}. In actual implementation, we perform on-the-fly E-step, similar to what was described in \Cref{chpt:expomf:sec:implmentation}, for both $a_{ui}$ and $t_{ui}$, as well as parallelization when updating both latent factors ($\mb\theta_{1:U}, \mb\beta_{1:I}$) and exposure coefficients ($\mb\tau$, $\mb\gamma$, $\mb\alpha$). This enables Social ExpoMF to tractably analyze large-scale user-item interaction data with social networks. 
 
+\begin{algorithm}
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead 
+\KwIn{Click matrix $\bY$, social network $N(u)$ for $u = 1, \dots, U$}
+\KwOut{User latent factors $\mb\theta_{1:U}$, item latent factors $\mb\beta_{1:I}$, exposure coefficients $\mb\tau$, $\mb\gamma$, and $\mb\alpha$}
+%$C \gets \emptyset$\;
+Random initialization: $\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mb\tau$, $\mb\gamma$, $\mb\alpha$\;
+\While{performance on validation set increases}{
+  Compute expected exposure $\mbP = \{p_{ui}\}$ (\Cref{chpt:expomf:eq:social_a})\;
+  Update variational parameter $\mb\rho = \{\rho_{ui}\}$ (\Cref{chpt:expomf:eq:social_rho})\;
+  Update user factors $\mb\theta_{1:U}$ (\Cref{eq:update_theta})\;	
+  Update item factors $\mb\beta_{1:I}$ (\Cref{eq:update_beta})\;
+  Update exposure coefficients $\mb\tau$, $\mb\gamma$, and $\mb\alpha$ (\Cref{chpt:expomf:eq:social_mstep})\;
+}
+\Return{$\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mb\tau$, $\mb\gamma$, $\mb\alpha$}\;
+\caption{{\sc Social-Expo-ALS} Inference for Social ExpoMF}
+\label{chpt:expomf:algo:social_expomf}
+\end{algorithm}
+
+\parhead{Data.} We evaluate Social ExpoMF on Douban dataset \citep{ma2011recommender}. Douban (douban.com) is a Chinese social service where users
+record ratings for music, movies, and books. It contains 129K users and 57K items with 16M user-item interactions in the form of ratings on a 1-5 scale. The social network is undirected (i.e., if user $v$ is user $u$'s social friend, then the reverse is true) with 1.3M network connections. Following the experimental setup in \citet{chaney2015probabilistic}, we remove network connections where the users have no items in common. Furthermore, we binarize the explicit ratings by only keeping ratings greater than or equal to 4 and treat them as implicit preferences. 
+
+\parhead{Quantitative results.} We evaluate the empirical performance of Social ExpoMF and report results in \Cref{chpt:expomf:tab:si_social_results}. We compare to the ExpoMF without social network exposure. We can see that Social ExpoMF outperforms ExpoMF except on MAP@$100$. This indicates that incorporating exposure based on social network provides additional benefits on top of simple popularity-based exposure model. Unfortunately due to privacy reasons, most of the public user-item interaction datasets with social network do not have explicit information about users and/or items, which prevents us from exploring the resulting model fit.   
+
+\begin{table}
+\centering
+\begin{tabular}{ c c c }
+\toprule
+            & ExpoMF & Social ExpoMF \\ \midrule
+  Recall@20 & 0.205 & \textbf{0.208}     \\ 
+  Recall@50 & 0.306 & \textbf{0.320}   	 \\ 
+  NDCG@100  & 0.225 & \textbf{0.230}    \\ 
+  MAP@100   & \textbf{0.087} & 0.086    \\ 
+\bottomrule 
+\end{tabular}
+\caption{Comparison between Social ExpoMF and ExpoMF on Douban dataset. We can see that incorporating social network exposure improves the recommendation performance over the simple ExpoMF.}
+\label{chpt:expomf:tab:si_social_results}
+\end{table}
 
 \section{Summary}
 
@@ -1100,7 +1163,7 @@ where $\phi^\tau_{uiv} \geq 0$, $\phi^\gamma_{ui} \geq 0$, $\phi^\alpha_{ui} \ge
 %\PP Model combination 
 
 
-In this paper, we presented a novel collaborative filtering mechanism
+In this chapter, we presented a novel collaborative filtering mechanism
 that takes into account user exposure to items. 
 In doing so, we theoretically justify existing approaches that 
 downweight unclicked items for recommendation, 
@@ -1109,9 +1172,7 @@ for specifying more elaborate models of exposure based on logistic regression.
 In empirical studies we found 
 that the additional flexibility of our model 
 helps it outperform existing approaches to 
-matrix factorization on four datasets from various domains. 
-We note that the same approach can also be used 
-to analyze explicit feedback. 
+matrix factorization on four datasets from various domains. We also demonstrate the versatility of our model by incorporating other sources of exposure, e.g., the authors of a paper, or the friends in a social network. 
 
 There are several promising avenues for future work. 
 Consider a reader who keeps himself up to date with the ``what's new'' pages 
