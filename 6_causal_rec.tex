@@ -853,9 +853,10 @@ From \Cref{tab:results}, we make the following observations.
 
 \section{Summary}
 
-In this chapter, we develop a causal inference approach to recommendation. 
+In this chapter, we develop a causal inference approach to recommendation with explicit data. We separately model two sources of information: the \textit{exposure} data (which items each user decided to look at) and \textit{click} data (which of
+those items each user liked). Exposure data introduces bias, as rare items do not get as much exposure as popular ones. We use inverse propensity weighting to correct for this bias. Through extensive empirical study, we demonstrate that this causal approach to recommender systems leads to improved generalization to new data.
 
-\PP We can develop similar methodology for implicit data. 
+As future work, we can develop similar methodology for implicit data. The main difficulty in implicit data is that we do not know which items a user has been exposed to. The ExpoMF model and its variations we developed in \Cref{chpt:expomf} could help with that.  
 
 
 
