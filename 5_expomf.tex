@@ -1027,7 +1027,7 @@ Model inference for Author Exposure is similar to that of Content and Location E
 Users in a social network can be naturally influenced by their friends, e.g., we will be more likely to try out a song if a friend we trust recommends it. There have been many collaborative filtering models which exploits trust among friends in a social network \citep{ma2008sorec,ma2009learning,ma2011recommender,guo2015trustsvd,chaney2015probabilistic}. In this section, we develop a social-network-aware version of ExpoMF (Social ExpoMF) where users' exposure to items is influenced by their social friends.
 
 Social ExpoMF takes a similar approach to SocialPF \citep{chaney2015probabilistic} with the following generative process:
-\begin{equation}
+\begin{equation*}
 	\begin{split}
 	\mb\theta_{u} &\sim \cN(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \\
 	\mb\beta_{i} &\sim \cN(\bzero, \lambda_\beta^{-1} \mathrm{I}_K)  \\
@@ -1037,7 +1037,7 @@ Social ExpoMF takes a similar approach to SocialPF \citep{chaney2015probabilisti
 	y_{ui} \g a_{ui} = 0 &\sim \delta_0,
 	\end{split}
 	\label{chpt:expomf:eq:social_expomf}
- \end{equation}
+ \end{equation*}
 where $\lambda_{ui} = \sum_{v\in N(u)} \tau_{uv} y_{vi} + \gamma_u + \alpha_i$. $N(u)$ is the set of users who are social friends with user $u$. $\tau_{uv}$ can be interpreted as user $v$'s influence on user $u$, which is learned as part of the inference procedure. We also include user- and item-dependent bias terms $\gamma_u$ and $\alpha_i$. We constrain exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ to be nonnegative, so that the rate $\lambda_{ui}$ to the Poisson-distributed random variable $\tilde{a}_{ui}$ is also nonnegative. 
 
 How to interpret Social ExpoMF model? If $\tau_{uv}$ is high for user $u$, that means user $u$ is more likely to be exposed to the items that user $v$ (a social friend of user $u$) clicked on. Equivalently, a small value of $\tau_{uv}$ indicates that the items user $v$ clicked on will not likely expose to user $u$. If user $u$ and $v$ do not have any social overlap, then $\tau_{uv} = 0$. It is reasonable to assume the entire coefficient matrix $\mb\tau = \{\tau_{uv}\}\in \RR_+^{U\times U}$ is very sparse in practice. Consequently, we add bias terms $\mb\gamma = \{\gamma_u\} \in \RR_+^U$ and $\mb\alpha = \{\alpha_i\} \in \RR_+^I$ to capture the user- and item-level exposure patterns beyond the influence from social friends.  
@@ -1135,7 +1135,7 @@ Random initialization: $\mb\theta_{1:U}$, $\mb\beta_{1:I}$, $\mb\tau$, $\mb\gamm
 \parhead{Data.} We evaluate Social ExpoMF on Douban dataset \citep{ma2011recommender}. Douban (douban.com) is a Chinese social service where users
 record ratings for music, movies, and books. It contains 129K users and 57K items with 16M user-item interactions in the form of ratings on a 1-5 scale. The social network is undirected (i.e., if user $v$ is user $u$'s social friend, then the reverse is true) with 1.3M network connections. Following the experimental setup in \citet{chaney2015probabilistic}, we remove network connections where the users have no items in common. Furthermore, we binarize the explicit ratings by only keeping ratings greater than or equal to 4 and treat them as implicit preferences. 
 
-\parhead{Quantitative results.} We evaluate the empirical performance of Social ExpoMF and report results in \Cref{chpt:expomf:tab:si_social_results}. We compare to the ExpoMF without social network exposure. We can see that Social ExpoMF outperforms ExpoMF except on MAP@$100$. This indicates that incorporating exposure based on social network provides additional benefits on top of simple popularity-based exposure model. Unfortunately due to privacy reasons, most of the public user-item interaction datasets with social network do not have explicit information about users and/or items, which prevents us from exploring the resulting model fit.   
+\parhead{Quantitative results.} We evaluate the empirical performance of Social ExpoMF and report results in \Cref{chpt:expomf:tab:si_social_results}. We compare to the ExpoMF with per-item $\mu_i$ exposure prior. We can see that Social ExpoMF outperforms ExpoMF except on MAP@$100$. This indicates that incorporating exposure based on social network provides additional benefits on top of simple popularity-based exposure model. Unfortunately due to privacy reasons, most of the public user-item interaction datasets with social network do not have explicit information about users and/or items, which prevents us from exploring the resulting model fit.   
 
 \begin{table}
 \centering

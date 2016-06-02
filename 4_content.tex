@@ -154,7 +154,7 @@ We want to emphasize that our proposed model is \emph{content-aware} instead of 
 We estimate the model parameters $\{\mb\theta_{1:U}, \mb\beta_{1:I}, \mbW\}$ via maximum \emph{a posteriori} since it enables us to tractably fit the model to large-scale datasets. The complete log-likelihood of the model is written as:
 \begin{equation*}
 \begin{split}
-\mathcal{L} =& -\sum_{u, i} \frac{c_{ui}}{2} (r_{ui} - \mb\theta_u^\top\mb\beta_i)^2 - \frac{\lambda_\theta}{2} \sum_u \mb\theta_u^\top \mb\theta_u - \frac{\lambda_\beta}{2} \sum_i (\mb\beta_i - \mbW^\top\mb{h}_i)^\top (\mb\beta_i - \mbW^\top\mb{h}_i).
+\mathcal{L} =& -\sum_{u, i} \frac{c_{ui}}{2} (r_{ui} - \mb\theta_u^\top\mb\beta_i)^2 - \frac{\lambda_\theta}{2} \sum_u \| \mb\theta_u \|_2^2 - \frac{\lambda_\beta}{2} \sum_i \|\mb\beta_i - \mbW^\top\mb{h}_i \|^2_2.
 \end{split}
 \end{equation*}
 From this objective, we can also interpret the model as regularizing the song latent factors $\mb\beta_i$ towards something musicologically meaningful ($\mbh_i$), instead of $\bzero$.

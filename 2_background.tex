@@ -193,7 +193,7 @@ matrix of dimension $K$. A graphical model representation of the Gaussian matrix
 We derive coordinate updates to obtain the maximum \textit{a posteriori} estimates of the Gaussian matrix factorization model, as they are closely related to the model inference we develop in the later chapters. Since we are only obtaining point estimates of the model parameters, we can always scale $\lambda_\theta$ and $\lambda_\beta$ by $\lambda_y$ to obtain the same solution. Without loss of generality, we set $\lambda_y = 1$. The complete log-likelihood of the model is:
 
 \begin{equation}
-\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|.
+\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2.
 \label{chpt:background:eq:gmf_logll}
 \end{equation}
 
@@ -258,7 +258,7 @@ model by adding an exposure latent variable.
 
 The maximum \textit{a posteriori} estimates of \gls{WMF} can also be obtained via ALS with minor modification. For notational convenience, we define $c_{ui} \triangleq c_{y_{ui}}$. The complete log-likelihood for \gls{WMF} is (recall that observed set $\cO$ contains all the entries in the click matrix):
 \begin{equation*}
-\cL = \sum_{u, i} c_{ui}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|
+\cL = \sum_{u, i} c_{ui}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2
 \end{equation*}
 Again, we take the gradient with respect to one of the factors and set it to $0$, which leads to the following ALS updates:
 \begin{equation}
