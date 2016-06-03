@@ -42,16 +42,4 @@ The models presented in this dissertation are mostly bi-linear factor models, wh
 
 The recent success of work embedding models (e.g., skip-gram word2vec \citep{mikolov2013distributed}) demonstrates the effectiveness of negative sampling. One can view negative sampling as a way to battle the overwhelming negative examples in sparse data. It also has intimate connection with the exposure and propensity weights presented in \Cref{chpt:expomf} and \Cref{chpt:causal_rec}, respectively: both of them are down-weighting the gradients of the negative examples in a principled way. Exploring the deeper connection among these work and developing general-purpose stochastic subsampling schemes for sparse user feedback data would be a valuable future direction. 
 
-\parhead{Bridging the gap between Bayesian inference and causal inference.} Our attempt at developing a causal inference approach to recommendation with Bayesian inference in \Cref{chpt:causal_rec} is only a small step of bringing these two fields together. There are still some fundamental problems that need to be theoretically justified. 
-
-\PP use IPW with Bayesian inference.
-
-\PP \citet{rubin1978bayesian}
-
-[todo] above, this is not rigorous either.  we need to bring out the
-idea that we need IPW even though there is no confounding.  that's
-important.
-
-[todo] next steps: notice that classical bayesian inference is all
-we need in the exposure model because $a$ blocks $y$.  (i think we
-need some graphical models.)
+\parhead{Bridging Bayesian inference and causal inference for recommender systems.} Our attempt at developing a causal inference approach to recommendation with Bayesian inference in \Cref{chpt:causal_rec} is only a small step of bringing these two fields together. There are still some fundamental problems that need to be theoretically justified, e.g., how to use inverse propensity weighting with Bayesian inference. Our explanation of ``seeing each data point multiple times'' suffices for doing a point estimate. But more rigorous formulation is required if we want a fully Bayesian treatment. \citet{rubin1978bayesian} formulate the problem of estimating the causal effect as a Bayesian inference problem---given observed data, compute the predictive density for different potential outcomes---and present conditions under which the inference is ``valid'' with only observed data. It would be worthwhile to follow the similar procedure but we should also be cautious about validating the necessary assumptions. 
