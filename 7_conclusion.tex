@@ -2,18 +2,56 @@
 
 \chapter{Conclusion}
 
-\PP We present models.
+In this dissertation, we apply the tools of probabilistic latent variable models and try to understand complex real-world data about music semantics and user behavior. 
+
+\parhead{Scalable music tagging with Poisson factorization.} 
+We develop scalable solution to automatic music tagging -- inferring the semantic tags (e.g., ``jazz'', ``piano'', ``happy'', etc.) from the audio features. We treat music tagging as a matrix completion problem and apply the Poisson matrix factorization model jointly on the vector-quantized audio features and a ``bag-of-tags'' representation. This approach exploits the shared latent structure between semantic tags and acoustic codewords. The experimental results on the Million Song Dataset for both annotation and retrieval tasks demonstrate the steady improvement in performance as more data is used. Furthermore, we can look at the highly probable tags for each learned latent factor to understand what portion of the acoustic codeword space is being captured, and whether it is musically coherent.
+
+\parhead{Content-aware collaborative music recommendation.} 
+We address the fundamental cold-start problem of collaborative filtering: it cannot recommend new songs that no one has listened to. We train a multi-layered neural network on semantic tagging information as a content model and use it as a prior in a collaborative filtering model. The model is able to balance between the user feedback and the content features, allowing the data to ``speak for itself''. The proposed system is evaluated on the Million Song Dataset and shows comparably better result than the collaborative filtering approaches, in addition to the favorable performance in the cold-start case. 
+
+\parhead{Modeling user exposure in recommendation.}
+We develop a probabilistic matrix factorization model ExpoMF to capture the latent user exposure (whether or not a user is exposed to an item) in implicit feedback data. In doing so, we recover one of the most successful state-of-the-art approaches \gls{WMF} as a special case of our model
+\citep{hu2008collaborative}, and provide a plug-in method for conditioning
+exposure on various forms of exposure covariates (e.g., topics in text,
+venue locations). We show that our scalable inference algorithm
+outperforms existing benchmarks in four different domains both with and
+without exposure covariates. We further demonstrate the versatility of ExpoMF by incorporating other sources of exposure: 1) the authors of a paper; and 2) the friends in a social network. 
+
+\parhead{Causal inference for recommendation.}
+In the language of causal analysis \citep{imbens2015causal}, user exposure has close connection to the assignment mechanism. We leverage this connection for explicit data and develop a causal inference approach to recommender systems. 
+Observational recommendation data contains two sources of
+information: exposure data (which items each user decided to look at) and click data (which of
+those items each user liked). Exposure data introduces bias when we estimate parameters of a recommendation model from the click data, as rare items do not get as much exposure as popular ones. We use inverse propensity weighting to correct for this bias. Through extensive empirical study, we demonstrate that this causal approach to recommender systems leads to improved generalization to new data.
 
 \section{Future directions}
 
-\PP At the end of each chapter, we present immediate next steps that can extend the work. 
+We present immediate next steps at the end of each chapter that can extend the work. In this section, we present some long-term directions that can be explored.
 
-\PP Generic inference algorithm for probabilistic latent variables models
+\parhead{Generic inference algorithm for probabilistic latent variables models.}
+Exact posterior inference is generally intractable for latent variables models. We develop specific inference procedures to tractably analyze the large-scale data throughout this dissertation. However, this whole process of deriving problem-specific inference algorithm can be tedious and it requires a lot of modification once the model is revised. Black-box variational inference \citep{DBLP:conf/aistats/RanganathGB14,kucukelbir2015automatic} and stochastic gradient variational Bayes \citep{kingma2013auto} are two promising avenues for generic inference algorithm that is applicable to a wide variety of models. These black-box approaches will also enable us to build models with more complex structures beyond the simple bi-linear factors in this dissertation without worrying (too much) about fitting the model.   
 
-\PP Edward
+With generic inference algorithm, we would like to automate the Box's loop of model development \citep{box1976science,blei2014build}: build the model, fit the model, criticize (evaluate) the model, and revise the model (if necessary). 
+\textit{Edward} \citep{tran2016edward} is a software framework that is currently under active development with this goal in mind. 
 
-\PP Stochastic optimization for sparse user feedback data
+\parhead{Stochastic optimization for sparse user feedback data.} 
+The models presented in this dissertation are mostly bi-linear factor models, which have limited modeling capacity. To leverage the advances of more powerful models (e.g., deep neural networks), the convenient closed-form coordinate updates are generally unavailable and it is normal to resort to stochastic optimization for model inference. User feedback data, whether explicit or implicit, is often very sparse (for implicit data, it's common to have $>99.9\%$ of 0's). This presents additional challenge for stochastic optimization, as naively subsampling random user-item interaction will very likely over-emphasize the 0's in the data.\footnote{The untold secret of having a weak baseline for a recommendation model: train the model with stochastic gradient descent by uniformly subsampling user-item interactions.} This problem is also closely related to generic inference algorithm mentioned above, as most of these black-box approaches heavily reply on stochastic optimization.
 
-\PP Negative sampling, exposure, propensity weight
+\citet{gopalan2013efficient} address the similar sparsity issue with network data by subsampling 0's in a biased way, then correcting the introduced bias to make sure the noisy stochastic objective matches the true objective in expectation. 
+\citet{rendle2014improving} propose to subsample 0's more intelligently by choosing the 0's with bigger gradient (i.e., the negative examples which the model is more uncertain about) so that the learning procedure can make progress more rapidly. Similar idea has also been explored in fast inference for network data \citep{raftery2012fast}. 
 
-\PP Bridging the gap between Bayesian inference and causal inference
+The recent success of work embedding models (e.g., skip-gram word2vec \citep{mikolov2013distributed}) demonstrates the effectiveness of negative sampling. One can view negative sampling as a way to battle the overwhelming negative examples in sparse data. It also has intimate connection with the exposure and propensity weights presented in \Cref{chpt:expomf} and \Cref{chpt:causal_rec}, respectively: both of them are down-weighting the gradients of the negative examples in a principled way. Exploring the deeper connection among these work and developing general-purpose stochastic subsampling schemes for sparse user feedback data would be a valuable future direction. 
+
+\parhead{Bridging the gap between Bayesian inference and causal inference.} Our attempt at developing a causal inference approach to recommendation with Bayesian inference in \Cref{chpt:causal_rec} is only a small step of bringing these two fields together. There are still some fundamental problems that need to be theoretically justified. 
+
+\PP use IPW with Bayesian inference.
+
+\PP \citet{rubin1978bayesian}
+
+[todo] above, this is not rigorous either.  we need to bring out the
+idea that we need IPW even though there is no confounding.  that's
+important.
+
+[todo] next steps: notice that classical bayesian inference is all
+we need in the exposure model because $a$ blocks $y$.  (i think we
+need some graphical models.)

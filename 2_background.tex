@@ -319,6 +319,8 @@ methods for parameter estimation.
 
 Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
 
+\PP We only review important and relevant concepts in causal inference here.
+
 \subsection{Potential outcome framework}\label{chpt:background:sec:potential}
 
 The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. In this framework, each individual has a potential outcome when assigned the treatment $a = 1$ and a potential

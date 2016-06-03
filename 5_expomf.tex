@@ -305,7 +305,7 @@ for the model to include venues near there in the exposure set of $u$.
 
 \subsection{Inference}
 \label{sec:inference}
-We use \gls{EM} algorithm to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model (see \Cref{chpt:background:sec:em}).\footnote{There are various other inference methods we could have used, such as Markov chain Monte Carlo \citep{neal1993probabilistic,robert2013monte} or variational inference \citep{jordan1999introduction,wainwright2008graphical}. We chose EM for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{chpt:expomf:algo:expomf}.
+We use \gls{EM} algorithm to find the maximum \emph{a posteriori} estimates of the unknown parameters of the model (see \Cref{chpt:background:sec:em}).\footnote{There are various other inference methods we could have used, such as \gls{MCMC} \citep{neal1993probabilistic,robert2013monte} or variational inference \citep{jordan1999introduction,wainwright2008graphical}. We chose \gls{EM} for reasons of efficiency and simplicity, and find that it performs well in practice.} The algorithm is summarized in \Cref{chpt:expomf:algo:expomf}.
 
 %\subsubsection{Inference for exposure MF.}
 %\label{sec:inf_basic_model}
@@ -313,7 +313,7 @@ We use \gls{EM} algorithm to find the maximum \emph{a posteriori} estimates of t
 %\begin{equation}
 %\mathcal{L} = \sum_{u, i} \mathds{1}\{a_{ui} = 1\} \big(\log\mu + \log p(y_{ui} | \theta_u^T\beta_i)\big) + \mathds{1}\{a_{ui} = 0\} \log (1 - \mu)
 %\end{equation}
-The EM inference procedure for the basic model, ExpoMF, 
+The \gls{EM} inference procedure for the basic model, ExpoMF, 
 can be found by writing out the full log-likelihood of the model, 
 then alternating between finding the expectations of missing data (exposure)
 in the E(xpectation)-step and finding maximum of the likelihood with respect to the parameters in the M(aximization)-step. 
@@ -378,7 +378,7 @@ for some learning rate $\eta_t$, where
 \tilde{\mb{g}}_t =  \frac{1}{|B_t|}\sum_{i \in B_t} (p_{ui} - \sigma(\mb\psi_u^\top \mbx_i)) \mbx_i.
 \end{equation*}
 
-For each EM iteration, we found it sufficient to do a single update to the
+For each \gls{EM} iteration, we found it sufficient to do a single update to the
 exposure model parameter $\mb\psi_u$ (as opposed to updating until it
 reaches convergence). This partial M-step \citep{neal1998view} is much faster in practice. 
 
@@ -412,7 +412,7 @@ A naive implementation of the \gls{WMF} has the same complexity as ExpoMF in ter
 In ExpoMF's implementation, explicitly storing the exposure matrix $\bA$ is impractical for even medium-sized datasets. As an alternative, we perform the E-step on the fly: only the necessary part of the exposure matrix $\bA$ is constructed for the updates of the user/item factors and exposure priors $\mu_{ui}$. As shown in \Cref{chpt:expomf:sec:exp}, with parallelization and the on-the-fly E-step, ExpoMF can be easily fit to medium-to-large datasets.\footnote{The source code to reproduce all the experimental results is available at: \url{https://github.com/dawenl/expo-mf}.}
 
 \subsection{Prediction} \label{chpt:expomf:sec:pred}
-In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\mb\theta_u^\top\mb\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations to the posterior given by the EM algorithm\footnote{This quantity is also the treatment effect $\E{y_{ui} \g a_{ui}=1, \mb\theta_u, \mb\beta_i} - \E{y_{ui} \g a_{ui}=0, \mb\theta_u, \mb\beta_i}$ in the potential outcomes framework (see \Cref{chpt:background:sec:potential}), since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
+In matrix factorization collaborative filtering the prediction of $y_{ui}$ is given by the dot product between the inferred user and item factors $\mb\theta_u^\top\mb\beta_i$. This corresponds to the predictive density of ExpoMF $p(y_{ui} \g \bY)$ using point mass approximations to the posterior given by the \gls{EM} algorithm\footnote{This quantity is also the treatment effect $\E{y_{ui} \g a_{ui}=1, \mb\theta_u, \mb\beta_i} - \E{y_{ui} \g a_{ui}=0, \mb\theta_u, \mb\beta_i}$ in the potential outcomes framework (see \Cref{chpt:background:sec:potential}), since $a_{ui}=0$ deterministically ensures $y_{ui}=0$.}. 
 However, ExpoMF can also make predictions by integrating out the uncertainty from the exposure latent variable $a_{ui}$:
 \begin{equation*}
 \begin{split}

@@ -223,7 +223,7 @@ not exposed to the item ($a_{ui} = 0$) is a point mass at zero.
 % i think i should finally write that appendix about the poisson
 % versus the normal.
 
-\subsection{Forming predictions.}  
+\subsection{Forming predictions}  
 
 Our goal is to use this model to form
 future predictions about the users.  We are given observed data
@@ -379,9 +379,9 @@ user is exposed to.
 
 \subsection{Fitting exposure model}
 
-\parhead{Popularity model.} For popularity exposure model $a_{ui} \sim \mathrm{Bernoulli}(\rho_i)$, we obtain the maximum likelihood estimate $\tilde{\rho}_i$ by counting the portion of the users who have been exposed to item $i$. The propensity score in this case is fixed across users: 
+\parhead{Popularity model.} For popularity exposure model $a_{ui} \sim \mathrm{Bernoulli}(\rho_i)$, we obtain the maximum likelihood estimate $\hat{\rho}_i$ by counting the portion of the users who have been exposed to item $i$. The propensity score in this case is fixed across users: 
 \begin{equation}
-\pi_{ui} = \tilde\rho_i, \forall u \in \{1, \dots, U\}.
+\pi_{ui} = \hat\rho_i, \forall u \in \{1, \dots, U\}.
 \label{chpt:causal_rec:eq:pop_prop}
 \end{equation}
 
@@ -396,9 +396,9 @@ user is exposed to.
 
 The click model is a matrix factorization $y_{ui} \g a_{ui} = 1 \sim \cN(\mb\theta_u^\top \mb\beta_i, \lambda_y^{-1})$.
 Following \Cref{chpt:background:sec:mf_cf}, we place a diagonal normal prior on both user preference
-$\mb\theta_u \sim \mathcal{N}(0, \lambda_\theta^{-1} \mathrm{I}_K)$ and
+$\mb\theta_u \sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K)$ and
 item attributes
-$\mb\beta_i \sim \mathcal{N}(0, \lambda_\beta^{-1}\mathrm{I}_K)$. To fit the model, we compute the maximum \emph{a posteriori} (MAP)
+$\mb\beta_i \sim \mathcal{N}(\bzero, \lambda_\beta^{-1}\mathrm{I}_K)$. To fit the model, we compute the maximum \emph{a posteriori} (MAP)
 estimates of the parameters $\mb\theta_u$ and $\mb\beta_i$. Concretely, the objective for the inverse propensity weighted Gaussian matrix factorization model (\Cref{eq:causal-training}) is:
 \begin{equation*}
 \cL = \sum_{(u, i)\in \cO} \frac{1}{\pi_{ui}}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2,
@@ -854,7 +854,7 @@ From \Cref{tab:results}, we make the following observations.
 \section{Summary}
 
 In this chapter, we develop a causal inference approach to recommendation with explicit data. We separately model two sources of information: the \textit{exposure} data (which items each user decided to look at) and \textit{click} data (which of
-those items each user liked). Exposure data introduces bias, as rare items do not get as much exposure as popular ones. We use inverse propensity weighting to correct for this bias. Through extensive empirical study, we demonstrate that this causal approach to recommender systems leads to improved generalization to new data.
+those items each user liked). Exposure data introduces bias when we estimate parameters of a recommendation model from the click data, as rare items do not get as much exposure as popular ones. We use inverse propensity weighting to correct for this bias. Through extensive empirical study, we demonstrate that this causal approach to recommender systems leads to improved generalization to new data.
 
 As future work, we can develop similar methodology for implicit data. The main difficulty in implicit data is that we do not know which items a user has been exposed to. The ExpoMF model and its variations we developed in \Cref{chpt:expomf} could help with that.  
 
