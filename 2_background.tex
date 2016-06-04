@@ -19,7 +19,7 @@ of the plate. We use doted line to indicate that the dependency between model pa
 \begin{figure}[ht]
   \centering
      \input{fig/model_general}
-  \caption{Graphical model representation for the general latent variable models.}
+  \caption{Graphical model representation for the general latent variable models. Doted line is used to indicate that the dependency between model parameters $\mb\theta$ and latent variables $\mbz$ are optional -- it depends on how the prior $p(\mbz, \mb\theta)$ is specified. }
 \label{chpt:background:fig:general}
 \end{figure}
 
@@ -317,35 +317,33 @@ methods for parameter estimation.
 
 \section{Causal inference}\label{chpt:background:sec:causal}
 
-Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
-
-\PP We only review important and relevant concepts in causal inference here.
+Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. 
+%We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. 
+In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
 
 \subsection{Potential outcome framework}\label{chpt:background:sec:potential}
 
-The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. In this framework, each individual has a potential outcome when assigned the treatment $a = 1$ and a potential
-outcome when not assignment the treatment $a = 0$. One measurement of the causal effect is the average difference (over individuals) between those potential outcomes. In the language of graphical models \citep{pearl2009causality},
-this is framed as evaluating the impact of an intervention on random variables in a probabilistic graph. 
+The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. We use random variable $A = a$ as an indicator of treatment assignment and assume the treatment is binary, i.e., $a$ is either $1$ (assigned the treatment) or $0$ (not assigned the treatment). In this framework, each individual has multiple \textit{potential outcomes} $Y(a)$ depending on the value of $a$. For example, in a medical trial, for each patient, we assume there is a potential outcome $Y(1)$ if she receives the treatment and $Y(0)$ if she receives the placebo. 
 
-\PP potential outcomes framework \citep{rubin1974ece} $Y(0) = y(0)$ and $Y(1) = y(1)$
-
-\PP \gls{ATE} $\E{\delta} = \E{Y(1)} - \E{Y(0)}$. The expectation is taken over the whole population of interest. 
+One measurement of the causal effect is the average difference (over individuals) between those potential outcomes. It is formally formulated as the \gls{ATE}: $\E{\delta} = \E{Y(1)} - \E{Y(0)}$, where the expectation is taken over the whole population of interest. In the language of graphical models \citep{pearl2009causality},
+this is framed as evaluating the impact of an intervention on random variables in a probabilistic graph. The difficulty of causal inference is that we can only observe the realization of one of the potential outcomes $Y(a)$, for $a\in\{0, 1\}$. 
 
 \subsection{Experimental and observational data}
 
-\PP Under the assumption of unconfoundednessm, strong ignorability:
-\begin{equation*}
-Y(0), Y(1) \indpt A \g x
-\end{equation*}
-we can obtain an unbiased estimate of the \gls{ATE}.
+% \PP Under the assumption of unconfoundednessm, strong ignorability:
+% \begin{equation*}
+% Y(0), Y(1) \indpt A \g x
+% \end{equation*}
+% we can obtain an unbiased estimate of the \gls{ATE}.
 
-\PP Experimental data is collected from a randomized experiment where we have control over the assignment mechanism (e.g., a medical trial where the doctor decides whether a patient receives treatment or placebo). Strong ignorability is clearly satisfied in a randomized experiment. Thus a naive estimator of the difference between the treated and untreated is an unbiased estimate of \gls{ATE}. 
+There are two types of data commonly encountered in causal analysis: experimental data and observational data. 
 
-\PP Observational data, on the other hand, is collected from an observational study where we have no control over the assignment mechanism. This can happen when it is impractical to perform a randomized experiment (e.g., for ethical reasons). 
+Experimental data is collected from a randomized experiment where we have control over the assignment mechanism (e.g., a medical trial where a random proportion of patients receives treatment). A naive estimator of the difference between the treated and untreated is an unbiased estimate of \gls{ATE}. Experimental data is of great quality, but sometimes it is impossible to obtain. 
 
-\parhead{Inverse propensity weighting}
+Observational data, on the other hand, is collected from an observational study where we have no control over the assignment mechanism. This can happen when it is impractical to perform a randomized experiment (e.g., for ethical reasons) or when we cannot control the data collecting process. Special care is required when making causal statement with observational data, since the naive estimator of the difference between the treated and untreated is biased. Despite the difficulty, observational data is easily accessible comparing to experimental data.
 
-\PP \citep{rosenbaum1983central}
+If we treat recommending an item to a user as assigning a treatment, the data collected from a typical recommender system is an example of observational data. We leverage this connection in \Cref{chpt:causal_rec} to develop a causal inference approach to recommendation. 
+
 
 
 

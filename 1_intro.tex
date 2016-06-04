@@ -24,14 +24,14 @@ Below we outline the contributions of this dissertation. Since we address a numb
 
 \subsection{Music understanding and recommendation}
 \parhead{Scalable music tagging with Poisson factorization.} 
-In \Cref{chpt:tagging}, we develop scalable solution to automatic music tagging -- inferring the semantic tags from the audio features. We treat music tagging as a matrix completion problem and apply the Poisson factorization model to a large collection of music data. We explore the fitted model and identify what portion of the acoustic codeword space is being captured by the latent variables.
+We develop scalable solution to automatic music tagging -- inferring the semantic tags from the audio features. We treat music tagging as a matrix completion problem and apply the Poisson factorization model to a large collection of music data. We explore the fitted model and identify what portion of the acoustic codeword space is being captured by the latent variables.
 
 \parhead{Content-aware collaborative music recommendation.} 
-In \Cref{chpt:content}, we address the fundamental cold-start problem (it cannot recommend new songs that no one has listened to) of collaborative filtering by pre-training a multi-layered neural network on semantic tagging information as a content model and using it as a prior in a collaborative filtering model.  The proposed system shows comparably better result than the state-of-the-art collaborative filtering approaches, in addition to the favorable performance in the cold-start case. 
+We address the fundamental cold-start problem (it cannot recommend new songs that no one has listened to) of collaborative filtering by pre-training a multi-layered neural network on semantic tagging information as a content model and using it as a prior in a collaborative filtering model.  The proposed system shows comparably better result than the state-of-the-art collaborative filtering approaches, in addition to the favorable performance in the cold-start case. 
 
 \subsection{Probabilistic models for recommender systems}
 \parhead{Modeling user exposure in recommendation.}
-In \Cref{chpt:expomf}, we develop a probabilistic matrix factorization model to capture the latent user exposure (whether or not a user is exposed to an item). In doing so, we recover one of the most successful state-of-the-art approaches as a special case of our model
+We develop a probabilistic matrix factorization model to capture the latent user exposure (whether or not a user is exposed to an item). In doing so, we recover one of the most successful state-of-the-art approaches as a special case of our model
 \citep{hu2008collaborative}, and provide a plug-in method for conditioning
 exposure on various forms of exposure covariates (e.g., topics in text,
 venue locations). In four datasets from various domains, we show that our model
@@ -39,7 +39,7 @@ outperforms existing benchmarks both with and
 without exposure covariates. 
 
 \parhead{Causal inference for recommendation.}
-In \Cref{chpt:causal_rec}, we develop a causal inference approach to recommender systems. 
+We develop a causal inference approach to recommender systems. 
 We use inverse propensity weighting to correct for the bias which exists in observational recommendation data. Through extensive empirical study, we demonstrate that this causal approach to recommender systems leads to improved generalization to new data.
 
 
