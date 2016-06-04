@@ -319,16 +319,16 @@ methods for parameter estimation.
 
 Causal inference is aiming to answer the cause-and-effect question: does $X$ cause $Y$? If so, how much is the effect of $X$ on $Y$? Causal inference helps us learn about how things work and predict what happens when certain things change \citep{morgan2014counterfactuals,imbens2015causal}. 
 %We are not particularly interested in asking such \textit{counterfactual} question about recommendation. Instead, we formulate recommendation as performing model inference from (biased) observational data and use the tools developed in causal inference to help us make better prediction about users' future preference. 
-In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we develop a causal inference approach to recommender systems.  
+In this section, we review some basic concepts of causal inference that will be used in the later chapters of this dissertation when we make a connection between causal inference and recommendation.  
 
 \subsection{Potential outcome framework}\label{chpt:background:sec:potential}
 
-The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. We use random variable $A = a$ as an indicator of treatment assignment and assume the treatment is binary, i.e., $a$ is either $1$ (assigned the treatment) or $0$ (not assigned the treatment). In this framework, each individual has multiple \textit{potential outcomes} $Y(a)$ depending on the value of $a$. For example, in a medical trial, for each patient, we assume there is a potential outcome $Y(1)$ if she receives the treatment and $Y(0)$ if she receives the placebo. 
+The potential outcome framework of causal inference \citep{rubin1974ece} is the most widely used causality formulation. We use random variable $A = a$ as an indicator of treatment assignment and assume the treatment is binary, i.e., $a$ is either $1$ (assigned the treatment) or $0$ (not assigned the treatment). In this framework, each individual has two \textit{potential outcomes} $Y(a)$ depending on the value of $a$. For example, in a medical trial, for each patient, we assume there is a potential outcome $Y(1)$ if she receives the treatment and $Y(0)$ if she receives the placebo. 
 
 One measurement of the causal effect is the average difference (over individuals) between those potential outcomes. It is formally formulated as the \gls{ATE}: $\E{\delta} = \E{Y(1)} - \E{Y(0)}$, where the expectation is taken over the whole population of interest. In the language of graphical models \citep{pearl2009causality},
-this is framed as evaluating the impact of an intervention on random variables in a probabilistic graph. The difficulty of causal inference is that we can only observe the realization of one of the potential outcomes $Y(a)$, for $a\in\{0, 1\}$. 
+this is framed as evaluating the impact of an intervention on random variables in a probabilistic graph. The difficulty of causal inference is that we can only observe one realization of all the potential outcomes $Y(a)$, for $a\in\{0, 1\}$. 
 
-\subsection{Experimental and observational data}
+\subsection{Randomized experiments and observational studies} \label{chpt:background:sec:exp_obs}
 
 % \PP Under the assumption of unconfoundednessm, strong ignorability:
 % \begin{equation*}
@@ -336,11 +336,11 @@ this is framed as evaluating the impact of an intervention on random variables i
 % \end{equation*}
 % we can obtain an unbiased estimate of the \gls{ATE}.
 
-There are two types of data commonly encountered in causal analysis: experimental data and observational data. 
+There are two types of data commonly encountered in causal analysis: data collected from randomized experiments and data collected from observational studies. 
 
-Experimental data is collected from a randomized experiment where we have control over the assignment mechanism (e.g., a medical trial where a random proportion of patients receives treatment). A naive estimator of the difference between the treated and untreated is an unbiased estimate of \gls{ATE}. Experimental data is of great quality, but sometimes it is impossible to obtain. 
+Randomized experiments are the experiments that each unit receives treatment randomly (e.g., a medical trial where a random proportion of patients receives treatment). They allow the great reliability and validity of statistical estimates of causal effects. A naive \gls{ATE} estimator of the difference between the treated and untreated with data from randomized experiments is unbiased. Such data is of great quality, but sometimes it is impossible to obtain. 
 
-Observational data, on the other hand, is collected from an observational study where we have no control over the assignment mechanism. This can happen when it is impractical to perform a randomized experiment (e.g., for ethical reasons) or when we cannot control the data collecting process. Special care is required when making causal statement with observational data, since the naive estimator of the difference between the treated and untreated is biased. Despite the difficulty, observational data is easily accessible comparing to experimental data.
+Observational data, on the other hand, is collected from an observational study where we have no control over the assignment mechanism. This can happen when it is impractical to perform a randomized experiment (e.g., for ethical reasons) or when we cannot control the data collecting process. Special care is required when making causal statement with observational data, since the naive \gls{ATE} estimator is generally biased. Despite such difficulty, observational data is easily accessible comparing to data collected from randomized experiments.
 
 If we treat recommending an item to a user as assigning a treatment, the data collected from a typical recommender system is an example of observational data. We leverage this connection in \Cref{chpt:causal_rec} to develop a causal inference approach to recommendation. 
 
