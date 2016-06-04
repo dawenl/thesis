@@ -193,7 +193,7 @@ item-specific parameter.  We call this the popularity exposure because
 it allows some items to be more likely to be exposed (across users)
 than others,
 \begin{align}
-\kern-1em a_{ui} &\sim \Bern(\rho_i). & \qquad\qquad\qquad\qquad\qquad\qquad\textit{(Popularity exposure)} &
+\kern-1em a_{ui} &\sim \Bern(\rho_i). & \qquad\qquad\qquad\qquad\textit{(Popularity exposure)} &
   \label{eq:popularity}
 \end{align}
 
@@ -201,7 +201,7 @@ Alternatively, the exposure model can capture a user's preferences for
 seeking out items.  We will also study Poisson factorization,
 \begin{align}
   \kern-1em a_{ui} &\sim \textrm{Poisson}(\mb\pi_u^\top \mb\gamma_i),
-  & \qquad\qquad\qquad\qquad\textit{(Poisson factorization exposure)}&
+  & \qquad\qquad\textit{(Poisson factorization exposure)}&
   \label{eq:poisson-factorization}
 \end{align} which finds
 non-negative embeddings for users and
@@ -235,7 +235,7 @@ We will study two ways of predicting. One is to form conditional
 predictions as the probability that a user clicks on an item given
 that she is exposed to it,
 \begin{align}
-  &\E{y_{ui} \g a_{ui} = 1, \cD}.  &\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\textit{(Conditional prediction)}&
+  &\E{y_{ui} \g a_{ui} = 1, \cD}.  &\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\textit{(Conditional prediction)}&
   \label{eq:conditional-prediction}
 \end{align}
 Alternatively, we use marginal predictions, where we marginalize out
@@ -763,6 +763,7 @@ formed.\footnote{There
 \begin{table*}
 
 \begin{subtable}[t]{\textwidth}
+\centering
 \begin{tabular}{ c  c  c  c c  c c  c c  c c  }
   \toprule
   \multicolumn{3}{c}{} & \multicolumn{2}{c}{\textbf{ML-1M}} & \multicolumn{2}{c}{\textbf{ML-10M}} & \multicolumn{2}{c}{\textbf{Yahoo-R3}} & \multicolumn{2}{c}{\textbf{ArXiv}} \\ \midrule
