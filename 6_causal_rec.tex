@@ -210,7 +210,7 @@ items~\citep{Gopalan:2015}.\footnote{Though Poisson models capture
   items~\citep{Gopalan:2015}.}
 
 For the click model, we use classical probabilistic matrix
-factorization~\citep{mnih2007probabilistic} in \Cref{chpt:background:sec:mf_cf}. Conditional on being
+factorization~\citep{salakhutdinov2008probabilistic} in \Cref{chpt:background:sec:mf_cf}. Conditional on being
 exposed, the click comes from a normal distribution,
 $y_{ui} \g a_{ui} = 1 \sim \cN(\mb\theta_u^\top \mb\beta_i,
 \lambda_y^{-1})$.
@@ -398,8 +398,7 @@ The click model is a matrix factorization $y_{ui} \g a_{ui} = 1 \sim \cN(\mb\the
 Following \Cref{chpt:background:sec:mf_cf}, we place a diagonal normal prior on both user preference
 $\mb\theta_u \sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K)$ and
 item attributes
-$\mb\beta_i \sim \mathcal{N}(\bzero, \lambda_\beta^{-1}\mathrm{I}_K)$. To fit the model, we compute the maximum \emph{a posteriori} (MAP)
-estimates of the parameters $\mb\theta_u$ and $\mb\beta_i$. Concretely, the objective for the inverse propensity weighted Gaussian matrix factorization model (\Cref{eq:causal-training}) is:
+$\mb\beta_i \sim \mathcal{N}(\bzero, \lambda_\beta^{-1}\mathrm{I}_K)$. To fit the model, we compute the maximum \emph{a posteriori} estimates of the parameters $\mb\theta_u$ and $\mb\beta_i$. Concretely, the objective for the inverse propensity weighted Gaussian matrix factorization model (\Cref{eq:causal-training}) is:
 \begin{equation*}
 \cL = \sum_{(u, i)\in \cO} \frac{1}{\pi_{ui}}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2,
 \label{chpt:causal_rec:eq:gmf_logll}
@@ -598,7 +597,7 @@ procedure.  The different choices are summarized below:
 
 Among these methods are two baselines. The models that are trained
 observationally (OBS) with conditional prediction (Cond) correspond to
-classical matrix factorization \citep{mnih2007probabilistic}. The models that
+classical matrix factorization \citep{salakhutdinov2008probabilistic}. The models that
 are trained causally (CAU) with conditional prediction (Cond)
 correspond to inverse propensity weighted matrix factorization
 proposed in \citet{schnabel16treatment}.\footnote{Even though
@@ -798,7 +797,7 @@ formed.\footnote{There
 \caption{Mean average rank (smaller is better)}
 \label{tab:eval_mar}
 \end{subtable}
-\caption{Predictive log tail probability (PLP) and mean average rank (MAR) for the recommendation model on different datasets. The results are organized by the exposure model (Pop or PF), how to fit the model (OBS or CAU), and how to make prediction (Cond or Mar). The OBS-Cond models correspond to the classical matrix factorization \citep{mnih2007probabilistic}. The CAU-Cond models correspond to \citet{schnabel16treatment}. See main text for detailed analysis. }
+\caption{Predictive log tail probability (PLP) and mean average rank (MAR) for the recommendation model on different datasets. The results are organized by the exposure model (Pop or PF), how to fit the model (OBS or CAU), and how to make prediction (Cond or Mar). The OBS-Cond models correspond to the classical matrix factorization \citep{salakhutdinov2008probabilistic}. The CAU-Cond models correspond to \citet{schnabel16treatment}. See main text for detailed analysis. }
 \label{tab:results}
 \end{table*}
 

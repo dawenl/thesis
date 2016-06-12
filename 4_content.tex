@@ -26,7 +26,7 @@ In this section we review two closely relevant models: collaborative topic model
 
 % \subsection{Recommendation by matrix factorization}\label{sec:huetal}
 
-% In a matrix factorization recommendation model, we represent both users and items in a shared low-dimensional space of dimension $K$, where user $u$ is represented by a latent factor $\mb\theta_u \in \RR^K$ and item $i$ is represented by a latent factor $\mb\beta_i \in \mathbb{R}^K$. To make a prediction about the preference of user $u$ on item $i$, we simply take the dot product between the two $\hat{r}_{ui} = \mb\theta_u^\top \mb\beta_i$. To estimate user and item factors, we can minimize the squared loss between the estimated preference and actual responses $\sum_{u, i} (r_{ui} - \hat{r}_{ui})^2$,  with $\ell_2$ regularization on the factors to prevent overfitting. Alternating least squares (ALS) can be employed for efficient optimization. Equivalently, we can formulate a probabilistic matrix factorization model \cite{mnih2007probabilistic} with the following generative process:
+% In a matrix factorization recommendation model, we represent both users and items in a shared low-dimensional space of dimension $K$, where user $u$ is represented by a latent factor $\mb\theta_u \in \RR^K$ and item $i$ is represented by a latent factor $\mb\beta_i \in \mathbb{R}^K$. To make a prediction about the preference of user $u$ on item $i$, we simply take the dot product between the two $\hat{r}_{ui} = \mb\theta_u^\top \mb\beta_i$. To estimate user and item factors, we can minimize the squared loss between the estimated preference and actual responses $\sum_{u, i} (r_{ui} - \hat{r}_{ui})^2$,  with $\ell_2$ regularization on the factors to prevent overfitting. Alternating least squares (ALS) can be employed for efficient optimization. Equivalently, we can formulate a probabilistic matrix factorization model \cite{salakhutdinov2008probabilistic} with the following generative process:
 % \begin{itemize}
 % \item For each user $u$, draw user latent factor:
 % \vspace{-0.05in}
@@ -54,7 +54,7 @@ In this section we review two closely relevant models: collaborative topic model
 \subsection{Collaborative topic model}\label{chpt:content:sec:ctm}
 
 As reviewed in \Cref{chpt:background:sec:cf}, a widely used approach to recommender systems is collaborative filtering, where items are recommended to a user based on other
-users with similar patterns of item consumption. Matrix factorization models \citep{hu2008collaborative, koren2009matrix} are among the most successful collaborative filtering methods. In the case of the Gaussian matrix factorization \citep{salakhutdinov2007probabilistic}, efficient \textit{alternating least squares} update (\Cref{chpt:background:algo:gmf,chpt:background:algo:wmf}) exists for scalable inference, makes it an attractive option for commercial recommender systems.
+users with similar patterns of item consumption. Matrix factorization models \citep{hu2008collaborative, koren2009matrix} are among the most successful collaborative filtering methods. In the case of the Gaussian matrix factorization \citep{salakhutdinov2008probabilistic}, efficient \textit{alternating least squares} update (\Cref{chpt:background:algo:gmf,chpt:background:algo:wmf}) exists for scalable inference, makes it an attractive option for commercial recommender systems.
 
 Due to its content-free nature, collaborative filtering approaches can be applied in a wide range of domains. They perform well on what is called \emph{in-matrix} predictions, i.e., recommending items that have been consumed by some users. However, this approach suffers from the well-known problem that it is unable to recommend new items that no user has consumed, or making \emph{out-of-matrix} predictions, where content-based models are better suited. \Cref{chpt:content:fig:in_and_out} provides illustrative examples for both \emph{in-matrix} and \emph{out-of-matrix} predictions. Many efforts have been made to incorporate content into collaborative filtering. \citet{wang2011collaborative} propose the \gls{CTR} model for scientific article recommendation, which is particularly relevant to our proposed method.  
 
@@ -303,7 +303,7 @@ Given our binarized data, the reverence $rel_i$ is also binary: $1$ if song $i$ 
      CF + deep & {0.1722} & {0.2365} & {0.2800} & {0.3129} & {0.3394} & {0.2882} \\
     \bottomrule
   \end{tabular}
-  \caption{\emph{In-matrix} performance on the DEN subset with proposed and competing methods. We can see that with sufficient amount of user feedback, there is almost no difference in terms of recommendation performance among \gls{WMF}, CF + shallow, and CF + deep.} 
+  \caption{\emph{In-matrix} performance on the DEN subset with proposed and competing methods. We can see that with sufficient amount of user feedback, there is almost no difference in terms of recommendation performance among WMF, CF + shallow, and CF + deep.} 
   \label{tab:in-matrix}
 \end{table}
 
@@ -339,7 +339,7 @@ The superiority of CF + deep is more obvious on the \emph{out-of-matrix} predict
      CF + deep & \bf{0.1140} & \bf{0.1289} & \bf{0.1378} & \bf{0.1451} & \bf{0.1507} & \bf{0.1417} \\
     \bottomrule
   \end{tabular}
-  \caption{\emph{In-matrix} performance on the SPR subset with proposed and competing methods. With very limited user feedback, both CF + shallow and CF + deep outperform the content-free \gls{WMF}. } 
+  \caption{\emph{In-matrix} performance on the SPR subset with proposed and competing methods. With very limited user feedback, both CF + shallow and CF + deep outperform the content-free WMF. } 
   \label{tab:spr}
 \end{table}
 

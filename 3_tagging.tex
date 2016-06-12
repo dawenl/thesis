@@ -55,7 +55,7 @@ where $\beta_k \triangleq [\beta_{k1}, \dots, \beta_{kD}]^\top \in \mathbb{R}_+^
 \label{chpt:background:fig:pmf}
 \end{figure}
 
-There are a couple of reasons to choose a Poisson model over a more traditional Gaussian model \citep{salakhutdinov2007probabilistic}. First, the Poisson distribution is a more natural choice to model count data. Secondly, real-world tagging data is extremely noisy and sparse. If a tag is not associated with a song in the data, it could be either because that tag does not apply to the song, or simply because no one has labeled the song with the tag yet. The Poisson matrix factorization model has the desirable property that it does not penalize values of $0$ as strongly as the Gaussian distribution \citep{paisley2015handbook,Gopalan:2015}. Therefore, even weakly labeled data can be used to learn the Poisson model.  
+There are a couple of reasons to choose a Poisson model over a more traditional Gaussian model \citep{salakhutdinov2008probabilistic}. First, the Poisson distribution is a more natural choice to model count data. Secondly, real-world tagging data is extremely noisy and sparse. If a tag is not associated with a song in the data, it could be either because that tag does not apply to the song, or simply because no one has labeled the song with the tag yet. The Poisson matrix factorization model has the desirable property that it does not penalize values of $0$ as strongly as the Gaussian distribution \citep{paisley2015handbook,Gopalan:2015}. Therefore, even weakly labeled data can be used to learn the Poisson model.  
 
 \section{Variational inference}
 

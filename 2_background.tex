@@ -8,7 +8,7 @@ Broadly speaking, we will make use of inference techniques for probabilistic mod
 
 \section{Probabilistic modeling and inference techniques}\label{chpt:background:sec:inference}
 
-We begin by defining the general problem setup for probabilistic latent variable models. We observe data $\mbx = \{x_1, \dots, x_N\}$. We assume the data is generated stochastically by a model $p(\mbx \g \mbz, \theta)$ that is governed by some latent variables $\mbz = \{z_1, \dots, z_N\}$ as well as model parameters $\mb\theta$\footnote{The distinction between latent variables $\mbz$ and model parameters $\mb\theta$ can be somewhat arbitrary. Here we follow the convention that the dimensionality of the latent variables grows with the number of observations (hence both $\mbx$ and $\mbz$ are indexed by $n$), while that of model parameters does not. Latent variables and model parameters loosely correspond to \textit{local variables} and \textit{global variables} in \citet{hoffman2013stochastic}}. We can also incorporate priors $p(\mbz, \mb\theta)$. We leave the dependency structure of prior generic. This class of models covers a wide range of commonly used models, to name a few: mixture models, hidden Markov models, and mixed-membership models (e.g., latent Dirichlet allocation \citep{blei2003latent}, probabilistic matrix factorization \citep{salakhutdinov2007probabilistic}, and stochastic blockmodels \citep{DBLP:journals/jmlr/AiroldiBFX08}).
+We begin by defining the general problem setup for probabilistic latent variable models. We observe data $\mbx = \{x_1, \dots, x_N\}$. We assume the data is generated stochastically by a model $p(\mbx \g \mbz, \theta)$ that is governed by some latent variables $\mbz = \{z_1, \dots, z_N\}$ as well as model parameters $\mb\theta$\footnote{The distinction between latent variables $\mbz$ and model parameters $\mb\theta$ can be somewhat arbitrary. Here we follow the convention that the dimensionality of the latent variables grows with the number of observations (hence both $\mbx$ and $\mbz$ are indexed by $n$), while that of model parameters does not. Latent variables and model parameters loosely correspond to \textit{local variables} and \textit{global variables} in \citet{hoffman2013stochastic}}. We can also incorporate priors $p(\mbz, \mb\theta)$. We leave the dependency structure of prior generic. This class of models covers a wide range of commonly used models, to name a few: mixture models, hidden Markov models, and mixed-membership models (e.g., latent Dirichlet allocation \citep{blei2003latent}, probabilistic matrix factorization \citep{salakhutdinov2008probabilistic}, and stochastic blockmodels \citep{DBLP:journals/jmlr/AiroldiBFX08}).
 
 \Cref{chpt:background:fig:general} demonstrates the graphical model representation for the general latent variable models described above. Shaded nodes represent observed variables. Unshaded nodes represent
 hidden (unobserved) variables. A directed edge from node $a$ to node $b$
@@ -46,7 +46,7 @@ For models with latent variables, \gls{EM} \citep{dempster1977maximum} algorithm
 
 \subsection{Parameter estimation via expectation-maximization}\label{chpt:background:sec:em}
 
-In this section, we introduce the \gls{EM} algorithm for parameter estimation. There exist different derivations of the algorithm in the literature. Here we choose to introduce it in the variational framework to highlight its close connection to variational inference, which we will introduce in the following section. We derive the \gls{EM} algorithm for MLE (\Cref{chpt:background:eq:mle}) -- it only requires minor modification for MAP (\Cref{chpt:backgroun:eq:map}).
+In this section, we introduce the \gls{EM} algorithm for parameter estimation. There exist different derivations of the algorithm in the literature. Here we choose to introduce it in the variational framework to highlight its close connection to variational inference, which we will introduce in the following section. We derive the \gls{EM} algorithm for maximum likelihood estimation (\Cref{chpt:background:eq:mle}) -- it only requires minor modification for maximum \textit{a posteriori} (\Cref{chpt:backgroun:eq:map}).
 
 To obtain the maximum likelihood estimates, typically we write down the so-called \textit{observable data log-likelihood} $\log p(\mbx \g \mb\theta)$ and optimize it with respect to the model parameters $\mb\theta$. One of the problems with directly optimizing the observable data log-likelihood for models with latent variables $\mbz$ is that it requires to integrate over all the latent variables $\log \int_\mbz p(\mbx, \mbz \g \mb\theta) \dif\mbz$, which is generally intractable. As a workaround, we instead optimize the \textit{complete data log-likelihood} $\log p(\mbx, \mbz \g \mb \theta)$ by introducing a \textit{variational distribution} $q(\mbz)$ and applying Jensen's inequality:
 \begin{equation}
@@ -58,7 +58,7 @@ To obtain the maximum likelihood estimates, typically we write down the so-calle
 \end{split}
 \label{chpt:background:eq:em}
 \end{equation}
-We could of course find out the optimal $q(\mbz)$ by exploring when the equality holds for Jensen's inequality. However, we will solve it from a different angle here. We first explore the slack by applying Jensen's inequality:
+We obtain a lower bound of the log-likelihood $\log p(\mbx \g \mb\theta)$ that we are interested in optimizing. The tightness of this bound depends on the variational distribution $q(\mbz)$. We could of course find out the optimal $q(\mbz)$ by exploring when the equality holds for Jensen's inequality. However, we will solve it from a different angle here. We first explore the slack by applying Jensen's inequality:
 \begin{equation}
 \begin{split}
 \Delta =& \log p(\mbx \g \mb\theta) - \int_\mbz q(\mbz) \log\frac{p(\mbx, \mbz \g \mb\theta)}{q(\mbz)} \dif\mbz \\
@@ -68,11 +68,11 @@ We could of course find out the optimal $q(\mbz)$ by exploring when the equality
 \end{split}
 \label{chpt:background:eq:em_kl}
 \end{equation}
-Thus, the difference is the \gls{KL} divergence between the variational distribution $q(\mbz)$ and the posterior distribution $p(\mbz \g \mbx, \mb\theta)$. We can re-write the log-likelihood:
+Thus, the difference is the \gls{KL} divergence between the variational distribution $q(\mbz)$ and the posterior distribution $p(\mbz \g \mbx, \mb\theta)$. We can re-write the log-likelihood as:
 \[
 \log p(\mbx \g \mb\theta) = \underbrace{\EE{q}{\log p(\mbx, \mbz \g \mb\theta)} - \EE{q}{\log q(\mbz)}}_{\cL(q, \mb\theta)} + \textrm{KL}(q\|p).
 \]
-Since the \gls{KL}-divergence is non-negative, $\cL(q, \mb\theta)$ acts as a lower-bound for the log-likelihood. \gls{EM} algorithm optimizes $\cL(q, \mb\theta)$ by iteratively applying the following E(xpectation) and M(aximization) steps:
+Since the \gls{KL}-divergence $\textrm{KL}(q\|p)$ is non-negative and equals $0$ only if $q = p$, $a.s.$, $\cL(q, \mb\theta)$ acts as a tight lower-bound that equals $\log p(\mbx \g \mb\theta)$ when we set $q$ equal $p$. \gls{EM} algorithm optimizes $\cL(q, \mb\theta)$ by iteratively applying the following E(xpectation) and M(aximization) steps:
 
 \parhead{E-step:} By setting $q(\mbz) = p(\mbz \g \mbx, \mb\theta)$, we obtain the optimal variational distribution, closing the gap between log-likelihood $\log p(\mbx \g \mb\theta)$ and the lower bound $\cL(q, \mb\theta)$. 
 
@@ -127,21 +127,20 @@ choice.
 
 \subsection{Explicit and implicit feedback} \label{chpt:background:sec:data}
 
-Traditionally there are two modes of this problem, recommendation from
-explicit data and recommendation from implicit data.  With explicit
+Traditionally there are two modes of the recommendation problem: recommendation from explicit data and recommendation from implicit data.  With explicit
 data, users rate some items (positively, negatively, or along a
-spectrum) and we can predict their missing ratings (the task of \textit{rating prediction}, popularized by the Netflix Prize\footnote{\url{http://www.netflixprize.com/}}). This is called explicit data because it is enough to only use the rated items to infer a user's
-preferences. Positively rated items indicate types of items that she
-likes; negatively rated items indicate items that she does not like. Explicit data is of great value, but it is often difficult to obtain. 
+spectrum) and we can predict their missing ratings (the task of \textit{rating prediction}, popularized by the Netflix Prize\footnote{\url{http://www.netflixprize.com/}}). This is called explicit data because users' preferences are expressed in an explicit fashion: positively rated items indicate types of items that they
+like; negatively rated items indicate items that they do not like. For explicit data, it is enough to only use the rated items to infer a user's
+preferences as we have both positive and negative examples. Explicit data is of great value, but it is often difficult to obtain. 
 
 In implicit data, each user expresses a binary decision about items\footnote{In principle, implicit data can go beyond binary: For example, the number of times a user listened to certain songs can also be considered as implicit feedback. However, in practice we find that the binary indicator of \textit{interaction} tends to carry the most signal. }---for
 example this can be clicking, purchasing, viewing---and we aim to
 predict unclicked items that she would want to click on. (We use the verb ``click'' throughout this dissertation for concreteness; this can be any type of interaction, including
 ``download,'' ``purchase,'' ``listen,'' or ``watch.'') Unlike
-ratings data, implicit data is easily accessible.  While ratings data
+ratings data, implicit data is easily accessible. While ratings data
 requires action on the part of the users, implicit data is often a
 natural byproduct of their behavior, e.g., browsing histories, click
-logs, and past purchases. We will explore recommender systems for both implicit and explicit data in this dissertation in \Cref{chpt:expomf} and \Cref{chpt:causal_rec}, respectively.
+logs, and past purchases. Despite the ease of access, implicit data is inherently noisy, as users' preferences are expressed through implicit actions and we only observe positive signals: we know users click on items they like, but we do not know why an item is unclicked. We will explore recommender systems for both implicit and explicit data in this dissertation in \Cref{chpt:expomf} and \Cref{chpt:causal_rec}, respectively.
 
 \subsection{Collaborative filtering for recommender systems} \label{chpt:background:sec:cf}
 
@@ -169,7 +168,7 @@ From a generative modeling perspective, the model can be understood as first dra
 respectively, to user preferences and item attributes. Then drawing 
 observations from a specific distribution (e.g., a Poisson
 or a Gaussian) with its mean parametrized by the dot product between the user and
-the item factors. Formally, Gaussian matrix factorization is \citep{mnih2007probabilistic}: 
+the item factors. Formally, Gaussian matrix factorization is \citep{salakhutdinov2008probabilistic}: 
 \begin{equation} 
 \begin{split}
 	\mb\theta_{u} &\sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K) \quad \textrm{for } u = 1, \dots, U, \\
@@ -242,7 +241,7 @@ the user didn't see them, rather than because she chose not to
 click them.  This is the crux of the problem of analyzing implicit
 data: we know users click on items they like, but we do not know why
 an item is unclicked.
-
+	
 \gls{WMF}, the standard factorization model for implicit
 data, selectively downweights evidence from the click
 matrix~\citep{hu2008collaborative}.  \gls{WMF} uses a simple heuristic where all

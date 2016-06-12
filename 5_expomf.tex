@@ -174,7 +174,7 @@ Like \gls{WMF} \citep{hu2008collaborative}, ExpoMF shares the same feature of se
 
 In ExpoMF, fixing the entries of the exposure matrix to a single value
 (e.g., $a_{ui}=1, \forall u, i$) recovers Gaussian probabilistic matrix
-factorization \cite{mnih2007probabilistic} (see \Cref{chpt:background:sec:mf_cf}). \gls{WMF} is also a special case of
+factorization \cite{salakhutdinov2008probabilistic} (see \Cref{chpt:background:sec:mf_cf}). \gls{WMF} is also a special case of
 our model which can be obtained by fixing ExpoMF's exposure matrix using the confidence $c_0$ and $c_1$ (see \Cref{chpt:background:sec:cf_implicit}).
 
 The intuitions we developed for 
@@ -687,7 +687,7 @@ top-ranked items by ExpoMF tend to be more relevant to users' interests.
   NDCG@100  &  0.255 &  \textbf{0.263}              & 0.149 & \textbf{0.159}                 & \textbf{0.118} & 0.116                         & 0.154 & \textbf{0.157} \\
   MAP@100   &  0.092 &  \textbf{0.109}             & 0.048 & \textbf{0.055}                  & \textbf{0.044} & 0.043                         & 0.051 & \textbf{0.054}\\ \bottomrule
 \end{tabular}
-\caption{Comparison between \gls{WMF} \citep{hu2008collaborative} and ExpoMF. While
+\caption{Comparison between WMF \citep{hu2008collaborative} and ExpoMF. While
 the differences in performance are generally small, ExpoMF performs comparably better than WMF across datasets.}
 \label{chpt:expomf:tab:cfresults}
 \end{table}
@@ -939,7 +939,7 @@ ExpoMF outperforms both \gls{WMF} and the simpler version of ExpoMF.
 \end{tabular}
 \caption{Comparison between Location ExpoMF and ExpoMF with per-item
 $\mu_i$ on Gowalla. Using location exposure covariates outperforms the
-simpler ExpoMF and \gls{WMF} according to all metrics.}
+simpler ExpoMF and WMF according to all metrics.}
 \label{chpt:expomf:tab:si_location_results}
 \end{table}
 
