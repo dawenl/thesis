@@ -87,7 +87,7 @@ outperforms a method specially developed for recommending documents using conten
 \citep{wang2011collaborative}. We illustrate the
 alternative-rock-listener and the New-York-dinner examples using real data fit 
 with our models in \Cref{chpt:expomf:fig:expo_exp} and \Cref{chpt:expomf:fig:si}. 
-Finally, we demonstrate the versatility of ExpoMF by showcasing a couple of examples which incorporate exposure from different sources (e.g., the authors of a paper, or friends in a social network). 
+Finally, we demonstrate the versatility of ExpoMF by showcasing a couple of examples which incorporate exposure from different sources (e.g., the authors of a paper, or the friends in a social network). 
 
 %We show that Exposure MF advantageously compares to the state-of-the-art
 %model of \citet{hu2008collaborative} on several recommendation datasets. 
@@ -1058,7 +1058,7 @@ Here we use a Poisson exposure model instead of the Bernoulli-logistic model tha
 
 \subsubsection{A variational EM algorithm}
 
-The inference for Social ExpoMF is more complicated due to the truncated Poisson exposure model. We develop a variational \gls{EM} algorithm for efficient model inference, where in the E-step we compute (approximate) the posterior of $a_{ui}$ and in the M-step we update the exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ via maximum likelihood estimation.
+The inference for Social ExpoMF is more complicated due to the censored Poisson exposure model. We develop a variational \gls{EM} algorithm for efficient model inference, where in the E-step we compute (approximate) the posterior of $a_{ui}$ and in the M-step we update the exposure coefficients $\tau_{uv}$, $\gamma_u$, and $\alpha_i$ via maximum likelihood estimation.
 
 If we follow the general procedure of \gls{EM} algorithm in \Cref{chpt:background:sec:em} and write down the objective function, there will be a problematic term $\log \mathbb{P}(a_{ui} = 1) = \log (1 - \me^{-\lambda_{ui}})$ which prevents us from deriving closed-form coordinate updates. To work around it, we present a model augmentation strategy.\footnote{The augmentation strategy presented here comes from an unpublished note by Matthew D. Hoffman.}
 

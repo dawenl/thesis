@@ -400,7 +400,7 @@ $\mb\theta_u \sim \mathcal{N}(\bzero, \lambda_\theta^{-1} \mathrm{I}_K)$ and
 item attributes
 $\mb\beta_i \sim \mathcal{N}(\bzero, \lambda_\beta^{-1}\mathrm{I}_K)$. To fit the model, we compute the maximum \emph{a posteriori} estimates of the parameters $\mb\theta_u$ and $\mb\beta_i$. Concretely, the objective for the inverse propensity weighted Gaussian matrix factorization model (\Cref{eq:causal-training}) is:
 \begin{equation*}
-\cL = \sum_{(u, i)\in \cO} \frac{1}{\pi_{ui}}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2,
+\cL = -\sum_{(u, i)\in \cO} \frac{1}{2\pi_{ui}}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 - \frac{\lambda_\theta}{2} \sum_u \|\mb\theta_u \|^2_2 - \frac{\lambda_\beta}{2} \sum_i \|\mb\beta_i \|_2^2,
 \label{chpt:causal_rec:eq:gmf_logll}
 \end{equation*}
 where the propensity score $\pi_{ui}$ can be obtained by either \Cref{chpt:causal_rec:eq:pop_prop} or \Cref{chpt:causal_rec:eq:pf_prop}. The observed set $\cO$ contains all the entries with $a_{ui} = 1$. Similar to \gls{WMF}, we can obtain the following coordinate updates by taking the gradients with respect to $\mb\theta_u$ and $\mb\beta_i$ and setting them to 0:

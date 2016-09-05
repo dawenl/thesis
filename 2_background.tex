@@ -8,7 +8,7 @@ Broadly speaking, we will make use of inference techniques for probabilistic mod
 
 \section{Probabilistic modeling and inference techniques}\label{chpt:background:sec:inference}
 
-We begin by defining the general problem setup for probabilistic latent variable models. We observe data $\mbx = \{x_1, \dots, x_N\}$. We assume the data is generated stochastically by a model $p(\mbx \g \mbz, \theta)$ that is governed by some latent variables $\mbz = \{z_1, \dots, z_N\}$ as well as model parameters $\mb\theta$\footnote{The distinction between latent variables $\mbz$ and model parameters $\mb\theta$ can be somewhat arbitrary. Here we follow the convention that the dimensionality of the latent variables grows with the number of observations (hence both $\mbx$ and $\mbz$ are indexed by $n$), while that of model parameters does not. Latent variables and model parameters loosely correspond to \textit{local variables} and \textit{global variables} in \citet{hoffman2013stochastic}}. We can also incorporate priors $p(\mbz, \mb\theta)$. We leave the dependency structure of prior generic. This class of models covers a wide range of commonly used models, to name a few: mixture models, hidden Markov models, and mixed-membership models (e.g., latent Dirichlet allocation \citep{blei2003latent}, probabilistic matrix factorization \citep{salakhutdinov2008probabilistic}, and stochastic blockmodels \citep{DBLP:journals/jmlr/AiroldiBFX08}).
+We begin by defining the general problem setup for probabilistic latent variable models. We observe data $\mbx = \{x_1, \dots, x_N\}$. We assume the data is generated stochastically by a model $p(\mbx \g \mbz, \theta)$ that is governed by some latent variables $\mbz = \{z_1, \dots, z_N\}$ as well as model parameters $\mb\theta$\footnote{The distinction between latent variables $\mbz$ and model parameters $\mb\theta$ can be somewhat arbitrary. Here we follow the convention that the dimensionality of the latent variables grows with the number of observations (hence both $\mbx$ and $\mbz$ are indexed by $n$), while that of model parameters does not. Latent variables and model parameters loosely correspond to \textit{local variables} and \textit{global variables} in \citet{hoffman2013stochastic}}. We can also incorporate priors $p(\mbz, \mb\theta)$. We leave the dependency structure of prior generic. This class of models covers a wide range of commonly used models, to name a few: mixture models, hidden Markov models, probabilistic matrix factorization \citep{salakhutdinov2008probabilistic}, and mixed-membership models (e.g., latent Dirichlet allocation \citep{blei2003latent}, and stochastic blockmodels \citep{DBLP:journals/jmlr/AiroldiBFX08}).
 
 \Cref{chpt:background:fig:general} demonstrates the graphical model representation for the general latent variable models described above. Shaded nodes represent observed variables. Unshaded nodes represent
 hidden (unobserved) variables. A directed edge from node $a$ to node $b$
@@ -64,15 +64,15 @@ We obtain a lower bound of the log-likelihood $\log p(\mbx \g \mb\theta)$ that w
 \Delta =& \log p(\mbx \g \mb\theta) - \int_\mbz q(\mbz) \log\frac{p(\mbx, \mbz \g \mb\theta)}{q(\mbz)} \dif\mbz \\
 =& \int_\mbz q(\mbz)\log p(\mbx \g \mb\theta) - \int_\mbz q(\mbz) \log\frac{p(\mbx, \mbz \g \mb\theta)}{q(\mbz)} \dif\mbz\\
 =& \int_\mbz q(\mbz) \log\frac{p(\mbx \g \mb\theta) q(\mbz)} {p(\mbx, \mbz \g \mb\theta)}\dif\mbz\\
-=& \int_\mbz q(\mbz) \log\frac{ q(\mbz)} {p(\mbz \g \mbx, \mb\theta)}\dif\mbz = \textrm{KL}(q\|p)
+=& \int_\mbz q(\mbz) \log\frac{ q(\mbz)} {p(\mbz \g \mbx, \mb\theta)}\dif\mbz \equiv \textrm{KL}(q_\mbz\|p_{\mbz \g \mbx, \mb\theta})
 \end{split}
 \label{chpt:background:eq:em_kl}
 \end{equation}
 Thus, the difference is the \gls{KL} divergence between the variational distribution $q(\mbz)$ and the posterior distribution $p(\mbz \g \mbx, \mb\theta)$. We can re-write the log-likelihood as:
 \[
-\log p(\mbx \g \mb\theta) = \underbrace{\EE{q}{\log p(\mbx, \mbz \g \mb\theta)} - \EE{q}{\log q(\mbz)}}_{\cL(q, \mb\theta)} + \textrm{KL}(q\|p).
+\log p(\mbx \g \mb\theta) = \underbrace{\EE{q}{\log p(\mbx, \mbz \g \mb\theta)} - \EE{q}{\log q(\mbz)}}_{\cL(q, \mb\theta)} + \textrm{KL}(q_\mbz\|p_{\mbz \g \mbx, \mb\theta}).
 \]
-Since the \gls{KL}-divergence $\textrm{KL}(q\|p)$ is non-negative and equals $0$ only if $q = p$, $a.s.$, $\cL(q, \mb\theta)$ acts as a tight lower-bound that equals $\log p(\mbx \g \mb\theta)$ when we set $q$ to $p$. \gls{EM} algorithm optimizes $\cL(q, \mb\theta)$ by iteratively applying the following E(xpectation) and M(aximization) steps:
+Since the \gls{KL}-divergence $\textrm{KL}(q_\mbz\|p_{\mbz \g \mbx, \mb\theta})$ is non-negative and equals $0$ only if $q(\mbz) = p(\mbz \g \mbx, \mb\theta)$, $a.s.$, $\cL(q, \mb\theta)$ acts as a tight lower-bound that equals $\log p(\mbx \g \mb\theta)$ when we set $q(\mbz)$ to $p(\mbz \g \mbx, \mb\theta)$. \gls{EM} algorithm optimizes $\cL(q, \mb\theta)$ by iteratively applying the following E(xpectation) and M(aximization) steps:
 
 \parhead{E-step:} By setting $q(\mbz) = p(\mbz \g \mbx, \mb\theta)$, we obtain the optimal variational distribution, closing the gap between log-likelihood $\log p(\mbx \g \mb\theta)$ and the lower bound $\cL(q, \mb\theta)$. 
 
@@ -80,14 +80,14 @@ Since the \gls{KL}-divergence $\textrm{KL}(q\|p)$ is non-negative and equals $0$
 \begin{equation*}
 \mb\theta^\new = \argmax_\mb\theta \EE{q}{\log p(\mbx, \mbz \g \mb\theta)},
 \end{equation*}
-since $\EE{q}{\log q(\mbz)}$ does not depend on $\mb\theta$.\footnote{In principle, $\mb\theta^\new$ does not have to fully optimize the objective $\EE{q}{\log p(\mbx, \mbz, \g \mb\theta)}$, as long as the new values increase it (e.g., by taking a few gradient steps). This is referred as generalized \gls{EM} \citep{neal1998view}.} Unless we have reached a stationary point, the lower bound $\cL(q, \mb\theta)$ will increase with the new parameters $\mb\theta^\new$. The new parameters $\mb\theta^\new$ will also make the \gls{KL}-divergence $\textrm{KL}(q \| p)$ greater than $0$, which creates gap between the log-likelihood and $\cL(q, \mb{\theta})$. This gap will be closed in the next E-step. Chapter 9 of \citet{Bishop:2006:PRM:1162264} provides a clear illustrative demonstration of the \gls{EM} algorithm.  
+since $\EE{q}{\log q(\mbz)}$ does not depend on $\mb\theta$.\footnote{In principle, $\mb\theta^\new$ does not have to fully optimize the objective $\EE{q}{\log p(\mbx, \mbz, \g \mb\theta)}$, as long as the new values increase it (e.g., by taking a few gradient steps). This is referred as generalized \gls{EM} \citep{neal1998view}.} Unless we have reached a stationary point, the lower bound $\cL(q, \mb\theta)$ will increase with the new parameters $\mb\theta^\new$. The new parameters $\mb\theta^\new$ will also make the \gls{KL}-divergence $\textrm{KL}(q_\mbz\|p_{\mbz \g \mbx, \mb\theta})$ greater than $0$, which creates gap between the log-likelihood and $\cL(q, \mb{\theta})$. This gap will be closed in the next E-step. Chapter 9 of \citet{Bishop:2006:PRM:1162264} provides a clear illustrative demonstration of the \gls{EM} algorithm.  
 
 \gls{EM} algorithm is a typical example of \textit{coordinate ascent} \citep{bertsekas1999nonlinear}, where in each E- and M-step, we fix one of the variables of interest---$\mb\theta$ in E-step and $q(\mbz)$ in M-step---and optimize with respect to the other one.
 
 
 \subsection{Variational inference}\label{chpt:background:sec:vi}
 
-Variational inference is a deterministic alternative to \gls{MCMC} methods \citep{jordan1999introduction,wainwright2008graphical,blei2016variational}. In Bayesian inference, we aim to reason about the posterior $p(\mbz, \mb\theta \g \mbx)$ which is almost always intractable to compute. The basic idea behind variational inference is to choose a tractable family of variational distributions $q(\mbz, \mb\theta)$ to approximate the intractable posterior $p(\mbz, \theta | \mbx)$, so that the \gls{KL}-divergence between the variational distribution and the true posterior $\textrm{KL}(q \| p)$ is minimized.
+Variational inference is a deterministic alternative to \gls{MCMC} methods \citep{jordan1999introduction,wainwright2008graphical,blei2016variational}. In Bayesian inference, we aim to reason about the posterior $p(\mbz, \mb\theta \g \mbx)$ which is almost always intractable to compute. The basic idea behind variational inference is to choose a tractable family of variational distributions $q(\mbz, \mb\theta)$ to approximate the intractable posterior $p(\mbz, \theta | \mbx)$, so that the \gls{KL}-divergence between the variational distribution and the true posterior $\textrm{KL}(q_{\mbz, \mb\theta}\|p_{\mbz, \mb\theta \g \mbx})$ is minimized.
 
 Variational inference turns the problem of Bayesian inference into a one of  optimization, which enables us to leverage the advances from optimization community, e.g., by making use of stochastic optimization, we can scale variational inference to massive dataset \citep{hoffman2013stochastic}.
 
@@ -101,7 +101,7 @@ To utilize variational inference for approximate Bayesian inference, we introduc
 \end{equation}
 Here the model parameters $\mb\theta$ are treated the same as latent variables $\mbz$ with some pre-specified prior $p(\mbz, \mb\theta)$.\footnote{Variational inference can also be applied to the MLE/MAP case in \Cref{chpt:background:sec:em} where we only marginalize out latent variables $\mbz$ to obtain point estimates of model parameters $\mb\theta$. This happens in the E-step, when the posterior $p(\mbz \g \mbx, \mb\theta)$ is intractable to compute exactly, which leads to the variational \gls{EM} algorithm \citep{beal2003variational}.} $\cL$ is usually referred as \gls{ELBO}, since it is a lower bound of the model evidence $\log p(\mbx)$. Based on derivation similar to \Cref{chpt:background:eq:em_kl} (omitted for brevity), we can show that optimizing \gls{ELBO} is equivalent to minimizing the \gls{KL} divergence between the variational distribution $q(\mbz, \mb\theta)$ and the posterior of interest $p(\mbz, \mb\theta \g \mbx)$. Once we obtain the approximating posterior that minimizes the \gls{KL}-divergence, we can use it as a proxy of the true posterior to form prediction. 
 
-So far we haven't specified how to select the variational distribution $q(\mbz, \mb\theta)$. One popular choice is the mean-field family which is completely factorized: $q(\mbz, \mb\theta) = \prod_{d} q_d(z_{d}) \prod_i q_i(\theta_i)$. With mean-field family, we can obtain the general form for the optimal variational distributions:
+So far we haven't specified how to select the variational distribution $q(\mbz, \mb\theta)$. One popular choice is the mean-field family which is completely factorized: $q(\mbz, \mb\theta) = \left(\prod_{d} q_d(z_{d})\right) \left(\prod_i q_i(\theta_i) \right)$. With mean-field family, we can obtain the general form for the optimal variational distributions:
 \begin{equation}
 \begin{split}
 q^*_d(z_d) &\propto \exp\{\EE{q_{-d}}{\log p(z_d, \mbx, z_{-d}, \mb\theta)}\}
@@ -160,7 +160,7 @@ User-item preference data, whether explicit or implicit, can be encoded in a use
       \label{chpt:background:fig:cf_cartoon}
 \end{figure}
 
-\Cref{chpt:background:fig:cf_cartoon} demonstrates the basic idea behind matrix factorization for collaborative filtering. In this illustrative example, we have three users and three items, where each user consumes only one item. Matrix factorization aims to find a latent space to embed all of the users and items. If a user consumes an item, this user and item pair will be embedded closer in this latent space. The locations (coordinates) in this latent space correspond to the user and item latent factors obtained by factorizing the click matrix. To make recommendations for each user, we select the unconsumed items which have high dot products with the user's latent factor. 
+\Cref{chpt:background:fig:cf_cartoon} demonstrates the basic idea behind matrix factorization for collaborative filtering.\footnote{This figure is only an illustrative example: typical matrix factorization models use inner products, not Euclidean distance, to measure similarity.} In this illustrative example, we have three users and three items, where each user consumes only one item. Matrix factorization aims to find a latent space to embed all of the users and items. If a user consumes an item, this user and item pair will be embedded closer in this latent space. The locations (coordinates) in this latent space correspond to the user and item latent factors obtained by factorizing the click matrix. To make recommendations for each user, we select the unconsumed items which have high dot products with the user's latent factor. 
 
 How would this work? Consider a metalhead who has listened to a lot of \textit{Metallica} but not \textit{Iron Maiden}. It is reasonable to assume that there are many other users with similar tastes listened to songs from both bands, which makes the latent factors for songs by both \textit{Metallica} and \textit{Iron Maiden} very close in the latent space. Therefore, when making recommendations for this user, the songs from \textit{Iron Maiden} will likely have higher dot products, which will be recommended by the learned matrix factorization model.  
 
@@ -192,7 +192,7 @@ matrix of dimension $K$. A graphical model representation of the Gaussian matrix
 We derive coordinate updates to obtain the maximum \textit{a posteriori} estimates of the Gaussian matrix factorization model, as they are closely related to the model inference we develop in the later chapters. Since we are only obtaining point estimates of the model parameters, we can always scale $\lambda_\theta$ and $\lambda_\beta$ by $\lambda_y$ to obtain the same solution. Without loss of generality, we set $\lambda_y = 1$. The complete log-likelihood of the model is:
 
 \begin{equation}
-\cL = \sum_{(u, i)\in \cO} (y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2.
+\cL = -\sum_{(u, i)\in \cO} \frac{1}{2}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 - \frac{\lambda_\theta}{2} \sum_u \|\mb\theta_u \|^2_2 - \frac{\lambda_\beta}{2} \sum_i \|\mb\beta_i \|_2^2.
 \label{chpt:background:eq:gmf_logll}
 \end{equation}
 
@@ -257,7 +257,7 @@ model by adding an exposure latent variable.
 
 The maximum \textit{a posteriori} estimates of \gls{WMF} can also be obtained via ALS with minor modification. For notational convenience, we define $c_{ui} \triangleq c_{y_{ui}}$. The complete log-likelihood for \gls{WMF} is (recall that observed set $\cO$ contains all the entries in the click matrix):
 \begin{equation*}
-\cL = \sum_{u, i} c_{ui}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 + \lambda_\theta \sum_u \|\mb\theta_u \|^2_2 + \lambda_\beta \sum_i \|\mb\beta_i \|_2^2
+\cL = -\sum_{u, i} \frac{c_{ui}}{2}(y_{ui} - \mb\theta_u^\top\mb\beta_i)^2 - \frac{\lambda_\theta}{2} \sum_u \|\mb\theta_u \|^2_2 - \frac{\lambda_\beta}{2} \sum_i \|\mb\beta_i \|_2^2
 \end{equation*}
 Again, we take the gradient with respect to one of the factors and set it to $0$, which leads to the following ALS updates:
 \begin{equation}
