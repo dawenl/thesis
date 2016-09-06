@@ -1,6 +1,6 @@
 % Switches for conditional compilation
-\newif\ifdraft\drafttrue           % Set to either \draftfalse or \drafttrue
-\newif\iftwoside\twosidetrue       % makes it pretty (true) or conforms with
+\newif\ifdraft\draftfalse          % Set to either \draftfalse or \drafttrue
+\newif\iftwoside\twosidefalse       % makes it pretty (true) or conforms with
                                    % GSAS (false - see below)
 \newif\ifbandw\bandwfalse           % Color or black-and-white (screen or print)
 \newif\ifcclicense\cclicensetrue  % Use Creative Commons license (you
@@ -209,6 +209,7 @@
 \usepackage{nextpage}
 \usepackage{fancyhdr}
 \usepackage{tocloft}
+\usepackage[nottoc,notbib]{tocbibind}
 
 %%% Default values.
 \newcommand{\thesisyear}      {2016}
@@ -406,6 +407,7 @@
 \newcommand{\thesislistofabbrevs}{
     \chapter*{List of Abbreviations}
     \thispagestyle{bottom} % force this page otherwise it uses plain
+    \addcontentsline{toc}{chapter}{List of Abbreviations}
     \input{0_abbrevs.tex}
     \myclearpage
 }
